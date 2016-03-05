@@ -1,7 +1,9 @@
 package org.eurocris.cerif.tools;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -20,16 +22,14 @@ import org.apache.commons.cli.PosixParser;
 import org.eurocris.cerif.utils.XMLUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 public class TOAD2CERIF {
 	public static final String CERIF_ENTITIES_UUID = "6e0d9af0-1cd6-11e1-8bc2-0800200c9a66";
 	public static final String CERIF_ENTITY_TYPES_UUID = "348ce6ee-43ef-4b71-aa77-a11ff988cae4";
 	public static final String CERIF_ATTRIBUTES_UUID = "318118e8-d323-4e3b-9882-a17c635e9c58";
 	public static final String CERIF_RELATIONSHIPS_UUID = "fd0791d1-570b-4b7a-825f-99679a3a29cf";
-	public static final String CERIF_DATAMODEL_FACTS_UUID = "2a29befc-305f-405a-b808-9ed0dc6c61ff";
-	
-	public static final String CERIF_DMF_APPLICABLE_UUID = "f22733fc-40c8-4a28-9071-6b49bd921621";
-	public static final String CERIF_DMF_HAS_ATTRIBUTE_UUID = "836509cb-9d07-4c93-9db1-1097edc89115";
 	
 	private static TransformerFactory transformerFactory = TransformerFactory.newInstance();
 	private static Transformer transformer;
@@ -76,10 +76,17 @@ public class TOAD2CERIF {
 	    	if (!outputFolder.exists()) {
 	    		outputFolder.mkdirs();
 	    	}
-			File fXmlFile = new File(line.getOptionValue('f'));
-			
+	    	
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+
+			File cerifDMFFile = new File( outputFolder, "CERIF_Data_Model_Facts--2a29befc-305f-405a-b808-9ed0dc6c61ff.xml" );
+	    	Document cerifDMFDoc = dBuilder.parse( cerifDMFFile );
+	    	Element cerifDMFSchemeEl = XMLUtils.getSingleElement( cerifDMFDoc.getDocumentElement(), "cfClassScheme" );
+	    	Element cerifDMFApplicableCfClassEl = findByCfClassId( cerifDMFSchemeEl, "f22733fc-40c8-4a28-9071-6b49bd921621" );
+	    	Element cerifDMFHasAttributeCfClassEl = findByCfClassId( cerifDMFSchemeEl, "836509cb-9d07-4c93-9db1-1097edc89115" );
+	    	
+			File fXmlFile = new File(line.getOptionValue('f'));
 			Document doc = dBuilder.parse(fXmlFile);
 
 			// optional, but recommended
@@ -87,37 +94,36 @@ public class TOAD2CERIF {
 			// http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
 			doc.getDocumentElement().normalize();
 
-			Element root = doc.getDocumentElement();
+			Element modelRootEl = doc.getDocumentElement();
 
-			Element modelTitleUN = XMLUtils.getSingleElement(root, "ModelTitle");
+			Element modelTitleUN = XMLUtils.getSingleElement(modelRootEl, "ModelTitle");
 			Element subModelTitleUN = XMLUtils.getSingleElement(modelTitleUN, "ModelTitleUN");
 			String modifiedDate = XMLUtils.getElementValue(subModelTitleUN, "ModifiedDate");
 			
-			Element categories = XMLUtils.getSingleElement(root, "Categories");
+			Element categories = XMLUtils.getSingleElement(modelRootEl, "Categories");
 			
 			Document entityTypesXML = dBuilder.newDocument();
-			Element cerif = createCERIFDocumentElement(fXmlFile, modifiedDate, entityTypesXML);
-
-			Element cfClassSchema = createScheme(entityTypesXML, cerif, CERIF_ENTITY_TYPES_UUID,
-					"CERIF Entity Types", "This scheme contains the available classification for the CERIF Entities");
+			Element entityTypesRootEl = createCERIFDocumentElement(fXmlFile, modifiedDate, entityTypesXML);
+			Element entityTypesSchemeEl = createCfClassSchemeElement(entityTypesRootEl, CERIF_ENTITY_TYPES_UUID, "CERIF Entity Types",
+					"This scheme contains the available classification for the CERIF Entities");
 
 			// I need to create the Entity Types Schema 348ce6ee-43ef-4b71-aa77-a11ff988cae4
 			// and link the Classification representing the Entity to its type
 			List<Element> categoriesList = XMLUtils.getElementList(categories, "CategoryUN");
 			
+			Map<String, Element> entityTypeMap = new HashMap<>();
+			
 			for (Element category : categoriesList) {
-				Element cfClass = createSubElement(entityTypesXML, cfClassSchema, "cfClass");
-				String cfClassId = cleanTOADUUID(XMLUtils.getElementValue(category, "Id"));
-				createSubElement(entityTypesXML, cfClass, "cfClassId", cfClassId);	
-				addLangTrans(createSubElement(entityTypesXML, cfClass, "cfTerm", XMLUtils.getElementValue(category, "Name")));	
-				addLangTrans(createSubElement(entityTypesXML, cfClass, "cfTermSrc", "CERIF ER-M"));
+				String entityTypeUUID = cleanTOADUUID(XMLUtils.getElementValue(category, "Id"));
+				String entityTypeName = XMLUtils.getElementValue(category, "Name");
+				Element entityTypeClassEl = createCfClassElement(entityTypesSchemeEl, entityTypeUUID, entityTypeName);
 
 				// System.out.println(XMLUtils.getElementValue(category, "Description"));
 					
 				Element objects = XMLUtils.getSingleElement(category, "Objects");
 				for (String id : XMLUtils.getElementValueList(objects, "Id")) {
-					String cfClassId2 = cleanTOADUUID(id);
-					createClassClass(entityTypesXML, cfClass, cfClassId2, CERIF_ENTITIES_UUID, CERIF_DMF_APPLICABLE_UUID, CERIF_DATAMODEL_FACTS_UUID);
+					String entityCfClassId = cleanTOADUUID(id);
+					entityTypeMap.put( entityCfClassId, entityTypeClassEl );
 				}
 			}
 			
@@ -128,19 +134,16 @@ public class TOAD2CERIF {
 			// CERIF Attributes 318118e8-d323-4e3b-9882-a17c635e9c58
 			
 			Document attributesXML = dBuilder.newDocument();
-			Element cerifAttr = createCERIFDocumentElement(fXmlFile, modifiedDate, attributesXML);
-
-			Element cfClassSchemaAttr = createScheme(attributesXML, cerifAttr, CERIF_ATTRIBUTES_UUID,
-					"CERIF Attributes", "This scheme contains all the available attributes of the CERIF Entities");
+			Element attributesRootEl = createCERIFDocumentElement(fXmlFile, modifiedDate, attributesXML);
+			Element attributesSchemeEl = createCfClassSchemeElement(attributesRootEl, CERIF_ATTRIBUTES_UUID, "CERIF Attributes",
+					"This scheme contains all the available attributes of the CERIF Entities");
 
 			Document entitiesXML = dBuilder.newDocument();
-			Element cerifEntities = createCERIFDocumentElement(fXmlFile, modifiedDate, entitiesXML);
-
-			Element cfClassSchemaEntities = createScheme(entitiesXML, cerifEntities, CERIF_ENTITIES_UUID,
-					"CERIF Entities", "This scheme contains defined CERIF concepts such as person, organisation, research infrastructure (being not only a 1:1 representation of the CERIF entities), but even more, e.g. research infrastructure subsumes facilty, equipment and service and output subsumes publication, patent, and product in CERIF.");
-
+			Element entitiesRootEl = createCERIFDocumentElement(fXmlFile, modifiedDate, entitiesXML);
+			Element entitiesSchemeEl = createCfClassSchemeElement(entitiesRootEl, CERIF_ENTITIES_UUID, "CERIF Entities",
+					"This scheme contains defined CERIF concepts such as person, organisation, research infrastructure (being not only a 1:1 representation of the CERIF entities), but even more, e.g. research infrastructure subsumes facilty, equipment and service and output subsumes publication, patent, and product in CERIF.");
 			
-			Element entities = XMLUtils.getSingleElement(root, "Entities");
+			Element entities = XMLUtils.getSingleElement(modelRootEl, "Entities");
 			List<Element> entitiesList = XMLUtils.getElementList(entities, "PEREntityUN");
 
 			for (Element entity : entitiesList) {
@@ -149,18 +152,20 @@ public class TOAD2CERIF {
 				String entityLongName = XMLUtils.getElementValue(entity, "Caption");
 				String entityNotes = XMLUtils.getElementValue(entity, "Notes");
 				String entityComments = XMLUtils.getElementValue(entity, "Comments");
+				Element entityTypeCfClassEl = entityTypeMap.get( entityUUID );
 				
-				Element cfEntityClass = createClass(entitiesXML, cfClassSchemaEntities, entityUUID, entityLongName, entityNotes, entityComments);
+				Element entityClassEl = createCfClassElement(entitiesSchemeEl, entityUUID, entityLongName, entityNotes, entityComments);
+				createCfClassClass2Element(entityClassEl, entityTypeCfClassEl, cerifDMFApplicableCfClassEl);
 				
 				Element attributesNode = XMLUtils.getSingleElement(entity, "Attributes");
 				List<Element> attributes = XMLUtils.getElementList(attributesNode, "PERAttributeUN");
 				for (Element attr : attributes) {
 					
-					String cfClassId2 = cleanTOADUUID(XMLUtils.getElementValue(attr, "Id"));
-					String cfTerm = entityName + "." + XMLUtils.getElementValue(attr, "Name");
+					String attrUUID = cleanTOADUUID(XMLUtils.getElementValue(attr, "Id"));
+					String attrName = entityName + "." + XMLUtils.getElementValue(attr, "Name");
 					
-					createClass(attributesXML, cfClassSchemaAttr, cfClassId2, cfTerm);
-					createClassClass(entitiesXML, cfEntityClass, cfClassId2, CERIF_ATTRIBUTES_UUID, CERIF_DMF_HAS_ATTRIBUTE_UUID, CERIF_DATAMODEL_FACTS_UUID);
+					Element attrCfClassEl = createCfClassElement(attributesSchemeEl, attrUUID, attrName);
+					createCfClassClass1Element(entityClassEl, attrCfClassEl, cerifDMFHasAttributeCfClassEl);
 				}
 			}
 			
@@ -175,58 +180,77 @@ public class TOAD2CERIF {
 		}
 	}
 
-	private static void createClassClass(Document entityTypesXML, Element cfClass, String cfClassId2, String cfClassSchemeId2, String classId,
-			String classSchemeId) {
-		Element cfClassClass = createSubElement(entityTypesXML, cfClass, 
-				"cfClass_Class");
-		
-//					createSubElement(entityTypesXML, cfClassClass, 
-//							"cfClassId1", cfClassId);
-//					createSubElement(entityTypesXML, cfClassClass, 
-//							"cfClassSchemeId1", CERIF_ENTITY_TYPES_UUID);
-		
-		
-		createSubElement(entityTypesXML, cfClassClass, 
-				"cfClassId2", cfClassId2);
-		createSubElement(entityTypesXML, cfClassClass, 
-				"cfClassSchemeId2", cfClassSchemeId2);
-		
-		createSubElement(entityTypesXML, cfClassClass, 
-				"cfClassId", classId);
-		createSubElement(entityTypesXML, cfClassClass, 
-				"cfClassSchemeId", classSchemeId);
+	private static Element findByCfClassId( Element cfClassSchemeEl, String cfClassIdSearched ) {
+		final NodeList children = cfClassSchemeEl.getChildNodes();
+		final int n = children.getLength();
+		for ( int i = 0; i < n; ++i ) {
+			final Node child = children.item( i );
+			if ( child instanceof Element ) {
+				final Element cfClassEl = (Element) child;
+				final String cfClassId = XMLUtils.getElementValue( cfClassEl, "cfClassId" );
+				if ( cfClassIdSearched.equals( cfClassId ) ) {
+					return cfClassEl;
+				}
+			}
+		}
+		return null;
 	}
 
-	private static Element createClass(Document attributesXML, Element cfClassSchemaAttr, String cfClassId,
-			String cfTerm) {
-		return createClass(attributesXML, cfClassSchemaAttr, cfClassId,
-				cfTerm, null, null);
+	private static Element createCfClassClass1Element(Element parentEl, Element cfClass2El, Element roleCfClassEl) {
+		if ( cfClass2El != null ) {
+			Element cfClassClassEl = createSubElement(parentEl, "cfClass_Class");
+			addCfClassReference( cfClassClassEl, cfClass2El, "2" );
+			addCfClassReference( cfClassClassEl, roleCfClassEl, "" );
+			return cfClassClassEl;
+		} else {
+			return null;
+		}
+	}
+
+	private static Element createCfClassClass2Element(Element parentEl, Element cfClass1El, Element roleCfClassEl ) {
+		if ( cfClass1El != null ) {
+			Element cfClassClassEl = createSubElement(parentEl, "cfClass_Class");
+			addCfClassReference( cfClassClassEl, cfClass1El, "1" );
+			addCfClassReference( cfClassClassEl, roleCfClassEl, "" );
+			return cfClassClassEl;
+		} else {
+			return null;
+		}
+	}
+
+	private static void addCfClassReference(Element parentEl, Element cfClassEl, String idSuffix) {
+		Document doc = parentEl.getOwnerDocument();
+		parentEl.appendChild( XMLUtils.cloneElementAs( XMLUtils.getSingleElement( cfClassEl, "cfClassId" ), doc, "cfClassId" + idSuffix ) );
+		Element cfClassSchemeEl = (Element) cfClassEl.getParentNode();
+		parentEl.appendChild( XMLUtils.cloneElementAs( XMLUtils.getSingleElement( cfClassSchemeEl, "cfClassSchemeId" ), doc, "cfClassSchemeId" + idSuffix ) );
 	}
 	
-	private static Element createClass(Document attributesXML, Element cfClassSchemaAttr, String cfClassId,
-			String cfTerm, String cfDesc, String cfDef) {
-		Element cfClass = createSubElement(attributesXML, cfClassSchemaAttr, "cfClass");
-		createSubElement(attributesXML, cfClass, "cfClassId", cfClassId);	
-		addLangTrans(createSubElement(attributesXML, cfClass, "cfTerm", cfTerm));	
-		addLangTrans(createSubElement(attributesXML, cfClass, "cfTermSrc", "CERIF ER-M"));
+	private static Element createCfClassElement(Element parentEl, String cfClassId, String cfTerm) {
+		return createCfClassElement(parentEl, cfClassId, cfTerm, null, null);
+	}
+	
+	private static Element createCfClassElement(Element parentEl, String cfClassId, String cfTerm, String cfDesc, String cfDef) {
+		Element cfClassEl = createSubElement(parentEl, "cfClass");
+		createSubElement(cfClassEl, "cfClassId", cfClassId, cfTerm);	
+		addLangTrans(createSubElement(cfClassEl, "cfTerm", cfTerm));	
+		addLangTrans(createSubElement(cfClassEl, "cfTermSrc", "CERIF ER-M"));
 		
 		if (cfDesc != null) {
-			addLangTrans(createSubElement(attributesXML, cfClass, "cfDescr", cfDesc));
-			addLangTrans(createSubElement(attributesXML, cfClass, "cfDescrSrc", "CERIF Task Group"));
+			addLangTrans(createSubElement(cfClassEl, "cfDescr", cfDesc));
+			addLangTrans(createSubElement(cfClassEl, "cfDescrSrc", "CERIF Task Group"));
 		}
 		if (cfDef != null) {
-			addLangTrans(createSubElement(attributesXML, cfClass, "cfDef", cfDef));
-			addLangTrans(createSubElement(attributesXML, cfClass, "cfDefSrc", "CERIF Task Group"));
+			addLangTrans(createSubElement(cfClassEl, "cfDef", cfDef));
+			addLangTrans(createSubElement(cfClassEl, "cfDefSrc", "CERIF Task Group"));
 		}
-		return cfClass;
+		return cfClassEl;
 	}
 
-	private static Element createScheme(Document doc, Element cerifElement,
-			String uuid, String name, String description) {
-		Element cfClassSchemaAttr = createSubElement(doc, cerifElement, "cfClassScheme");
-		createSubElement(doc, cfClassSchemaAttr, "cfClassSchemeId", uuid);
-		addLangTrans(createSubElement(doc, cfClassSchemaAttr, "cfName", name));
-		addLangTrans(createSubElement(doc, cfClassSchemaAttr, "cfDescr", description));
+	private static Element createCfClassSchemeElement(Element parentEl, String uuid, String name, String description ) {
+		Element cfClassSchemaAttr = createSubElement(parentEl, "cfClassScheme");
+		createSubElement(cfClassSchemaAttr, "cfClassSchemeId", uuid, name);
+		addLangTrans(createSubElement(cfClassSchemaAttr, "cfName", name));
+		addLangTrans(createSubElement(cfClassSchemaAttr, "cfDescr", description));
 		return cfClassSchemaAttr;
 	}
 
@@ -238,38 +262,42 @@ public class TOAD2CERIF {
 	}
 
 	private static String cleanTOADUUID(String id) {
-
 		return id.replaceAll("[\\{\\}]", "").toLowerCase();
 	}
 
-	private static Element createCERIFDocumentElement(File fXmlFile, String modifiedDate, Document entityTypesXML) {
-		Element rEntityTypesXML = entityTypesXML.createElement("CERIF");
-		rEntityTypesXML.setAttribute("xmlns", "urn:xmlns:org:eurocris:cerif-1.6.1-3");
-		rEntityTypesXML.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-		rEntityTypesXML.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "xsi:schemaLocation", "urn:xmlns:org:eurocris:cerif-1.6.1-3 http://www.eurocris.org/Uploads/Web%20pages/CERIF-1.6.1/CERIF_1.6.1_3.xsd");
-		rEntityTypesXML.setAttribute("date", modifiedDate.substring(0, 10));
-		rEntityTypesXML.setAttribute("sourceDatabase", fXmlFile.getName());
-
-		entityTypesXML.appendChild(rEntityTypesXML);
-		return rEntityTypesXML;
+	private static Element createCERIFDocumentElement(File fXmlFile, String modifiedDate, Document doc) {
+		Element cerifElement = doc.createElement("CERIF");
+		cerifElement.setAttribute("xmlns", "urn:xmlns:org:eurocris:cerif-1.6.1-3");
+		cerifElement.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+		cerifElement.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "xsi:schemaLocation", "urn:xmlns:org:eurocris:cerif-1.6.1-3 http://www.eurocris.org/Uploads/Web%20pages/CERIF-1.6.1/CERIF_1.6.1_3.xsd");
+		cerifElement.setAttribute("date", modifiedDate.substring(0, 10));
+		cerifElement.setAttribute("sourceDatabase", fXmlFile.getName());
+		return (Element) doc.appendChild(cerifElement);
 	}
 
-	private static void addLangTrans(Element createSubElement) {
-		createSubElement.setAttribute("cfLangCode", "en");
-		createSubElement.setAttribute("cfTrans", "o");
+	private static void addLangTrans(Element element) {
+		element.setAttribute("cfLangCode", "en");
+		element.setAttribute("cfTrans", "o");
 	}
 
-	private static Element createSubElement(Document doc, Element rEntityTypesXML, String tagName) {
-		return createSubElement(doc, rEntityTypesXML, tagName, null);
+	private static Element createSubElement(Element parentEl, String tagName ) {
+		return createSubElement(parentEl, tagName, null);
 	}
 	
-	private static Element createSubElement(Document doc, Element rEntityTypesXML, String tagName, String textContent) {
+	private static Element createSubElement(Element parentEl, String tagName, String textContent ) {
+		return createSubElement(parentEl, tagName, textContent, null);
+	}
+	
+	private static Element createSubElement(Element parentEl, String tagName, String textContent, String comment ) {
+		Document doc = parentEl.getOwnerDocument();
 		Element sub = doc.createElement(tagName);
 		if (textContent != null) {
 			sub.setTextContent(textContent);
+			if (comment != null) {
+				sub.appendChild( doc.createComment( " " + comment + " " ) );
+			}
 		}
-		rEntityTypesXML.appendChild(sub);
-		return sub;
+		return (Element) parentEl.appendChild(sub);
 	}
 
 }
