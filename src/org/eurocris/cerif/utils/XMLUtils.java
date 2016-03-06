@@ -9,7 +9,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
@@ -186,4 +188,24 @@ public class XMLUtils
         }
         return result;
     }
+
+	public static Element cloneElementAs( Element srcEl, Document dstDoc, String elName ) {
+		if ( srcEl.getNodeName().equals( elName ) ) {
+			if ( srcEl.getOwnerDocument() == dstDoc ) {
+				return (Element) srcEl.cloneNode( true );
+			} else {
+				return (Element) dstDoc.importNode( srcEl, true );
+			}
+		} else {
+			final Element dstEl = dstDoc.createElement( elName );
+			final NodeList srcChildren = srcEl.getChildNodes();
+			final int n = srcChildren.getLength();
+			for ( int i = 0; i < n; ++i ) {
+				final Node srcChild = srcChildren.item( i );
+				final Node dstChild = dstDoc.importNode( srcChild, true );
+				dstEl.appendChild( dstChild );
+			}
+			return dstEl;
+		}
+	}
 }
