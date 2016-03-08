@@ -208,4 +208,27 @@ public class XMLUtils
 			return dstEl;
 		}
 	}
+    
+    /**
+     * root/subElement[]/fieldName
+     * 
+     * @param rootElement
+     *            the starting node
+     * @param subElementName
+     *            the name of the sub element to work on
+     * @param fieldsName
+     *            the names of the sub-sub-element from which get the text
+     *            content
+     * @return a list of strings. The first textual value
+     *         found in the sub element is used, null if no value is present
+     */
+    public static List<String> getElementValueList(Element rootElement,
+            String subElementName, String fieldName) {
+    	List<String[]> tmp = getElementValueArrayList(rootElement, subElementName, fieldName);
+    	List<String> result = new ArrayList<String>(tmp.size());
+    	for (String[] t : tmp) {
+    		result.add(t[0]);
+    	}
+    	return result;
+    }
 }
