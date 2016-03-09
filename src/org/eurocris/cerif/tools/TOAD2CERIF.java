@@ -226,6 +226,7 @@ public class TOAD2CERIF {
 					String attr_cfTerm = entityName + "." + XMLUtils.getElementValue(attr, "Name");
 					
 					Element attrCfClassEl = createCfClassElement(attributesSchemeEl, cfClassId2, attr_cfTerm);
+					createCfFedIdElement(attrCfClassEl, XMLUtils.getElementValue(attr, "Name"), cerifFedIdPhysicalModel);
 					createCfClassClass1Element(entityClassEl, attrCfClassEl, cerifDMFHasAttributeCfClassEl);
 					
 					if (pks.contains(cfClassId2)) {
