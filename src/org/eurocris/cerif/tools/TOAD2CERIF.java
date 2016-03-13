@@ -214,7 +214,7 @@ public class TOAD2CERIF {
 				String cfTerm = extractInfo("term", entityNotes, entityLongName.substring(2).replaceAll("([A-Z])", " $0").trim());
 
 				Element entityClassEl = createCfClassElement(entitiesSchemeEl, entityUUID, cfTerm, entityNotes, entityComments, entityLongName);
-				createCfFedIdElement(entityClassEl, entityLongName, cerifFedIdPhysicalModel);
+				createCfFedIdElement(entityClassEl, entityName, cerifFedIdPhysicalModel);
 				createCfClassClass2Element(entityClassEl, entityTypeCfClassEl, cerifDMFApplicableCfClassEl);
 				String pkConstraintId = XMLUtils.getElementValueList(entity, "PK", "Id").get(0);
 				List<String> pks = constraintKeysMap.get(pkConstraintId);
