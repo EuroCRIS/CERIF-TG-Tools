@@ -2,11 +2,20 @@ package org.eurocris.cerif.model;
 
 import java.util.UUID;
 
+import org.eurocris.cerif.CERIFClassScheme;
+
+/**
+ * Enumeration: CERIF Entity Types.
+ */
+@CERIFClassScheme( id="348ce6ee-43ef-4b71-aa77-a11ff988cae4", name="CERIF Entity Types" )
 public enum CERIFEntityType {
 	
 	BASE_ENTITIES {
 		public UUID getUUID() {
 			return BASE_ENTITIES_UUID;
+		}
+		public String getTerm() {
+			return "Base Entities";
 		}
 	},
 	
@@ -14,11 +23,17 @@ public enum CERIFEntityType {
 		public UUID getUUID() {
 			return CLASSIFICATION_UUID;
 		}
+		public String getTerm() {
+			return "Classification";
+		}
 	},
 	
 	LINKING_ENTITIES {
 		public UUID getUUID() {
 			return LINKING_ENTITIES_UUID;
+		}
+		public String getTerm() {
+			return "Linking Entities";
 		}
 	},
 	
@@ -26,11 +41,17 @@ public enum CERIFEntityType {
 		public UUID getUUID() {
 			return MULTILINGUAL_UUID;
 		}
+		public String getTerm() {
+			return "Multilingual";
+		}
 	},
 	
 	RESULT_ENTITIES {
 		public UUID getUUID() {
 			return RESULT_ENTITIES_UUID;
+		}
+		public String getTerm() {
+			return "Result Entities";
 		}
 	},
 	
@@ -38,11 +59,17 @@ public enum CERIFEntityType {
 		public UUID getUUID() {
 			return ADDITIONAL_ENTITIES_UUID;
 		}
+		public String getTerm() {
+			return "Additional Entities";
+		}
 	},
 	
 	INFRASTRUCTURE_ENTITIES {
 		public UUID getUUID() {
 			return INFRASTRUCTURE_ENTITIES_UUID;
+		}
+		public String getTerm() {
+			return "Infrastructure Entities";
 		}
 	},
 	
@@ -50,20 +77,31 @@ public enum CERIFEntityType {
 		public UUID getUUID() {
 			return SECOND_ORDER_ENTITIES_UUID;
 		}
+		public String getTerm() {
+			return "2nd Order Entities";
+		}
 	},
 	
 	INDICATORS_AND_MEASUREMENTS {
 		public UUID getUUID() {
 			return INDICATORS_AND_MEASUREMENTS_UUID;
 		}
+		public String getTerm() {
+			return "Indicators & Measurements";
+		}
 	},
 	
 	;
 
 	/**
-	 * Get the UUID that identifies the type.
+	 * Get the UUID that identifies the cfClass.
 	 */
 	public abstract UUID getUUID();
+	
+	/**
+	 * Get the English term for the cfClass.
+	 */
+	public abstract String getTerm();
 	
 	private static final UUID BASE_ENTITIES_UUID = UUID.fromString( "59fa2e25-4c00-4131-92bd-ad1c87bb867c" );
 	private static final UUID CLASSIFICATION_UUID = UUID.fromString( "b854c3ae-270e-4fdd-a110-6494ae64c67a" );
