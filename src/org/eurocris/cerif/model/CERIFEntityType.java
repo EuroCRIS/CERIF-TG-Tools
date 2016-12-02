@@ -61,7 +61,12 @@ public enum CERIFEntityType {
 	;
 
 	/**
-	 * Get the UUID that identifies the type.
+	 * The UUID of the corresponding cfClassScheme.
+	 */
+	public static final UUID CLASS_SCHEME_UUID = UUID.fromString( "348ce6ee-43ef-4b71-aa77-a11ff988cae4" );
+	
+	/**
+	 * Get the UUID that identifies the cfClass.
 	 */
 	public abstract UUID getUUID();
 	
