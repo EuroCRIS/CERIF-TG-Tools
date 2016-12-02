@@ -1,10 +1,12 @@
 package org.eurocris.cerif.tools;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,6 +24,8 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
+import org.eurocris.cerif.CERIFClassScheme;
+import org.eurocris.cerif.model.CERIFEntityType;
 import org.eurocris.cerif.utils.XMLUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -119,35 +123,41 @@ public class TOAD2CERIF {
 			String modifiedDate = XMLUtils.getElementValue(subModelTitleUN, "ModifiedDate");
 			
 			Element categories = XMLUtils.getSingleElement(modelRootEl, "Categories");
-			
-			Document entityTypesXML = dBuilder.newDocument();
-			Element entityTypesRootEl = createCERIFDocumentElement(fXmlFile, modifiedDate, entityTypesXML);
-			Element entityTypesSchemeEl = createCfClassSchemeElement(entityTypesRootEl, CERIF_ENTITY_TYPES_UUID, "CERIF Entity Types",
-					"This scheme contains the available classification for the CERIF Entities");
-
-			// I need to create the Entity Types Schema 348ce6ee-43ef-4b71-aa77-a11ff988cae4
-			// and link the Classification representing the Entity to its type
 			List<Element> categoriesList = XMLUtils.getElementList(categories, "CategoryUN");
-			
-			Map<String, Element> entityTypeMap = new HashMap<>();
-			
-			for (Element category : categoriesList) {
-				String entityTypeUUID = cleanTOADUUID(XMLUtils.getElementValue(category, "Id"));
-				String entityTypeName = XMLUtils.getElementValue(category, "Name");
-				Element entityTypeClassEl = createCfClassElement(entityTypesSchemeEl, entityTypeUUID, entityTypeName);
 
-				// System.out.println(XMLUtils.getElementValue(category, "Description"));
-					
-				Element objects = XMLUtils.getSingleElement(category, "Objects");
-				for (String id : XMLUtils.getElementValueList(objects, "Id")) {
-					String entityCfClassId = cleanTOADUUID(id);
-					entityTypeMap.put( entityCfClassId, entityTypeClassEl );
+			{
+				Document entityTypesXML = dBuilder.newDocument();
+				Element entityTypesRootEl = createCERIFDocumentElement(fXmlFile, modifiedDate, entityTypesXML);
+				Element entityTypesSchemeEl = createCfClassSchemeElement(entityTypesRootEl, CERIF_ENTITY_TYPES_UUID, "CERIF Entity Types",
+						"This scheme contains the available classification for the CERIF Entities");
+	
+				// I need to create the Entity Types Schema 348ce6ee-43ef-4b71-aa77-a11ff988cae4
+				// and link the Classification representing the Entity to its type
+				for (Element category : categoriesList) {
+					String entityTypeUUID = cleanTOADUUID(XMLUtils.getElementValue(category, "Id"));
+					String entityTypeName = XMLUtils.getElementValue(category, "Name");
+					createCfClassElement(entityTypesSchemeEl, entityTypeUUID, entityTypeName);
 				}
+				
+				// write the content into xml files
+				writeToFile(outputFolder, "CERIF_Entity_Types--" + CERIF_ENTITY_TYPES_UUID+ ".xml", 
+							entityTypesXML);
 			}
 			
-			// write the content into xml files
-			writeToFile(outputFolder, "CERIF_Entity_Types--" + CERIF_ENTITY_TYPES_UUID+ ".xml", 
-						entityTypesXML);
+			Map<String, CERIFEntityType> entityTypeMap = new HashMap<>();
+			for (Element category : categoriesList) {
+				UUID entityTypeUUID = UUID.fromString( cleanTOADUUID(XMLUtils.getElementValue(category, "Id")) );
+				for (CERIFEntityType entityType : CERIFEntityType.values() ) {
+					if ( entityType.getUUID().equals( entityTypeUUID ) ) {
+						Element objects = XMLUtils.getSingleElement(category, "Objects");
+						for (String id : XMLUtils.getElementValueList(objects, "Id")) {
+							String entityCfClassId = cleanTOADUUID(id);
+							entityTypeMap.put( entityCfClassId, entityType );
+						}
+					}
+				}
+			}			
+			
 			
 			// CERIF Attributes 318118e8-d323-4e3b-9882-a17c635e9c58
 			
@@ -210,12 +220,12 @@ public class TOAD2CERIF {
 				String entityLongName = XMLUtils.getElementValue(entity, "Caption");
 				String entityNotes = XMLUtils.getElementValue(entity, "Notes");
 				String entityComments = XMLUtils.getElementValue(entity, "Comments");
-				Element entityTypeCfClassEl = entityTypeMap.get( entityUUID );
+				CERIFEntityType entityType = entityTypeMap.get( entityUUID );
 				String cfTerm = extractInfo("term", entityNotes, entityLongName.substring(2).replaceAll("([A-Z])", " $0").trim());
 
 				Element entityClassEl = createCfClassElement(entitiesSchemeEl, entityUUID, cfTerm, entityNotes, entityComments, entityLongName);
 				createCfFedIdElement(entityClassEl, entityName, cerifFedIdPhysicalModel);
-				createCfClassClass2Element(entityClassEl, entityTypeCfClassEl, cerifDMFApplicableCfClassEl);
+				createCfClassClass2Element(entityClassEl, entityType, cerifDMFApplicableCfClassEl);
 				String pkConstraintId = XMLUtils.getElementValueList(entity, "PK", "Id").get(0);
 				List<String> pks = constraintKeysMap.get(pkConstraintId);
 				Element attributesNode = XMLUtils.getSingleElement(entity, "Attributes");
@@ -292,10 +302,10 @@ public class TOAD2CERIF {
 		}
 	}
 
-	private static Element createCfClassClass2Element(Element parentEl, Element cfClass1El, Element roleCfClassEl ) {
-		if ( cfClass1El != null ) {
+	private static Element createCfClassClass2Element(Element parentEl, Object cfClass1, Element roleCfClassEl ) {
+		if ( cfClass1 != null ) {
 			Element cfClassClassEl = createSubElement(parentEl, "cfClass_Class");
-			addCfClassReference( cfClassClassEl, cfClass1El, "1" );
+			addCfClassReference( cfClassClassEl, cfClass1, "1" );
 			addCfClassReference( cfClassClassEl, roleCfClassEl, "" );
 			return cfClassClassEl;
 		} else {
@@ -303,11 +313,31 @@ public class TOAD2CERIF {
 		}
 	}
 
-	private static void addCfClassReference(Element parentEl, Element cfClassEl, String idSuffix) {
-		Document doc = parentEl.getOwnerDocument();
-		parentEl.appendChild( XMLUtils.cloneElementAs( XMLUtils.getSingleElement( cfClassEl, "cfClassId" ), doc, "cfClassId" + idSuffix ) );
-		Element cfClassSchemeEl = (Element) cfClassEl.getParentNode();
-		parentEl.appendChild( XMLUtils.cloneElementAs( XMLUtils.getSingleElement( cfClassSchemeEl, "cfClassSchemeId" ), doc, "cfClassSchemeId" + idSuffix ) );
+	private static void addCfClassReference(Element parentEl, Object cfClass, String idSuffix) {
+		if ( cfClass instanceof Element ) {
+			final Element cfClassEl = (Element) cfClass;
+			Document doc = parentEl.getOwnerDocument();
+			parentEl.appendChild( XMLUtils.cloneElementAs( XMLUtils.getSingleElement( cfClassEl, "cfClassId" ), doc, "cfClassId" + idSuffix ) );
+			Element cfClassSchemeEl = (Element) cfClassEl.getParentNode();
+			parentEl.appendChild( XMLUtils.cloneElementAs( XMLUtils.getSingleElement( cfClassSchemeEl, "cfClassSchemeId" ), doc, "cfClassSchemeId" + idSuffix ) );			
+		} else if ( cfClass instanceof Enum ) {
+			final Class<? extends Object> class1 = cfClass.getClass().getSuperclass();
+			final CERIFClassScheme annotation = class1.getAnnotation( CERIFClassScheme.class );
+			if ( annotation != null ) {
+				try {
+					final Method getUuidMethod = class1.getMethod( "getUUID" );
+					final String cfClassId = getUuidMethod.invoke( cfClass ).toString();
+					final Method getTermMethod = class1.getMethod( "getTerm" );
+					final String cfTerm = (String) getTermMethod.invoke( cfClass );
+					createSubElement( parentEl, "cfClassId" + idSuffix, cfClassId, cfTerm );
+					createSubElement( parentEl, "cfClassSchemeId" + idSuffix, annotation.id(), annotation.name() );
+				} catch ( final Exception e ) {
+					throw new IllegalArgumentException( "Cannot process cfClass of type " + class1.getName(), e );
+				}
+			} else {
+				throw new IllegalArgumentException( "Cannot process cfClass of type " + class1.getName() + ": no CERIFClassScheme annotation present" );
+			}			
+		}
 	}
 	
 	private static Element createCfClassElement(Element parentEl, String cfClassId, String cfTerm) {
