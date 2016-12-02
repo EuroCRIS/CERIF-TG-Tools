@@ -21,9 +21,9 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
 import org.eurocris.cerif.CERIFClassScheme;
 import org.eurocris.cerif.model.CERIFEntityType;
 import org.eurocris.cerif.utils.XMLUtils;
@@ -64,7 +64,7 @@ public class TOAD2CERIF {
 	public static void main(String argv[]) {
 
 		try {
-			CommandLineParser parser = new PosixParser();
+			CommandLineParser parser = new DefaultParser();
 	    	Options options = new Options();
 	    	
 	    	options.addOption("f", "file", true, "full path to the TOAD file");
