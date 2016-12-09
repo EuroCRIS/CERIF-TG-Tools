@@ -1,5 +1,7 @@
 package org.eurocris.cerif.model;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.eurocris.cerif.CERIFClassScheme;
@@ -102,6 +104,22 @@ public enum CERIFEntityType {
 	 * Get the English term for the cfClass.
 	 */
 	public abstract String getTerm();
+	
+	private final static Map<UUID, CERIFEntityType> VALUE_BY_UUID = new HashMap<>();
+	static {
+		for ( final CERIFEntityType x : values() ) {
+			VALUE_BY_UUID.put( x.getUuid(), x );
+		}
+	}
+	
+	/**
+	 * Get the right entry by its UUID.
+	 * @param uuid
+	 * @return
+	 */
+	public static CERIFEntityType getByUuid( final UUID uuid ) {
+		return VALUE_BY_UUID.get( uuid );
+	}
 	
 	private static final UUID BASE_ENTITIES_UUID = UUID.fromString( "59fa2e25-4c00-4131-92bd-ad1c87bb867c" );
 	private static final UUID CLASSIFICATION_UUID = UUID.fromString( "b854c3ae-270e-4fdd-a110-6494ae64c67a" );
