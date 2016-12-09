@@ -2,6 +2,9 @@ package org.eurocris.cerif.model;
 
 import java.util.UUID;
 
+import org.eurocris.cerif.CERIFClassScheme;
+
+@CERIFClassScheme( id="fd0791d1-570b-4b7a-825f-99679a3a29cf", name="" )
 public class Relationship {
 
 	private final UUID uuid;
