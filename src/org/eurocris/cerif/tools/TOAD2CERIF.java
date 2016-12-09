@@ -195,8 +195,8 @@ public class TOAD2CERIF {
 				final Iterator<Attribute> pkAttrIterator = rl.getPk().getAttributes().iterator();
 				for ( final Attribute fkAttr : rl.getFk().getAttributes() ) {
 					final Attribute pkAttr = pkAttrIterator.next();
-					createCfClassClass1Element(relationClassEl, fkAttr, cerifDMFRealizeCfClassEl);
 					createCfClassClass1Element(relationClassEl, pkAttr, cerifDMFRealizeCfClassEl);
+					createCfClassClass1Element(relationClassEl, fkAttr, cerifDMFRealizeCfClassEl);
 					final Element cfClassFkChildAttr = findByCfClassId( attributesSchemeEl, fkAttr.getUuid().toString() );
 					createCfClassClass1Element(cfClassFkChildAttr, pkAttr, cerifDMFReferenceCfClassEl);
 				}
