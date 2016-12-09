@@ -11,7 +11,7 @@ import org.eurocris.cerif.CERIFClassScheme;
 public enum CERIFEntityType {
 	
 	BASE_ENTITIES {
-		public UUID getUUID() {
+		public UUID getUuid() {
 			return BASE_ENTITIES_UUID;
 		}
 		public String getTerm() {
@@ -20,7 +20,7 @@ public enum CERIFEntityType {
 	},
 	
 	CLASSIFICATION {
-		public UUID getUUID() {
+		public UUID getUuid() {
 			return CLASSIFICATION_UUID;
 		}
 		public String getTerm() {
@@ -29,7 +29,7 @@ public enum CERIFEntityType {
 	},
 	
 	LINKING_ENTITIES {
-		public UUID getUUID() {
+		public UUID getUuid() {
 			return LINKING_ENTITIES_UUID;
 		}
 		public String getTerm() {
@@ -38,7 +38,7 @@ public enum CERIFEntityType {
 	},
 	
 	MULTILINGUAL {
-		public UUID getUUID() {
+		public UUID getUuid() {
 			return MULTILINGUAL_UUID;
 		}
 		public String getTerm() {
@@ -47,7 +47,7 @@ public enum CERIFEntityType {
 	},
 	
 	RESULT_ENTITIES {
-		public UUID getUUID() {
+		public UUID getUuid() {
 			return RESULT_ENTITIES_UUID;
 		}
 		public String getTerm() {
@@ -56,7 +56,7 @@ public enum CERIFEntityType {
 	},
 	
 	ADDITIONAL_ENTITIES {
-		public UUID getUUID() {
+		public UUID getUuid() {
 			return ADDITIONAL_ENTITIES_UUID;
 		}
 		public String getTerm() {
@@ -65,7 +65,7 @@ public enum CERIFEntityType {
 	},
 	
 	INFRASTRUCTURE_ENTITIES {
-		public UUID getUUID() {
+		public UUID getUuid() {
 			return INFRASTRUCTURE_ENTITIES_UUID;
 		}
 		public String getTerm() {
@@ -74,7 +74,7 @@ public enum CERIFEntityType {
 	},
 	
 	SECOND_ORDER_ENTITIES {
-		public UUID getUUID() {
+		public UUID getUuid() {
 			return SECOND_ORDER_ENTITIES_UUID;
 		}
 		public String getTerm() {
@@ -83,7 +83,7 @@ public enum CERIFEntityType {
 	},
 	
 	INDICATORS_AND_MEASUREMENTS {
-		public UUID getUUID() {
+		public UUID getUuid() {
 			return INDICATORS_AND_MEASUREMENTS_UUID;
 		}
 		public String getTerm() {
@@ -96,7 +96,7 @@ public enum CERIFEntityType {
 	/**
 	 * Get the UUID that identifies the cfClass.
 	 */
-	public abstract UUID getUUID();
+	public abstract UUID getUuid();
 	
 	/**
 	 * Get the English term for the cfClass.
