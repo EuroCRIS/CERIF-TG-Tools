@@ -4,11 +4,12 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.Set;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,7 +28,11 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.eurocris.cerif.CERIFClassScheme;
+import org.eurocris.cerif.model.Attribute;
+import org.eurocris.cerif.model.Entity;
 import org.eurocris.cerif.model.CERIFEntityType;
+import org.eurocris.cerif.model.ForeignKey;
+import org.eurocris.cerif.model.Relationship;
 import org.eurocris.cerif.utils.XMLUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -35,10 +40,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class TOAD2CERIF {
-	public static final String CERIF_ENTITIES_UUID = "6e0d9af0-1cd6-11e1-8bc2-0800200c9a66";
+
+	public static final String CERIF_ENTITIES_UUID = Entity.class.getAnnotation( CERIFClassScheme.class ).id();
 	public static final String CERIF_ENTITY_TYPES_UUID = "348ce6ee-43ef-4b71-aa77-a11ff988cae4";
-	public static final String CERIF_ATTRIBUTES_UUID = "318118e8-d323-4e3b-9882-a17c635e9c58";
-	public static final String CERIF_RELATIONSHIPS_UUID = "fd0791d1-570b-4b7a-825f-99679a3a29cf";
+	public static final String CERIF_ATTRIBUTES_UUID = Attribute.class.getAnnotation( CERIFClassScheme.class ).id();
+	public static final String CERIF_RELATIONSHIPS_UUID = Relationship.class.getAnnotation( CERIFClassScheme.class ).id();
 
 	public static final String CERIF_DATAMODEL_FACTS_UUID = "2a29befc-305f-405a-b808-9ed0dc6c61ff";
 	
@@ -53,6 +59,7 @@ public class TOAD2CERIF {
 	private static final String CERIF_IDENTIFIER_TYPES_UUID = "bccb3266-689d-4740-a039-c96594b4d916";
 	private static final String CERIF_IDENTIFIER_PHYSICAL_UUID = "4da60ca4-3480-40f1-b376-f43808b71d66";
 
+	private static Logger LOG = Logger.getLogger( TOAD2CERIF.class.getName() );
 	
 	private static TransformerFactory transformerFactory = TransformerFactory.newInstance();
 	private static Transformer transformer;
@@ -155,200 +162,166 @@ public class TOAD2CERIF {
 							entityTypesXML);
 			}
 			
-			Map<String, CERIFEntityType> entityTypeMap = new HashMap<>();
+			Map<UUID, CERIFEntityType> entityTypeByEntityUUIDMap = new HashMap<>();
 			for (Element category : categoriesList) {
 				UUID entityTypeUUID = UUID.fromString( cleanTOADUUID(XMLUtils.getElementValue(category, "Id")) );
 				for (CERIFEntityType entityType : CERIFEntityType.values() ) {
-					if ( entityType.getUUID().equals( entityTypeUUID ) ) {
+					if ( entityType.getUuid().equals( entityTypeUUID ) ) {
 						Element objects = XMLUtils.getSingleElement(category, "Objects");
 						for (String id : XMLUtils.getElementValueList(objects, "Id")) {
-							String entityCfClassId = cleanTOADUUID(id);
-							entityTypeMap.put( entityCfClassId, entityType );
+							UUID entityCfClassId = UUID.fromString( cleanTOADUUID(id) );
+							entityTypeByEntityUUIDMap.put( entityCfClassId, entityType );
 						}
 					}
 				}
 			}			
 			
-			
-			// CERIF Attributes 318118e8-d323-4e3b-9882-a17c635e9c58
-			
-			Document attributesXML = dBuilder.newDocument();
-			Element attributesRootEl = createCERIFDocumentElement(fXmlFile, modifiedDate, attributesXML);
-			Element attributesSchemeEl = createCfClassSchemeElement(attributesRootEl, CERIF_ATTRIBUTES_UUID, "CERIF Attributes",
-					"This scheme contains all the available attributes of the CERIF Entities");
-
-			Document entitiesXML = dBuilder.newDocument();
-			Element entitiesRootEl = createCERIFDocumentElement(fXmlFile, modifiedDate, entitiesXML);
-			Element entitiesSchemeEl = createCfClassSchemeElement(entitiesRootEl, CERIF_ENTITIES_UUID, "CERIF Entities",
-					"This scheme contains defined CERIF concepts such as person, organisation, research infrastructure (being not only a 1:1 representation of the CERIF entities), but even more, e.g. research infrastructure subsumes facilty, equipment and service and output subsumes publication, patent, and product in CERIF.");
-			
+			// we read in the model
 			Element entities = XMLUtils.getSingleElement(modelRootEl, "Entities");
 			List<Element> entitiesList = XMLUtils.getElementList(entities, "PEREntityUN");
+			LOG.info( "Found " + entitiesList.size() + " entities" );
 
-			Document relationshipXML = dBuilder.newDocument();
-			Element relationshipRootEl = createCERIFDocumentElement(fXmlFile, modifiedDate, relationshipXML);
-			Element relationshipSchemeEl = createCfClassSchemeElement(relationshipRootEl, CERIF_RELATIONSHIPS_UUID, "CERIF Relationships",
-					"This scheme contains the details about the realization of the relationship between CERIF Entities");
-			
-			// not very efficient but easy... we go trough the TOAD file multiple times 
-			// - to discover all the primary key
-			// - to prepare the cache foreign key to pk
-			// - add the actual attributes 
-			// - link the attributes to the corresponding pk
-			
-			// first round
-			Map<String, List<String>> constraintKeysMap = new HashMap<String, List<String>>();
+			Map<UUID, List<UUID>> keyConstraintAttributeUUIDsByConstraintUUIDMap = new HashMap<>();
 			for (Element entity : entitiesList) {
 				Element keysNode = XMLUtils.getSingleElement(entity, "Keys");
 				List<Element> constraints = XMLUtils.getElementList(keysNode, "PERKeyConstraintUN");
 
 				for (Element constraint : constraints) {
-					String constraintId = XMLUtils.getElementValue(constraint, "Id");
+					UUID constraintId = UUID.fromString( cleanTOADUUID( XMLUtils.getElementValue(constraint, "Id") ) );
 					Element keyItems = XMLUtils.getSingleElement(constraint, "KeyItems");
 					List<Element> keyConstraints = XMLUtils.getElementList(keyItems, "PERKeyConstraintItemUN");
-					List<String> attributes = new ArrayList<String>();
-					constraintKeysMap.put(constraintId, attributes);
+					List<UUID> attributes = new ArrayList<>();
+					keyConstraintAttributeUUIDsByConstraintUUIDMap.put(constraintId, attributes);
 					for (Element keyConstraint : keyConstraints) {
-						String attributeUUID = cleanTOADUUID(XMLUtils.getElementValueList(keyConstraint, "Attribute", "Id").get(0));
+						UUID attributeUUID = UUID.fromString( cleanTOADUUID(XMLUtils.getElementValueList(keyConstraint, "Attribute", "Id").get(0)) );
 						attributes.add(attributeUUID);
 					}
 				}
 			}
 			
-			Element relations = XMLUtils.getSingleElement(modelRootEl, "Relations");
-			List<Element> relationsList = XMLUtils.getElementList(relations, "PERRelationUN");
+			final Map<UUID, Entity> entitiesByUUID = new LinkedHashMap<>();
+			final Map<UUID, Attribute> attributesByUUID = new HashMap<>();
+			for (Element entityEl : entitiesList) {
+				UUID entityUUID = UUID.fromString( cleanTOADUUID(XMLUtils.getElementValue(entityEl, "Id")) );
+				String entityName = XMLUtils.getElementValue(entityEl, "Name");
+				String entityLongName = XMLUtils.getElementValue(entityEl, "Caption");
+				final String readableEntityLongName = makeReadable( entityLongName );
+				String entityNotes = XMLUtils.getElementValue(entityEl, "Notes");
+				String entityComments = XMLUtils.getElementValue(entityEl, "Comments");
+				CERIFEntityType entityType = entityTypeByEntityUUIDMap.get( entityUUID );
+				String cfTerm = extractInfo("term", entityNotes, readableEntityLongName);
+				String pkConstraintId = cleanTOADUUID( XMLUtils.getElementValueList(entityEl, "PK", "Id").get(0) );
 
-			Map<String, List<String>> foreignKeysMap = new HashMap<String, List<String>>();
-			Map<String, List<String[]>> relationshipMap = new HashMap<String, List<String[]>>();
-			for (Element relation : relationsList) {
-				String relationshipUUID = cleanTOADUUID(XMLUtils.getElementValue(relation, "Id"));
-				// the official name for the relationship connector is stored in the caption element in the TOAD file
-				String cfTerm = XMLUtils.getElementValue(relation, "Caption");
-				String entityNotes = XMLUtils.getElementValue(relation, "Notes");
-				String entityComments = XMLUtils.getElementValue(relation, "Comments");
-				// no long name
-				String entityLongName = null;
+				final Entity entity = new Entity( entityUUID, entityName, readableEntityLongName, entityType, cfTerm, entityNotes, entityComments, pkConstraintId );
+				entitiesByUUID.put( entityUUID, entity );
 				
-				Element relationClassEl = createCfClassElement(relationshipSchemeEl, relationshipUUID, cfTerm, entityNotes, entityComments, entityLongName);
-				// there are not a physical rappresentation for the connector
-				//createCfFedIdElement(entityClassEl, entityName???, cerifFedIdPhysicalModel);
-
-				
-				Element foreignKeys = XMLUtils.getSingleElement(relation, "ForeignKeys");
-				List<Element> fkList = XMLUtils.getElementList(foreignKeys, "PERForeignKeyUN");
-				List<String[]> values = new ArrayList<String[]>();
-				int idx = 0;
-				for (Element fk : fkList) {
-					String attrParentUUID = cleanTOADUUID(XMLUtils.getElementValueList(fk, "AttrParent", "Id").get(0));
-					String attrChildUUID = cleanTOADUUID(XMLUtils.getElementValueList(fk, "AttrChild", "Id").get(0));
-					List<String> childValues = new ArrayList<String>();
-					if (foreignKeysMap.containsKey(attrParentUUID)) {
-						childValues = foreignKeysMap.get(attrParentUUID);
-					}
-					childValues.add(attrChildUUID);
-					foreignKeysMap.put(attrParentUUID, childValues);
-
-					values.add(new String[]{attrParentUUID, attrChildUUID});
-				}
-				relationshipMap.put(relationshipUUID, values);
-			}
-
-			// second round
-			Map<String, String> attributesMap = new HashMap<String, String>();
-			for (Element entity : entitiesList) {
-				String entityUUID = cleanTOADUUID(XMLUtils.getElementValue(entity, "Id"));
-				String entityName = XMLUtils.getElementValue(entity, "Name");
-				String entityLongName = XMLUtils.getElementValue(entity, "Caption");
-				String entityNotes = XMLUtils.getElementValue(entity, "Notes");
-				String entityComments = XMLUtils.getElementValue(entity, "Comments");
-				CERIFEntityType entityType = entityTypeMap.get( entityUUID );
-				String cfTerm = extractInfo("term", entityNotes, entityLongName.substring(2).replaceAll("([A-Z])", " $0").trim());
-
-				Element entityClassEl = createCfClassElement(entitiesSchemeEl, entityUUID, cfTerm, entityNotes, entityComments, entityLongName);
-				createCfFedIdElement(entityClassEl, entityName, cerifFedIdPhysicalModel);
-				createCfClassClass2Element(entityClassEl, entityType, cerifDMFApplicableCfClassEl);
-				String pkConstraintId = XMLUtils.getElementValueList(entity, "PK", "Id").get(0);
-				List<String> pks = constraintKeysMap.get(pkConstraintId);
-				Element attributesNode = XMLUtils.getSingleElement(entity, "Attributes");
+				List<UUID> pks = keyConstraintAttributeUUIDsByConstraintUUIDMap.get(UUID.fromString( pkConstraintId ));
+				Element attributesNode = XMLUtils.getSingleElement(entityEl, "Attributes");
 				List<Element> attributes = XMLUtils.getElementList(attributesNode, "PERAttributeUN");
 				for (Element attr : attributes) {
-					String attrTOADUUID = XMLUtils.getElementValue(attr, "Id");
-					String cfClassId2 = cleanTOADUUID(attrTOADUUID);
-					attributesMap.put(cfClassId2, entityUUID);
-					String attr_cfTerm = entityName + "." + XMLUtils.getElementValue(attr, "Name");
+					UUID attrUUID = UUID.fromString( cleanTOADUUID(XMLUtils.getElementValue(attr, "Id")) );
+					String attrBareName = XMLUtils.getElementValue(attr, "Name");
+					String attrComposedName = entityName + "." + attrBareName;
+					String attrLongName = XMLUtils.getElementValue( attr, "Caption" );
+					String readableAttrLongName = makeReadable( attrLongName );
 					
-					Element attrCfClassEl = createCfClassElement(attributesSchemeEl, cfClassId2, attr_cfTerm);
-					createCfFedIdElement(attrCfClassEl, XMLUtils.getElementValue(attr, "Name"), cerifFedIdPhysicalModel);
+					final Attribute attribute = new Attribute( entity, attrUUID, attrComposedName, readableAttrLongName );
+					attributesByUUID.put( attrUUID, attribute );
+					if (pks.contains(attrUUID)) {
+						entity.getPrimaryKey().getAttributes().add( attribute );
+					}
+				}
+			}
+			
+			final Map<UUID, Relationship> relationshipMap = new LinkedHashMap<>();
+			final Element relations = XMLUtils.getSingleElement(modelRootEl, "Relations");
+			final List<Element> relationsList = XMLUtils.getElementList(relations, "PERRelationUN");
+			for (Element relation : relationsList) {
+				UUID relationshipUUID = UUID.fromString( cleanTOADUUID(XMLUtils.getElementValue(relation, "Id")) );
+				// the official name for the relationship connector is stored in the caption element in the TOAD file
+				String name = XMLUtils.getElementValue(relation, "Caption");
+				String notes = XMLUtils.getElementValue(relation, "Notes");
+				String comments = XMLUtils.getElementValue(relation, "Comments");
+				final Element o1El = XMLUtils.getSingleElement(relation, "O1");
+				final Element o2El = XMLUtils.getSingleElement(relation, "O2");
+				final UUID parentEntityUUID = UUID.fromString( cleanTOADUUID(XMLUtils.getElementValue(o1El, "Id")) );
+				final UUID childEntityUUID = UUID.fromString( cleanTOADUUID(XMLUtils.getElementValue(o2El, "Id")) );
+				final Entity parentEntity = entitiesByUUID.get(parentEntityUUID);
+				final Entity childEntity = entitiesByUUID.get(childEntityUUID);
+				final ForeignKey fk = new ForeignKey( childEntity, name );
+
+				final List<Attribute> fkAttrList = fk.getAttributes();
+				final Element foreignKeys = XMLUtils.getSingleElement(relation, "ForeignKeys");
+				final List<Element> fkListEl = XMLUtils.getElementList(foreignKeys, "PERForeignKeyUN");
+				for ( final Element fkEl : fkListEl ) {
+					final UUID childAttrUUID = UUID.fromString( cleanTOADUUID(XMLUtils.getElementValueList(fkEl, "AttrChild", "Id").get(0)) );
+					final Attribute childAttr = attributesByUUID.get( childAttrUUID );
+					fkAttrList.add( childAttr );
+				}
+				final Relationship relationship = new Relationship( relationshipUUID, name, parentEntity.getPrimaryKey(), fk, notes, comments );
+				relationshipMap.put(relationshipUUID, relationship);
+			}
+
+			LOG.info( "Read in " + entitiesByUUID.size() + " entities" );
+			
+			// now dump the data structures into the XML files
+			final Document attributesXML = dBuilder.newDocument();
+			final Element attributesRootEl = createCERIFDocumentElement(fXmlFile, modifiedDate, attributesXML);
+			final Element attributesSchemeEl = createCfClassSchemeElement(attributesRootEl, CERIF_ATTRIBUTES_UUID, "CERIF Attributes",
+					"This scheme contains all the available attributes of the CERIF Entities");
+
+			final Document entitiesXML = dBuilder.newDocument();
+			final Element entitiesRootEl = createCERIFDocumentElement(fXmlFile, modifiedDate, entitiesXML);
+			final Element entitiesSchemeEl = createCfClassSchemeElement(entitiesRootEl, CERIF_ENTITIES_UUID, "CERIF Entities",
+					"This scheme contains defined CERIF concepts such as person, organisation, research infrastructure (being not only a 1:1 representation of the CERIF entities), but even more, e.g. research infrastructure subsumes facilty, equipment and service and output subsumes publication, patent, and product in CERIF.");
+			
+			final Document relationshipXML = dBuilder.newDocument();
+			final Element relationshipRootEl = createCERIFDocumentElement(fXmlFile, modifiedDate, relationshipXML);
+			final Element relationshipSchemeEl = createCfClassSchemeElement(relationshipRootEl, CERIF_RELATIONSHIPS_UUID, "CERIF Relationships",
+					"This scheme contains the details about the realization of the relationship between CERIF Entities");
+			
+			for ( final Entity entity : entitiesByUUID.values() ) {
+				final Element entityClassEl = createCfClassElement(entitiesSchemeEl, entity.getUuid().toString(), entity.getTerm(), entity.getNotes(), entity.getComments(), entity.getLogicalName());
+				createCfFedIdElement(entityClassEl, entity.getPhysicalName(), cerifFedIdPhysicalModel);
+				createCfClassClass2Element(entityClassEl, entity.getEntityType(), cerifDMFApplicableCfClassEl);
+				final List<Attribute> entityPkAttributes = entity.getPrimaryKey().getAttributes();
+				for ( final Attribute attr : entity.getAttributes() ) {
+					final String physicalName = attr.getPhysicalName();
+					Element attrCfClassEl = createCfClassElement(attributesSchemeEl, attr.getUuid().toString(), physicalName);
+					createCfFedIdElement(attrCfClassEl, physicalName.replaceAll( "^.*\\.", "" ), cerifFedIdPhysicalModel);
 					createCfClassClass1Element(entityClassEl, attrCfClassEl, cerifDMFHasAttributeCfClassEl);
 					
-					if (pks.contains(cfClassId2)) {
+					if (entityPkAttributes.contains(attr)) {
 						createCfClassClass2Element(entityClassEl, attrCfClassEl, cerifDMFPKCfClassEl);
 					}
 				}
 			}
-			
-			// third round (work on the live attributes scheme DOM)
-			Element attributesLiveRoot = attributesXML.getDocumentElement();
-			Element schemeElementAttrLive = XMLUtils.getSingleElement(attributesLiveRoot, "cfClassScheme");
-			
-			for (String fk : foreignKeysMap.keySet()) {
-				Element cfClassAttr = findByCfClassId( schemeElementAttrLive, fk );
-				List<String> fkChilds = foreignKeysMap.get(fk);
-				for (String fkChild :fkChilds) {
-					Element cfClassFkChildAttr = findByCfClassId( schemeElementAttrLive, fkChild );
-					createCfClassClass1Element(cfClassFkChildAttr, cfClassAttr, cerifDMFReferenceCfClassEl);
+						
+			for ( final Relationship rl : relationshipMap.values() ) {
+				final Element relationClassEl = createCfClassElement(relationshipSchemeEl, rl.getUuid().toString(), rl.getName(), rl.getNotes(), rl.getComments(), null);
+				createCfClassClass1Element(relationClassEl, rl.getParentEntity(), cerifDMFParentEntityCfClassEl);
+				createCfClassClass1Element(relationClassEl, rl.getChildEntity(), cerifDMFChildEntityCfClassEl);
+				final Iterator<Attribute> pkAttrIterator = rl.getPk().getAttributes().iterator();
+				for ( final Attribute fkAttr : rl.getFk().getAttributes() ) {
+					final Attribute pkAttr = pkAttrIterator.next();
+					createCfClassClass1Element(relationClassEl, fkAttr, cerifDMFRealizeCfClassEl);
+					createCfClassClass1Element(relationClassEl, pkAttr, cerifDMFRealizeCfClassEl);
+					final Element cfClassFkChildAttr = findByCfClassId( attributesSchemeEl, fkAttr.getUuid().toString() );
+					createCfClassClass1Element(cfClassFkChildAttr, pkAttr, cerifDMFReferenceCfClassEl);
 				}
 			}
 			
-
-			Element relationshipLiveRoot = relationshipXML.getDocumentElement();
-			Element schemeElementRelationshipLive = XMLUtils.getSingleElement(relationshipLiveRoot, "cfClassScheme");
-			
-			Element entitiesLiveRoot = entitiesXML.getDocumentElement();
-			Element schemeElementEntitiesLive = XMLUtils.getSingleElement(entitiesLiveRoot, "cfClassScheme");
-			
-			for (String rl : relationshipMap.keySet()) {
-				Set<String> uuidEntitiesParent = new HashSet<String>();
-				Set<String> uuidEntitiesChild = new HashSet<String>();
-				for (String[] relFk : relationshipMap.get(rl)) {
-					Element relationClassEl = findByCfClassId( schemeElementRelationshipLive, rl );
-					String attrParent = relFk[0];
-					String attrChild = relFk[1];
-					
-					String entityParent = attributesMap.get(attrParent);
-					String entityChild = attributesMap.get(attrChild);
-					
-					Element cfClassParentAttr = findByCfClassId( schemeElementAttrLive, attrParent );
-					Element cfClassChildAttr = findByCfClassId( schemeElementAttrLive, attrChild );
-					
-					// avoid to refer to the same entity more times when there are multiple fk
-					if (!uuidEntitiesParent.contains(entityParent)) {
-						Element cfClassParentEntity = findByCfClassId( schemeElementEntitiesLive, entityParent );
-						createCfClassClass1Element(relationClassEl, cfClassParentEntity, cerifDMFParentEntityCfClassEl);
-						uuidEntitiesChild.add(entityParent);
-					}
-					
-					if (!uuidEntitiesChild.contains(entityChild)) {
-						Element cfClassChildEntity = findByCfClassId( schemeElementEntitiesLive, entityChild );
-						createCfClassClass1Element(relationClassEl, cfClassChildEntity, cerifDMFChildEntityCfClassEl);
-						uuidEntitiesChild.add(entityChild);
-					}
-					
-					createCfClassClass1Element(relationClassEl, cfClassParentAttr, cerifDMFRealizeCfClassEl);
-					createCfClassClass1Element(relationClassEl, cfClassChildAttr, cerifDMFRealizeCfClassEl);
-				}
-			}
-			
-			// write the content into xml files
 			writeToFile(outputFolder, "CERIF_Entities--" + CERIF_ENTITIES_UUID + ".xml", entitiesXML);
 			writeToFile(outputFolder, "CERIF_Attributes--" + CERIF_ATTRIBUTES_UUID + ".xml", attributesXML);
 			writeToFile(outputFolder, "CERIF_Relationships--" + CERIF_RELATIONSHIPS_UUID + ".xml", relationshipXML);
 			
-			// CERIF Relationships fd0791d1-570b-4b7a-825f-99679a3a29cf
-			// CERIF data model facts 2a29befc-305f-405a-b808-9ed0dc6c61ff
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private static String makeReadable( final String name ) {
+		return name.substring(2).replaceAll("([A-Z])", " $0").trim();
 	}
 
 	private static Element findByCfClassId( Element cfClassSchemeEl, String cfClassIdSearched ) {
@@ -374,7 +347,7 @@ public class TOAD2CERIF {
 		return cfFedIdEl;
 	}
 	
-	private static Element createCfClassClass1Element(Element parentEl, Element cfClass2El, Element roleCfClassEl) {
+	private static Element createCfClassClass1Element(Element parentEl, Object cfClass2El, Element roleCfClassEl) {
 		if ( cfClass2El != null ) {
 			Element cfClassClassEl = createSubElement(parentEl, "cfClass_Class");
 			addCfClassReference( cfClassClassEl, cfClass2El, "2" );
@@ -403,22 +376,26 @@ public class TOAD2CERIF {
 			parentEl.appendChild( XMLUtils.cloneElementAs( XMLUtils.getSingleElement( cfClassEl, "cfClassId" ), doc, "cfClassId" + idSuffix ) );
 			Element cfClassSchemeEl = (Element) cfClassEl.getParentNode();
 			parentEl.appendChild( XMLUtils.cloneElementAs( XMLUtils.getSingleElement( cfClassSchemeEl, "cfClassSchemeId" ), doc, "cfClassSchemeId" + idSuffix ) );			
-		} else if ( cfClass instanceof Enum ) {
-			final Class<? extends Object> class1 = cfClass.getClass().getSuperclass();
-			final CERIFClassScheme annotation = class1.getAnnotation( CERIFClassScheme.class );
+		} else if ( cfClass != null ) {
+			final Class<? extends Object> class0 = cfClass.getClass();
+			Class<? extends Object> class1 = class0;
+			CERIFClassScheme annotation = null;
+			while ( class1 != null && ( annotation = class1.getAnnotation( CERIFClassScheme.class ) ) == null ) {
+				class1 = class1.getSuperclass();
+			}
 			if ( annotation != null ) {
 				try {
-					final Method getUuidMethod = class1.getMethod( "getUUID" );
+					final Method getUuidMethod = class1.getMethod( "getUuid" );
 					final String cfClassId = getUuidMethod.invoke( cfClass ).toString();
 					final Method getTermMethod = class1.getMethod( "getTerm" );
 					final String cfTerm = (String) getTermMethod.invoke( cfClass );
 					createSubElement( parentEl, "cfClassId" + idSuffix, cfClassId, cfTerm );
 					createSubElement( parentEl, "cfClassSchemeId" + idSuffix, annotation.id(), annotation.name() );
 				} catch ( final Exception e ) {
-					throw new IllegalArgumentException( "Cannot process cfClass of type " + class1.getName(), e );
+					throw new IllegalArgumentException( "Cannot process cfClass of type " + class0.getName(), e );
 				}
 			} else {
-				throw new IllegalArgumentException( "Cannot process cfClass of type " + class1.getName() + ": no CERIFClassScheme annotation present" );
+				throw new IllegalArgumentException( "Cannot process cfClass of type " + class0.getName() + ": no CERIFClassScheme annotation present" );
 			}			
 		}
 	}
@@ -477,9 +454,11 @@ public class TOAD2CERIF {
 
 	private static void writeToFile(File outputFolder, String filename, Document entityTypesXML) throws TransformerException {
 		DOMSource source = new DOMSource(entityTypesXML);
+		final File file = new File(outputFolder, filename);
 		StreamResult result = new StreamResult(
-				new File(outputFolder, filename));
+				file);
 		transformer.transform(source, result);
+		LOG.info( filename + ": " + file.length() + "B" );
 	}
 
 	private static String cleanTOADUUID(String id) {
