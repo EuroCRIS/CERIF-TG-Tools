@@ -93,6 +93,15 @@ public enum CERIFEntityType {
 		}
 	},
 	
+	DUBLIN_CORE {
+		public UUID getUuid() {
+			return DUBLIN_CORE_UUID;
+		}
+		public String getTerm() {
+			return "Dublin Core";
+		}
+	},
+	
 	;
 
 	/**
@@ -130,5 +139,6 @@ public enum CERIFEntityType {
 	private static final UUID INFRASTRUCTURE_ENTITIES_UUID = UUID.fromString( "4e67698c-3316-441a-8f81-b60767bf5578" );
 	private static final UUID SECOND_ORDER_ENTITIES_UUID = UUID.fromString( "69f7eebc-c27b-4b02-b2de-8e2b645669b2" );
 	private static final UUID INDICATORS_AND_MEASUREMENTS_UUID = UUID.fromString( "3494420d-7b32-4815-83de-0229602da0b3" );
+	private static final UUID DUBLIN_CORE_UUID = UUID.fromString( "66c54cf1-ee03-4746-8129-74bac9f8c6b4" );
 
 }
