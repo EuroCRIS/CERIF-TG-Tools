@@ -10,6 +10,7 @@ public class Model {
 	private final Map<UUID, Entity> entitiesByUuid = new LinkedHashMap<>();
 	private final Map<UUID, Attribute> attributesByUuid = new LinkedHashMap<>();
 	private final Map<UUID, Relationship> relationshipsByUuid = new LinkedHashMap<>();
+	private final Map<UUID, String> categoryLabelsByUuid = new LinkedHashMap<>();
 	private final String modifiedDate;
 	private final String title;
 	
@@ -39,6 +40,10 @@ public class Model {
 		return Collections.unmodifiableCollection( relationshipsByUuid.values() );
 	}
 	
+	public Iterable<Map.Entry<UUID, String>> iterableCategories() {
+		return Collections.unmodifiableMap( categoryLabelsByUuid ).entrySet();
+	}
+	
 	public Entity getEntityBy( final UUID uuid ) {
 		return entitiesByUuid.get( uuid );
 	}
@@ -61,6 +66,10 @@ public class Model {
 	
 	public void add( final Relationship relationship ) {
 		relationshipsByUuid.put( relationship.getUuid(), relationship );
+	}
+	
+	public void addCategory( final UUID uuid, final String label ) {
+		categoryLabelsByUuid.put( uuid, label );
 	}
 	
 }
