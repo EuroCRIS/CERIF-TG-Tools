@@ -4,9 +4,11 @@
  */
 package org.eurocris.cerif.utils;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.RandomAccess;
 
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
@@ -231,4 +233,40 @@ public class XMLUtils
     	}
     	return result;
     }
+    
+    public static List<Element> getChildElements( final Element parent ) {
+    	final NodeList nl = parent.getChildNodes();
+    	final int n = nl.getLength();
+		final List<Element> list = new ArrayList<>( n );
+    	for ( int i = 0; i < n; ++i ) {
+    		final Node node = nl.item( i );
+    		if ( node instanceof Element ) {
+    			list.add( (Element) node );
+    		}
+    	}
+    	return list;
+    }
+    
+	public static List<Node> asList( final NodeList nl ) {
+		return new NodeListWrapper( nl );
+	}
+
+	private static final class NodeListWrapper extends AbstractList<Node> implements RandomAccess {
+		
+		private final NodeList list;
+
+		NodeListWrapper( final NodeList l ) {
+			list = l;
+		}
+
+		public Node get( final int index ) {
+			return list.item( index );
+		}
+
+		public int size() {
+			return list.getLength();
+		}
+		
+	}
+
 }
