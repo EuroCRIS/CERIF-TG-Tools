@@ -1,6 +1,7 @@
 package org.eurocris.cerif.model;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -8,7 +9,9 @@ import java.util.UUID;
 public class Model {
 
 	private final Map<UUID, Entity> entitiesByUuid = new LinkedHashMap<>();
+	private final Map<String, Entity> entitiesByPhysicalName = new HashMap<>();
 	private final Map<UUID, Attribute> attributesByUuid = new LinkedHashMap<>();
+	private final Map<String, Attribute> attributesByPhysicalName = new HashMap<>();
 	private final Map<UUID, Relationship> relationshipsByUuid = new LinkedHashMap<>();
 	private final Map<UUID, String> categoryLabelsByUuid = new LinkedHashMap<>();
 	private final String modifiedDate;
@@ -48,8 +51,16 @@ public class Model {
 		return entitiesByUuid.get( uuid );
 	}
 	
+	public Entity getEntityBy( final String physicalName ) {
+		return entitiesByPhysicalName.get( physicalName );
+	}
+	
 	public Attribute getAttributeBy( final UUID uuid ) {
 		return attributesByUuid.get( uuid );
+	}
+	
+	public Attribute getAttributeBy( final String physicalName ) {
+		return attributesByPhysicalName.get( physicalName );
 	}
 	
 	public Relationship getRelationshipBy( final UUID uuid ) {
@@ -58,10 +69,12 @@ public class Model {
 	
 	public void add( final Entity entity ) {
 		entitiesByUuid.put( entity.getUuid(), entity );
+		entitiesByPhysicalName.put( entity.getPhysicalName(), entity );
 	}
 	
 	public void add( final Attribute attribute ) {
 		attributesByUuid.put( attribute.getUuid(), attribute );
+		attributesByPhysicalName.put( attribute.getPhysicalName(), attribute );
 	}
 	
 	public void add( final Relationship relationship ) {
