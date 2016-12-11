@@ -4,22 +4,26 @@ import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.namespace.QName;
+import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+import org.apache.ws.commons.schema.XmlSchema;
+import org.apache.ws.commons.schema.XmlSchemaCollection;
+import org.apache.ws.commons.schema.XmlSchemaElement;
+import org.apache.ws.commons.schema.XmlSchemaObject;
+import org.apache.ws.commons.schema.extensions.ExtensionDeserializer;
+import org.apache.ws.commons.schema.extensions.ExtensionRegistry;
 import org.eurocris.cerif.model.CERIFEntityType;
 import org.eurocris.cerif.model.Entity;
 import org.eurocris.cerif.model.Model;
 import org.eurocris.cerif.model.toad.ToadModelParser;
-import org.eurocris.cerif.utils.XMLUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Node;
 
 public class ToadXsdTools {
 
@@ -69,23 +73,22 @@ public class ToadXsdTools {
 			}
 
 			final File schemaFile = new File(line.getOptionValue('s'));
-			final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-			dbFactory.setNamespaceAware( true );
-			final DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-			final Document schema = dBuilder.parse( schemaFile );			
-			final Element schemaRootEl = schema.getDocumentElement();
-			schemaRootEl.normalize();
-			for ( final Element e : XMLUtils.getChildElements( schemaRootEl ) ) {
-				if ( XMLConstants.W3C_XML_SCHEMA_NS_URI.equals( e.getNamespaceURI() ) ) {
-					if ( "element".equals( e.getLocalName() ) ) {
-						final String entityName = e.getAttributeNS( CFLINK_NS_URI, "entity" );
-						if ( basicEntitiesByName.containsKey( entityName ) ) {
-							basicEntitiesByName.remove( entityName );
-							// ok
-						} else {
-							System.out.println( "Entity '" + entityName + "' is not known" );
-						}
-					}
+			final XmlSchemaCollection schemaCol = new XmlSchemaCollection();
+			schemaCol.setExtReg( new MyExtensionRegistry( model ) );
+			final XmlSchema schema = schemaCol.read(new StreamSource(schemaFile));
+			final Map<QName, XmlSchemaElement> elements = schema.getElements();
+			System.out.println( "Element names: " + elements.keySet() );
+			for ( final XmlSchemaElement elDecl : elements.values() ) {
+				final Map<Object, Object> metaInfoMap = elDecl.getMetaInfoMap();
+				final Entity e = ( metaInfoMap != null ) ? (Entity) metaInfoMap.get( EntityLinkExtensionDeserializer.CFLINK_ENTITY_QNAME ) : null;
+				if ( e != null ) {
+					final String entityName = e.getPhysicalName();
+					if ( basicEntitiesByName.containsKey( entityName ) ) {
+						basicEntitiesByName.remove( entityName );
+						// ok
+					} else {
+						System.out.println( "Entity '" + entityName + "' is not known" );
+					}					
 				}
 			}
 			
@@ -99,4 +102,36 @@ public class ToadXsdTools {
 		}
 	}
 
+	protected static class MyExtensionRegistry extends ExtensionRegistry {
+		protected MyExtensionRegistry( final Model model ) {
+			super();
+			registerDeserializer( EntityLinkExtensionDeserializer.CFLINK_ENTITY_QNAME, new EntityLinkExtensionDeserializer( model ) );
+		}
+	}
+	
+	protected static class EntityLinkExtensionDeserializer implements ExtensionDeserializer {
+
+		public static final QName CFLINK_ENTITY_QNAME = new QName( CFLINK_NS_URI, "entity" );
+
+		private final Model model;
+		
+		public EntityLinkExtensionDeserializer( final Model model ) {
+			this.model = model;
+		}
+
+		@Override
+		public void deserialize( final XmlSchemaObject obj, final QName qname, final Node node ) {
+			final Attr attr = (Attr) node;
+			final String name = attr.getValue();
+			final Entity entity = model.getEntityBy( name );
+			if ( entity != null ) {
+				obj.addMetaInfo( CFLINK_ENTITY_QNAME, entity );
+			} else {
+				System.err.println( "Entity '" + name + "' not found in the model" );
+			}
+		}
+		
+	}
+
 }
+
