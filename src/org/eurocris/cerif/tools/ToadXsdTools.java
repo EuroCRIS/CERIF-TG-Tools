@@ -2,7 +2,10 @@ package org.eurocris.cerif.tools;
 
 import java.io.File;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import javax.xml.namespace.QName;
 import javax.xml.transform.stream.StreamSource;
@@ -14,10 +17,16 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
+import org.apache.ws.commons.schema.XmlSchemaComplexContentExtension;
+import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
+import org.apache.ws.commons.schema.XmlSchemaGroupRef;
 import org.apache.ws.commons.schema.XmlSchemaObject;
+import org.apache.ws.commons.schema.XmlSchemaSequence;
+import org.apache.ws.commons.schema.XmlSchemaSequenceMember;
 import org.apache.ws.commons.schema.extensions.ExtensionDeserializer;
 import org.apache.ws.commons.schema.extensions.ExtensionRegistry;
+import org.eurocris.cerif.model.Attribute;
 import org.eurocris.cerif.model.CERIFEntityType;
 import org.eurocris.cerif.model.Entity;
 import org.eurocris.cerif.model.Model;
@@ -52,6 +61,7 @@ public class ToadXsdTools {
 			final Model model = modelParser.readInModel( modelFile );
 			
 			final Map<String, Entity> basicEntitiesByName = new LinkedHashMap<>();
+			final Map<String, Attribute> basicAttributesByName = new LinkedHashMap<>();
 			for ( final Entity e : model.iterableEntities() ) {
 				final CERIFEntityType et = e.getEntityType();
 				if ( et != null ) {
@@ -63,6 +73,11 @@ public class ToadXsdTools {
 					case RESULT_ENTITIES:
 					case SECOND_ORDER_ENTITIES:
 						basicEntitiesByName.put( e.getPhysicalName(), e );
+						streamOfNonDeprecatedAttributes( e ).forEach( (a) -> basicAttributesByName.put( a.getPhysicalName(), a ) );
+						break;
+					case MULTILINGUAL:
+						final List<Attribute> pkAttributes = e.getPrimaryKey().getAttributes();
+						streamOfNonDeprecatedAttributes( e ).filter( (a) -> !pkAttributes.contains( a ) ).forEach( (a) -> basicAttributesByName.put( a.getPhysicalName(), a ) ); 
 						break;
 					default:
 						break;
@@ -79,21 +94,41 @@ public class ToadXsdTools {
 			final Map<QName, XmlSchemaElement> elements = schema.getElements();
 			System.out.println( "Element names: " + elements.keySet() );
 			for ( final XmlSchemaElement elDecl : elements.values() ) {
-				final Map<Object, Object> metaInfoMap = elDecl.getMetaInfoMap();
-				final Entity e = ( metaInfoMap != null ) ? (Entity) metaInfoMap.get( EntityLinkExtensionDeserializer.CFLINK_ENTITY_QNAME ) : null;
-				if ( e != null ) {
-					final String entityName = e.getPhysicalName();
-					if ( basicEntitiesByName.containsKey( entityName ) ) {
-						basicEntitiesByName.remove( entityName );
-						// ok
-					} else {
-						System.out.println( "Entity '" + entityName + "' is not known" );
-					}					
+				final Optional<Entity> optEntity = Optional.ofNullable( elDecl.getMetaInfoMap() ).map( (m) -> (Entity) m.get( EntityLinkExtensionDeserializer.CFLINK_ENTITY_QNAME ) ); 
+				optEntity.ifPresent( (e) -> basicEntitiesByName.remove( e.getPhysicalName() ) );
+				if ( !optEntity.isPresent() ) {
+					System.out.println( "No entity reference: " + elDecl.getName() );
+				}
+				
+				final XmlSchemaComplexType type = (XmlSchemaComplexType) elDecl.getSchemaType();
+				final XmlSchemaComplexContentExtension content = (XmlSchemaComplexContentExtension) type.getContentModel().getContent();
+				final XmlSchemaComplexType idType = (XmlSchemaComplexType) schema.getTypeByName( content.getBaseTypeName() );
+				// idType.getAttributes();
+				
+				final XmlSchemaSequence sequence = (XmlSchemaSequence) content.getParticle();
+				for ( final XmlSchemaSequenceMember member : sequence.getItems() ) {
+					if ( member instanceof XmlSchemaElement ) {
+						final XmlSchemaElement elDecl2 = (XmlSchemaElement) member;
+						if ( elDecl2.getMinOccurs() > 0 ) {
+							System.out.println( "Mandatory particle in contents: " + elDecl.getName() + "/" + elDecl2.getName() );
+						}
+						final Optional<Map<Object, Object>> optMetainfoMap = Optional.ofNullable( elDecl2.getMetaInfoMap() );
+						optMetainfoMap.map( (m) -> (Attribute) m.get( AttributeLinkExtensionDeserializer.CFLINK_ATTRIBUTE_QNAME ) ).ifPresent( (a) -> basicAttributesByName.remove( a.getPhysicalName() ) );
+						if ( !optMetainfoMap.isPresent() ) {
+							System.out.println( "No annotation for: " + elDecl.getName() + "/" + elDecl2.getName() );
+						}
+					} else if ( member instanceof XmlSchemaGroupRef ) {
+						// TODO
+					}
 				}
 			}
 			
 			for ( final String e : basicEntitiesByName.keySet() ) {
 				System.out.println( "Entity '" + e + "' is not represented in the schema" );
+			}
+			
+			for ( final String a : basicAttributesByName.keySet() ) {
+				System.out.println( "Attribute '" + a + "' is not represented in the schema, notes: " + basicAttributesByName.get( a ).getNotes() );
 			}
 			
 
@@ -102,10 +137,15 @@ public class ToadXsdTools {
 		}
 	}
 
+	public static Stream<Attribute> streamOfNonDeprecatedAttributes( final Entity e ) {
+		return e.getAttributes().stream().filter( (a) -> ToadModelParser.extractInfo( "deprecated", a.getNotes(), null ) == null );
+	}
+
 	protected static class MyExtensionRegistry extends ExtensionRegistry {
 		protected MyExtensionRegistry( final Model model ) {
 			super();
 			registerDeserializer( EntityLinkExtensionDeserializer.CFLINK_ENTITY_QNAME, new EntityLinkExtensionDeserializer( model ) );
+			registerDeserializer( AttributeLinkExtensionDeserializer.CFLINK_ATTRIBUTE_QNAME, new AttributeLinkExtensionDeserializer( model ) );
 		}
 	}
 	
@@ -128,6 +168,30 @@ public class ToadXsdTools {
 				obj.addMetaInfo( CFLINK_ENTITY_QNAME, entity );
 			} else {
 				System.err.println( "Entity '" + name + "' not found in the model" );
+			}
+		}
+		
+	}
+
+	protected static class AttributeLinkExtensionDeserializer implements ExtensionDeserializer {
+
+		public static final QName CFLINK_ATTRIBUTE_QNAME = new QName( CFLINK_NS_URI, "attribute" );
+
+		private final Model model;
+		
+		public AttributeLinkExtensionDeserializer( final Model model ) {
+			this.model = model;
+		}
+
+		@Override
+		public void deserialize( final XmlSchemaObject obj, final QName qname, final Node node ) {
+			final Attr attr = (Attr) node;
+			final String name = attr.getValue();
+			final Attribute attribute = model.getAttributeBy( name );
+			if ( attribute != null ) {
+				obj.addMetaInfo( CFLINK_ATTRIBUTE_QNAME, attribute );
+			} else {
+				System.err.println( "Attribute '" + name + "' not found in the model" );
 			}
 		}
 		
