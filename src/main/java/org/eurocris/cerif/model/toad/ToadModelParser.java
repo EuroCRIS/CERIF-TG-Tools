@@ -170,7 +170,7 @@ public class ToadModelParser {
 
 	public static String extractInfo( final String param, final String inputString, final String defaultValue ) {
 		if ( inputString != null ) {
-			final Pattern p = Pattern.compile( ".*\\{@" + param + " *(.*?)\\}.*" );
+			final Pattern p = Pattern.compile( ".*\\{@" + param + " *(.*?)\\}.*", Pattern.DOTALL );
 			final Matcher m = p.matcher( inputString );
 			if ( m.matches() ) {
 				return m.group( 1 );

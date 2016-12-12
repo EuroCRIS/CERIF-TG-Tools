@@ -42,6 +42,16 @@ public class TestExtractInfo {
 	}
 
 	@Test
+	public void testDeprecated5() {
+		assertEquals( "1.6", ToadModelParser.extractInfo( "deprecated", "{@deprecated 1.6}\nblablabla", null ) );
+	}
+
+	@Test
+	public void testDeprecated6() {
+		assertEquals( "1.6", ToadModelParser.extractInfo( "deprecated", "blablabla\n{@deprecated 1.6}\nblablabla", null ) );
+	}
+
+	@Test
 	public void testFlag00() {
 		assertNull( ToadModelParser.extractInfo( "flag", null, null ) );
 	}
