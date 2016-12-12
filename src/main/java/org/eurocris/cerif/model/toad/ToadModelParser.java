@@ -168,16 +168,15 @@ public class ToadModelParser {
 		return null;
 	}
 
-	public static String extractInfo( final String param, final String cfDesc, final String defValue ) {
-		if ( cfDesc != null ) {
-			Pattern p = Pattern
-					.compile( "\\{@" + param + " (.*?)\\}(?:\\{@[a-z]* .*?\\})*.*|(?:\\{@[a-z]* .*?\\})*?\\{@" + param + " (.*?)\\}.*" );
-			Matcher m = p.matcher( cfDesc );
+	public static String extractInfo( final String param, final String inputString, final String defaultValue ) {
+		if ( inputString != null ) {
+			final Pattern p = Pattern.compile( ".*\\{@" + param + " *(.*?)\\}.*" );
+			final Matcher m = p.matcher( inputString );
 			if ( m.matches() ) {
-				return ( m.group(1) != null ) ? m.group(1) : m.group(2);
+				return m.group( 1 );
 			}
 		}
-		return defValue;
+		return defaultValue;
 	}
 
 	private static UUID extractTOADUUID(String id) {
