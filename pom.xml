@@ -7,7 +7,6 @@
 	<name>TOAD2CERIF</name>
 	<description>This tool is intent for CERIF data modellers to convert the TOAD file in the CERIF XML Semantics</description>
 	<build>
-		<sourceDirectory>src</sourceDirectory>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
