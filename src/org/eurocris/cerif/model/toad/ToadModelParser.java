@@ -100,7 +100,7 @@ public class ToadModelParser {
 			final String entityNotes = XMLUtils.getElementValue(entityEl, "Notes");
 			final String entityComments = XMLUtils.getElementValue(entityEl, "Comments");
 			final CERIFEntityType entityType = entityTypeByEntityUUIDMap.get( entityUUID );
-			final String cfTerm = extractInfo("term", entityNotes, readableEntityLongName);
+			final String cfTerm = extractInfo( "term", entityNotes, readableEntityLongName );
 			final String pkConstraintId = extractTOADUUID( XMLUtils.getElementValueList(entityEl, "PK", "Id").get(0) ).toString();
 	
 			final Entity entity = new Entity( entityUUID, entityName, readableEntityLongName, entityType, cfTerm, entityNotes, entityComments, pkConstraintId );
@@ -115,8 +115,10 @@ public class ToadModelParser {
 				final String attrComposedName = entityName + "." + attrBareName;
 				final String attrLongName = XMLUtils.getElementValue( attr, "Caption" );
 				final String readableAttrLongName = makeReadable( attrLongName );
+				final String attrNotes = XMLUtils.getElementValue( attr, "Notes" );
+				final String attrComments = XMLUtils.getElementValue( attr, "Comments" );
 				
-				final Attribute attribute = new Attribute( entity, attrUUID, attrComposedName, readableAttrLongName );
+				final Attribute attribute = new Attribute( entity, attrUUID, attrComposedName, readableAttrLongName, attrNotes, attrComments );
 				model.add( attribute );
 				if (pks.contains(attrUUID)) {
 					entity.getPrimaryKey().getAttributes().add( attribute );
@@ -166,13 +168,13 @@ public class ToadModelParser {
 		return null;
 	}
 
-	public static String extractInfo(String param, String cfDesc, String defValue) {
-		if (cfDesc != null) {
+	public static String extractInfo( final String param, final String cfDesc, final String defValue ) {
+		if ( cfDesc != null ) {
 			Pattern p = Pattern
-					.compile("\\{@" + param + " (.*?)\\}(?:\\{@[a-z]* .*?\\})*.*|(?:\\{@[a-z]* .*?\\})*?\\{@" + param + " (.*?)\\}.*");
-			Matcher m = p.matcher(cfDesc);
-			if (m.matches()) {
-				return m.group(1) != null?m.group(1):m.group(2);
+					.compile( "\\{@" + param + " (.*?)\\}(?:\\{@[a-z]* .*?\\})*.*|(?:\\{@[a-z]* .*?\\})*?\\{@" + param + " (.*?)\\}.*" );
+			Matcher m = p.matcher( cfDesc );
+			if ( m.matches() ) {
+				return ( m.group(1) != null ) ? m.group(1) : m.group(2);
 			}
 		}
 		return defValue;

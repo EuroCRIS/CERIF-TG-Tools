@@ -11,12 +11,16 @@ public class Attribute {
 	private final UUID uuid;
 	private final String physicalName;
 	private final String logicalName;
+	private final String notes;
+	private final String comments;
 	
-	public Attribute( final Entity entity, final UUID uuid, final String physicalName, final String logicalName ) {
+	public Attribute( final Entity entity, final UUID uuid, final String physicalName, final String logicalName, final String notes, final String comments ) {
 		( this.entity = entity ).getAttributes().add( this );
 		this.uuid = uuid;
 		this.physicalName = physicalName;
 		this.logicalName = logicalName;
+		this.notes = notes;
+		this.comments = comments;
 	}
 
 	public Entity getEntity() {
@@ -39,5 +43,12 @@ public class Attribute {
 		return getPhysicalName();
 	}
 
+	public String getNotes() {
+		return notes;
+	}
 	
+	public String getComments() {
+		return comments;
+	}
+
 }
