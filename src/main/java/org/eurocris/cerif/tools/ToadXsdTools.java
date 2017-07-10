@@ -1,10 +1,11 @@
 package org.eurocris.cerif.tools;
 
 import java.io.File;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.stream.Stream;
 
 import javax.xml.namespace.QName;
@@ -60,8 +61,8 @@ public class ToadXsdTools {
 			final ToadModelParser modelParser = new ToadModelParser();
 			final Model model = modelParser.readInModel( modelFile );
 			
-			final Map<String, Entity> basicEntitiesByName = new LinkedHashMap<>();
-			final Map<String, Attribute> basicAttributesByName = new LinkedHashMap<>();
+			final SortedMap<String, Entity> basicEntitiesByName = new TreeMap<>();
+			final SortedMap<String, Attribute> basicAttributesByName = new TreeMap<>();
 			for ( final Entity e : model.iterableEntities() ) {
 				final CERIFEntityType et = e.getEntityType();
 				if ( et != null ) {
@@ -73,8 +74,6 @@ public class ToadXsdTools {
 					case RESULT_ENTITIES:
 					case SECOND_ORDER_ENTITIES:
 						basicEntitiesByName.put( e.getPhysicalName(), e );
-						streamOfNonDeprecatedAttributes( e ).forEach( (a) -> basicAttributesByName.put( a.getPhysicalName(), a ) );
-						break;
 					case MULTILINGUAL:
 						final List<Attribute> pkAttributes = e.getPrimaryKey().getAttributes();
 						streamOfNonDeprecatedAttributes( e ).filter( (a) -> !pkAttributes.contains( a ) ).forEach( (a) -> basicAttributesByName.put( a.getPhysicalName(), a ) ); 
@@ -102,8 +101,6 @@ public class ToadXsdTools {
 				
 				final XmlSchemaComplexType type = (XmlSchemaComplexType) elDecl.getSchemaType();
 				final XmlSchemaComplexContentExtension content = (XmlSchemaComplexContentExtension) type.getContentModel().getContent();
-				final XmlSchemaComplexType idType = (XmlSchemaComplexType) schema.getTypeByName( content.getBaseTypeName() );
-				// idType.getAttributes();
 				
 				final XmlSchemaSequence sequence = (XmlSchemaSequence) content.getParticle();
 				for ( final XmlSchemaSequenceMember member : sequence.getItems() ) {
@@ -123,14 +120,18 @@ public class ToadXsdTools {
 				}
 			}
 			
+			System.out.println( "-----------------" );
 			for ( final String e : basicEntitiesByName.keySet() ) {
 				System.out.println( "Entity '" + e + "' is not represented in the schema" );
 			}
 			
+			System.out.println( "-----------------" );
 			for ( final String a : basicAttributesByName.keySet() ) {
-				System.out.println( "Attribute '" + a + "' is not represented in the schema, notes: " + basicAttributesByName.get( a ).getNotes() );
+				System.out.println( "Attribute '" + a + "' is not represented in the schema" );
 			}
 			
+			System.out.println( "-----------------" );
+			System.out.println( "Totals: " + basicEntitiesByName.size() + " unrepresented entities, " + basicAttributesByName.size() + " unrepresented attributes" );
 
 		} catch ( final Throwable t ) {
 			t.printStackTrace( System.err );
