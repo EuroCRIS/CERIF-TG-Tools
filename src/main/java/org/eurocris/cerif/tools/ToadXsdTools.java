@@ -194,12 +194,14 @@ public class ToadXsdTools {
 		@Override
 		public void deserialize( final XmlSchemaObject obj, final QName qname, final Node node ) {
 			final Attr attr = (Attr) node;
-			final String name = attr.getValue();
-			final Attribute attribute = model.getAttributeBy( name );
-			if ( attribute != null ) {
-				obj.addMetaInfo( CFLINK_ATTRIBUTE_QNAME, attribute );
-			} else {
-				System.err.println( "Attribute '" + name + "' not found in the model" );
+			final String names = attr.getValue();
+			for ( final String name : names.split( "\\+" ) ) {
+				final Attribute attribute = model.getAttributeBy( name );
+				if ( attribute != null ) {
+					obj.addMetaInfo( CFLINK_ATTRIBUTE_QNAME, attribute );
+				} else {
+					System.err.println( "Attribute '" + name + "' not found in the model" );
+				}
 			}
 		}
 		
