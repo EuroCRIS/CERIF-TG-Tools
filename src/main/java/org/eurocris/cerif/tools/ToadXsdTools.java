@@ -103,20 +103,24 @@ public class ToadXsdTools {
 				final XmlSchemaComplexContentExtension content = (XmlSchemaComplexContentExtension) type.getContentModel().getContent();
 				
 				final XmlSchemaSequence sequence = (XmlSchemaSequence) content.getParticle();
-				for ( final XmlSchemaSequenceMember member : sequence.getItems() ) {
-					if ( member instanceof XmlSchemaElement ) {
-						final XmlSchemaElement elDecl2 = (XmlSchemaElement) member;
-						if ( elDecl2.getMinOccurs() > 0 ) {
-							System.out.println( "Mandatory particle in contents: " + elDecl.getName() + "/" + elDecl2.getName() );
+				if ( sequence != null ) {
+					for ( final XmlSchemaSequenceMember member : sequence.getItems() ) {
+						if ( member instanceof XmlSchemaElement ) {
+							final XmlSchemaElement elDecl2 = (XmlSchemaElement) member;
+							if ( elDecl2.getMinOccurs() > 0 ) {
+								System.out.println( "Mandatory particle in contents: " + elDecl.getName() + "/" + elDecl2.getName() );
+							}
+							final Optional<Map<Object, Object>> optMetainfoMap = Optional.ofNullable( elDecl2.getMetaInfoMap() );
+							optMetainfoMap.map( (m) -> (Attribute) m.get( AttributeLinkExtensionDeserializer.CFLINK_ATTRIBUTE_QNAME ) ).ifPresent( (a) -> basicAttributesByName.remove( a.getPhysicalName() ) );
+							if ( !optMetainfoMap.isPresent() ) {
+								System.out.println( "No annotation for: " + elDecl.getName() + "/" + elDecl2.getName() );
+							}
+						} else if ( member instanceof XmlSchemaGroupRef ) {
+							// TODO
 						}
-						final Optional<Map<Object, Object>> optMetainfoMap = Optional.ofNullable( elDecl2.getMetaInfoMap() );
-						optMetainfoMap.map( (m) -> (Attribute) m.get( AttributeLinkExtensionDeserializer.CFLINK_ATTRIBUTE_QNAME ) ).ifPresent( (a) -> basicAttributesByName.remove( a.getPhysicalName() ) );
-						if ( !optMetainfoMap.isPresent() ) {
-							System.out.println( "No annotation for: " + elDecl.getName() + "/" + elDecl2.getName() );
-						}
-					} else if ( member instanceof XmlSchemaGroupRef ) {
-						// TODO
 					}
+				} else {
+					System.out.println( "No content particle for " + elDecl.getName() );
 				}
 			}
 			
