@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.xml.namespace.QName;
@@ -39,6 +40,8 @@ public class ToadXsdTools {
 
 	public static final String CFLINK_NS_URI = "http://eurocris.org/cerif/annotations#";
 	
+	private static final String SUBSTITUTION_GROUP_HEAD_ENDING = "__SubstitutionGroupHead";
+
 	public static void main( final String[] args ) {
 		try {
 
@@ -90,7 +93,7 @@ public class ToadXsdTools {
 			final XmlSchemaCollection schemaCol = new XmlSchemaCollection();
 			schemaCol.setExtReg( new MyExtensionRegistry( model ) );
 			final XmlSchema schema = schemaCol.read(new StreamSource(schemaFile));
-			final Map<QName, XmlSchemaElement> elements = schema.getElements();
+			final Map<QName, XmlSchemaElement> elements = schema.getElements().entrySet().stream().filter( (e) -> ! e.getKey().getLocalPart().endsWith( SUBSTITUTION_GROUP_HEAD_ENDING ) ).collect( Collectors.toMap( Map.Entry::getKey, Map.Entry::getValue ) );
 			System.out.println( "Element names: " + elements.keySet() );
 			for ( final XmlSchemaElement elDecl : elements.values() ) {
 				final Optional<Entity> optEntity = Optional.ofNullable( elDecl.getMetaInfoMap() ).map( (m) -> (Entity) m.get( EntityLinkExtensionDeserializer.CFLINK_ENTITY_QNAME ) ); 
