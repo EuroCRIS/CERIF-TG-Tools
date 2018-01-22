@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified" xml:lang="en" targetNamespace="https://w3id.org/cerif/profile" xmlns="https://w3id.org/cerif/profile">
+
+	<xs:annotation>
+		<xs:documentation>This is the XML Schema for CERIF (Common European Research Information Format) Profile Definitions version XXX, developed by the euroCRIS CERIF Task Group.
+			This work is licensed
+			under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0/).
+			For more information about CERIF and euroCRIS see http://www.eurocris.org/.
+		</xs:documentation>
+	</xs:annotation>
+
+	<xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd">
+		<xs:annotation>
+			<xs:documentation>The `xml:lang` attribute.</xs:documentation>
+		</xs:annotation>
+	</xs:import>
+
+	<xs:import namespace="http://www.w3.org/2001/XMLSchema" schemaLocation="https://www.w3.org/2001/XMLSchema.xsd">
+		<xs:annotation>
+			<xs:documentation>The XML Schema stuff.</xs:documentation>
+		</xs:annotation>
+	</xs:import>
+
+	<xs:element name="CERIF-profile">
+		<xs:annotation>
+			<xs:documentation>The main element of a CERIF profile definition</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="TargetNamespace">
+					<xs:annotation>
+						<xs:documentation>The target XML namespace of the profile.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:attribute name="uri" type="xs:anyURI" use="required">
+							<xs:annotation>
+								<xs:documentation>The URI of the target XML namespace of the profile.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Name" type="xs:string" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>The name of the profile. If multiple names are given, they should be differentiated by the xml:lang attributes.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="Description" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>A description of the profile, possibly in different languages (specify by the xml:lang attribute).</xs:documentation>
+					</xs:annotation>
+					<xs:complexType mixed="true">
+						<xs:sequence>
+							<xs:any namespace="##other" minOccurs="0" maxOccurs="unbounded" />
+						</xs:sequence>
+						<xs:attribute ref="xml:lang" />
+						<xs:anyAttribute namespace="##other" />
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Entities">
+					<xs:annotation>
+						<xs:documentation>The list of CERIF entities to include in the profile.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Entity" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element ref="xs:annotation" minOccurs="0" />
+										<xs:element name="Classification" minOccurs="0" maxOccurs="unbounded">
+											<xs:complexType>
+												<xs:sequence />
+												<xs:attribute name="kind">
+													<xs:simpleType>
+														<xs:restriction base="xs:string">
+															<xs:enumeration value="Type"></xs:enumeration>
+															<xs:enumeration value="Status"></xs:enumeration>
+															<xs:enumeration value="Subject"></xs:enumeration>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:attribute>
+												<xs:attribute name="schema" type="xs:anyURI" />
+												<xs:attributeGroup ref="xs:occurs" />
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+									<xs:attribute name="uri" type="xs:string" use="required" />
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:sequence>
+					<!-- copied the content model for xs:schema in XMLSchema.xsd -->
+					<xs:choice minOccurs="0" maxOccurs="unbounded">
+						<xs:element ref="xs:include" />
+						<xs:element ref="xs:import" />
+						<xs:element ref="xs:redefine" />
+						<xs:element ref="xs:annotation" />
+					</xs:choice>
+					<xs:sequence minOccurs="0" maxOccurs="unbounded">
+						<xs:group ref="xs:schemaTop" />
+						<xs:element ref="xs:annotation" minOccurs="0" maxOccurs="unbounded" />
+					</xs:sequence>
+				</xs:sequence>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+</xs:schema>
