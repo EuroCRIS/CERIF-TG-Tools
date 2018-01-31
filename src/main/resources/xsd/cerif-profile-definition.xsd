@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified" xml:lang="en" targetNamespace="https://w3id.org/cerif/profile" xmlns="https://w3id.org/cerif/profile">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified" xml:lang="en" targetNamespace="https://w3id.org/cerif/profile" xmlns="https://w3id.org/cerif/profile" xmlns:cflink="https://w3id.org/cerif/annotations#" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc">
 
 	<xs:annotation>
 		<xs:documentation>This is the XML Schema for CERIF (Common European Research Information Format) Profile Definitions version XXX, developed by the euroCRIS CERIF Task Group.
@@ -18,6 +18,12 @@
 	<xs:import namespace="http://www.w3.org/2001/XMLSchema" schemaLocation="https://www.w3.org/2001/XMLSchema.xsd">
 		<xs:annotation>
 			<xs:documentation>The XML Schema stuff.</xs:documentation>
+		</xs:annotation>
+	</xs:import>
+
+	<xs:import namespace="https://w3id.org/cerif/annotations#" schemaLocation="./cerif-model-annotation.xsd">
+		<xs:annotation>
+			<xs:documentation>The cflink:* annotation attributes.</xs:documentation>
 		</xs:annotation>
 	</xs:import>
 
@@ -64,46 +70,73 @@
 						<xs:sequence>
 							<xs:element name="Entity" maxOccurs="unbounded">
 								<xs:complexType>
-									<xs:sequence>
-										<xs:element ref="xs:annotation" minOccurs="0" />
-										<xs:element name="Classification" minOccurs="0" maxOccurs="unbounded">
-											<xs:complexType>
-												<xs:sequence />
-												<xs:attribute name="kind">
-													<xs:simpleType>
-														<xs:restriction base="xs:string">
-															<xs:enumeration value="Type"></xs:enumeration>
-															<xs:enumeration value="Status"></xs:enumeration>
-															<xs:enumeration value="Subject"></xs:enumeration>
-														</xs:restriction>
-													</xs:simpleType>
-												</xs:attribute>
-												<xs:attribute name="schema" type="xs:anyURI" />
-												<xs:attributeGroup ref="xs:occurs" />
-											</xs:complexType>
-										</xs:element>
-									</xs:sequence>
-									<xs:attribute name="uri" type="xs:string" use="required" />
+									<xs:complexContent>
+										<xs:extension base="xs:annotated">
+											<xs:sequence>
+												<xs:element name="Classification" minOccurs="0" maxOccurs="unbounded">
+													<xs:complexType>
+														<xs:complexContent>
+															<xs:extension base="xs:annotated">
+																<xs:attribute name="kind" type="xs:string"/>
+																<xs:attribute name="schema" type="xs:anyURI" />
+																<xs:attributeGroup ref="xs:occurs" />
+															</xs:extension>
+														</xs:complexContent>
+													</xs:complexType>
+												</xs:element>
+												<xs:element name="Identifier" minOccurs="0" maxOccurs="unbounded">
+													<xs:complexType>
+														<xs:complexContent>
+															<xs:extension base="xs:annotated">
+																<xs:attribute name="name" type="xs:NCName" use="required"/>
+																<xs:attribute ref="cflink:link"/>
+																<xs:attributeGroup ref="xs:occurs"/>
+															</xs:extension>
+														</xs:complexContent>
+													</xs:complexType>
+												</xs:element>
+												<xs:element name="Link" minOccurs="0" maxOccurs="unbounded">
+													<xs:complexType>
+														<xs:complexContent>
+															<xs:extension base="xs:annotated">
+																<xs:attribute name="name" type="xs:NCName" use="required"/>
+																<xs:attribute name="target" type="xs:NCName" use="required"/>
+																<xs:attribute ref="cflink:link"/>
+																<xs:attributeGroup ref="xs:occurs"/>
+															</xs:extension>
+														</xs:complexContent>
+													</xs:complexType>
+												</xs:element>
+												<xs:group ref="standard-xs-stuff"/>
+											</xs:sequence>
+											<xs:attribute name="uri" type="xs:string" use="required" />
+											<xs:attribute name="leaveOut" type="xs:string"/>
+										</xs:extension>
+									</xs:complexContent>
 								</xs:complexType>
 							</xs:element>
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
-				<xs:sequence>
-					<!-- copied the content model for xs:schema in XMLSchema.xsd -->
-					<xs:choice minOccurs="0" maxOccurs="unbounded">
-						<xs:element ref="xs:include" />
-						<xs:element ref="xs:import" />
-						<xs:element ref="xs:redefine" />
-						<xs:element ref="xs:annotation" />
-					</xs:choice>
-					<xs:sequence minOccurs="0" maxOccurs="unbounded">
-						<xs:group ref="xs:schemaTop" />
-						<xs:element ref="xs:annotation" minOccurs="0" maxOccurs="unbounded" />
-					</xs:sequence>
-				</xs:sequence>
+				<xs:element ref="xs:annotation" minOccurs="0"/>
+				<xs:group ref="standard-xs-stuff"/>
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
+	
+	<xs:group name="standard-xs-stuff">
+		<xs:sequence>
+			<!-- copied the content model for xs:schema in XMLSchema.xsd -->
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element ref="xs:include" />
+				<xs:element ref="xs:import" />
+				<xs:element ref="xs:redefine" />
+			</xs:choice>
+			<xs:sequence minOccurs="0" maxOccurs="unbounded">
+				<xs:group ref="xs:schemaTop" />
+				<xs:element ref="xs:annotation" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:sequence>
+	</xs:group>
 
 </xs:schema>
