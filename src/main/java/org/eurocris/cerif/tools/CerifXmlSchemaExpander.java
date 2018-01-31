@@ -184,7 +184,7 @@ public class CerifXmlSchemaExpander {
 					final Element el4 = createXsChild( el3, "complexContent" );
 					final Element el5 = createXsChild( el4, "extension" );
 					el5.setAttribute( "base", "cfLink__BaseType" );
-					final Element el6 = createXsChild( el5, "sequence" );
+					final Element el6 = createXsChild( el5, "choice" );
 					for ( final String tgt : link.getTarget().split( "\\s" ) ) {
 						final Element el7 = createXsChild( el6, "element" );
 						el7.setAttribute( "ref", tgt );
