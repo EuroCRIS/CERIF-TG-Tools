@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="https://w3id.org/cerif/annotations#" xmlns="https://w3id.org/cerif/annotations#" elementFormDefault="qualified">
+
+	<xs:attribute name="entity" type="xs:anyURI"/>
+	
+	<xs:attribute name="attribute" type="xs:anyURI"/>
+	
+	<xs:attribute name="link" type="xs:string"/>
+	
+	<xs:attribute name="identifier" type="xs:boolean" default="false"/>
+	
+	<xs:attribute name="container">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="ordered"></xs:enumeration>
+				<xs:enumeration value="unordered"></xs:enumeration>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:attribute>
+
+</xs:schema>
