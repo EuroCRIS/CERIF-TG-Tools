@@ -266,11 +266,12 @@ public class CerifXmlSchemaExpander {
 	
 	protected void filterEntities( final Document doc ) {
 		final Element schemaRoot = doc.getDocumentElement();
+		final List<Node> nodesToRemove = new ArrayList<>();
 		for ( final Element el2 : XMLUtils.asElementList( schemaRoot.getElementsByTagNameNS( XS_NSURI, "element" ) ) ) {
 			final String cfLinkEntity = el2.getAttributeNS( CF_LINK_NSURI, "entity" );
 			if ( StringUtils.isNotBlank( cfLinkEntity ) && ! entityByUri.containsKey( cfLinkEntity ) ) {
 				System.out.println( "Leaving out entity " + cfLinkEntity );
-				removeFromTree( el2 );
+				nodesToRemove.add( el2 );
 			} else {
 				final Entity entity = entityByUri.get( cfLinkEntity );
 				if ( entity != null ) {
@@ -284,7 +285,6 @@ public class CerifXmlSchemaExpander {
 							final Element el5 = XMLUtils.getSingleElement( el4, "xs:extension" );
 							final Element el6 = XMLUtils.getSingleElement( el5, "xs:sequence" );
 							
-							final List<Node> nodesToRemove = new ArrayList<>();
 							for ( final Element elx : XMLUtils.asElementList( el6.getElementsByTagNameNS( XS_NSURI, "*" ) ) ) {
 								final String elxName = elx.getAttribute( "name" ) + elx.getAttribute( "ref" );
 								if ( leaveOut.contains( elxName ) ) {
@@ -292,13 +292,13 @@ public class CerifXmlSchemaExpander {
 									nodesToRemove.add( elx );
 								}
 							}
-							for ( final Node node : nodesToRemove ) {
-								removeFromTree( node );
-							}
 						}
 					}
 				}
 			}
+		}
+		for ( final Node node : nodesToRemove ) {
+			removeFromTree( node );
 		}
 	}
 	
