@@ -185,8 +185,10 @@ public class CerifXmlSchemaExpander {
 					final Element el5 = createXsChild( el4, "extension" );
 					el5.setAttribute( "base", "cfLink__BaseType" );
 					final Element el6 = createXsChild( el5, "sequence" );
-					final Element el7 = createXsChild( el6, "element" );
-					el7.setAttribute( "ref", link.getTarget() );
+					for ( final String tgt : link.getTarget().split( "\\s" ) ) {
+						final Element el7 = createXsChild( el6, "element" );
+						el7.setAttribute( "ref", tgt );
+					}
 				}
 				for ( final OpenAttrs x : entityDef.getSimpleTypeOrComplexTypeOrGroup() ) {
 					marshalBefore( el1, new JAXBElement<TopLevelElement>( QName.valueOf( "{" + XS_NSURI + "}element"), TopLevelElement.class, (TopLevelElement) x ) );
@@ -226,7 +228,9 @@ public class CerifXmlSchemaExpander {
 
 	protected Element createXsChild( final Element parentEl, final String localName ) {
 		try {
-			parentEl.appendChild( parentEl.getOwnerDocument().createTextNode( "\n" ) );
+			if ( ! parentEl.hasChildNodes() ) {
+				parentEl.appendChild( parentEl.getOwnerDocument().createTextNode( "\n" ) );
+			}
 			return (Element) parentEl.appendChild( parentEl.getOwnerDocument().createElementNS( XS_NSURI, "xs:" + localName ) );
 		} finally {
 			parentEl.appendChild( parentEl.getOwnerDocument().createTextNode( "\n" ) );
