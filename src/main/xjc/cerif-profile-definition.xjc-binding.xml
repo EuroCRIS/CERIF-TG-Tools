@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jxb:bindings xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/jaxb https://www.oracle.com/webfolder/technetwork/jsc/xml/ns/jaxb/bindingschema_2_0.xsd">
+
+    <jxb:bindings schemaLocation="${basedir}/src/main/resources/xsd/cerif-profile-definition.xsd" >
+    </jxb:bindings>
+
+</jxb:bindings>

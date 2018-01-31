@@ -16,7 +16,49 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
-		</plugins>
+			<plugin>
+				<groupId>org.jvnet.jaxb2.maven2</groupId>
+				<artifactId>maven-jaxb2-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<schemaDirectory>src/main/resources/xsd</schemaDirectory>
+							<generatePackage>org.eurocris.cerif.profile.def</generatePackage>
+							<schemaIncludes>
+								<schemaInclude>cerif-profile-definition.xsd</schemaInclude>
+							</schemaIncludes>
+							<bindingIncludes>
+								<include>cerif-profile-definition.xjc-binding.xml</include>
+							</bindingIncludes>
+							<encoding>UTF-8</encoding>
+							<locale>en</locale>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>target/generated-sources/xjc</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
 	</build>
 	<dependencies>
 		<dependency>
