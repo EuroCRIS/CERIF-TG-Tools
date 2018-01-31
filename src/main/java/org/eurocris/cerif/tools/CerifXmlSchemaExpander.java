@@ -48,7 +48,6 @@ import org.eurocris.cerif.profile.def.CERIFProfile.Entities.Entity;
 import org.eurocris.cerif.profile.def.CERIFProfile.Entities.Entity.Classification;
 import org.eurocris.cerif.profile.def.CERIFProfile.Entities.Entity.Identifier;
 import org.eurocris.cerif.profile.def.CERIFProfile.Entities.Entity.Link;
-import org.eurocris.cerif.profile.def.ObjectFactory;
 import org.eurocris.cerif.profile.def.OpenAttrs;
 import org.eurocris.cerif.profile.def.TopLevelElement;
 import org.eurocris.cerif.utils.XMLUtils;
@@ -64,6 +63,7 @@ public class CerifXmlSchemaExpander {
 
 	private static final String CF_LINK_NSURI = "https://w3id.org/cerif/annotations#";
 	private static final String XS_NSURI = "http://www.w3.org/2001/XMLSchema";
+	private static final String XSI_NSURI = "http://www.w3.org/2001/XMLSchema-instance";
 	public static final String CF_PROCESS_NSPFX = "cfprocess";
 	public static final String CF_PROCESS_NSURI = "https://w3id.org/cerif/preprocessing#";
 	public static final String CTLFILE_NSURI = "https://w3id.org/cerif/profile";
@@ -238,6 +238,11 @@ public class CerifXmlSchemaExpander {
 		final String targetNamespaceUri = def.getTargetNamespace().getUri();
 		elSchemaRoot.setAttribute( "targetNamespace", targetNamespaceUri );
 		elSchemaRoot.setAttribute( "xmlns", targetNamespaceUri );
+		
+		final Attr schemaLocationAttr = elSchemaRoot.getAttributeNodeNS( XSI_NSURI, "schemaLocation" );
+		final String loc1 = schemaLocationAttr.getValue();
+		final String loc2 = loc1.replace( " https://w3id.org/cerif/annotations# ./cerif-model-annotations.xsd", "" );
+		schemaLocationAttr.setValue( loc2 );
 	}
 	
 	protected void changeAnnotation( final Document doc ) throws JAXBException {
