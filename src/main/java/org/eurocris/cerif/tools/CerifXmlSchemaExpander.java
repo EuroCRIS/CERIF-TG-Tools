@@ -59,6 +59,8 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
+import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
+
 public class CerifXmlSchemaExpander {
 
 	private static final String CF_LINK_NSURI = "https://w3id.org/cerif/annotations#";
@@ -138,6 +140,8 @@ public class CerifXmlSchemaExpander {
 		for ( final Entity e : def.getEntities().getEntity() ) {
 			entityByUri.put( e.getUri(), e );
 		}
+		nsCtx.bind( "", def.getTargetNamespace().getUri() );
+		marshaller.setProperty( "com.sun.xml.bind.namespacePrefixMapper", nsCtx );
 	}
 
 	public void expandInto( final File outFile ) throws SAXException, IOException, ParserConfigurationException, XPathExpressionException, TransformerException, JAXBException {
@@ -508,13 +512,14 @@ public class CerifXmlSchemaExpander {
 
 }
 
-class SimpleNamespaceContext implements NamespaceContext {
+class SimpleNamespaceContext extends NamespacePrefixMapper implements NamespaceContext {
 
-	private final Map<String, String> map = new HashMap<>();
+	private final Map<String, String> prefixToUri = new HashMap<>();
+	private final Map<String, String> uriToPrefix = new HashMap<>();
 	
 	@Override
 	public String getNamespaceURI( final String prefix ) {
-		return map.get( prefix );
+		return prefixToUri.get( prefix );
 	}
 
 	@Override
@@ -527,15 +532,21 @@ class SimpleNamespaceContext implements NamespaceContext {
 	@SuppressWarnings( "rawtypes")
 	@Override
 	public Iterator getPrefixes( final String namespaceURI ) {
-		return map.entrySet().stream().filter( ( e ) -> e.getValue().equals( namespaceURI ) ).map( ( e ) -> e.getKey() ).iterator();
+		return prefixToUri.entrySet().stream().filter( ( e ) -> e.getValue().equals( namespaceURI ) ).map( ( e ) -> e.getKey() ).iterator();
 	}
 	
 	public void bind( final String prefix, final String namespaceURI ) {
-		map.put( prefix, namespaceURI );
+		prefixToUri.put( prefix, namespaceURI );
+		uriToPrefix.put( namespaceURI, prefix );
 	}
 	
 	public void unbind( final String prefix ) {
-		map.remove( prefix );
+		uriToPrefix.remove( prefixToUri.remove( prefix ) );
+	}
+
+	@Override
+	public String getPreferredPrefix( final String uri, final String suggestion, final boolean requirePrefix ) {
+		return uriToPrefix.get( uri );
 	}
 	
 }
