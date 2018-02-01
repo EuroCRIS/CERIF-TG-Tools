@@ -32,106 +32,115 @@
 			<xs:documentation>The main element of a CERIF profile definition</xs:documentation>
 		</xs:annotation>
 		<xs:complexType>
-			<xs:sequence>
-				<xs:element name="TargetNamespace">
-					<xs:annotation>
-						<xs:documentation>The target XML namespace of the profile.</xs:documentation>
-					</xs:annotation>
-					<xs:complexType>
-						<xs:attribute name="uri" type="xs:anyURI" use="required">
+			<xs:complexContent>
+				<xs:extension base="xs:annotated">
+					<xs:sequence>
+						<xs:element name="TargetNamespace">
 							<xs:annotation>
-								<xs:documentation>The URI of the target XML namespace of the profile.</xs:documentation>
+								<xs:documentation>The target XML namespace of the profile.</xs:documentation>
 							</xs:annotation>
-						</xs:attribute>
-					</xs:complexType>
-				</xs:element>
-				<xs:element name="Name" type="xs:string" maxOccurs="unbounded">
-					<xs:annotation>
-						<xs:documentation>The name of the profile. If multiple names are given, they should be differentiated by the xml:lang attributes.</xs:documentation>
-					</xs:annotation>
-				</xs:element>
-				<xs:element name="Description" maxOccurs="unbounded">
-					<xs:annotation>
-						<xs:documentation>A description of the profile, possibly in different languages (specify by the xml:lang attribute).</xs:documentation>
-					</xs:annotation>
-					<xs:complexType mixed="true">
-						<xs:sequence>
-							<xs:any namespace="##other" minOccurs="0" maxOccurs="unbounded" />
-						</xs:sequence>
-						<xs:attribute ref="xml:lang" />
-						<xs:anyAttribute namespace="##other" />
-					</xs:complexType>
-				</xs:element>
-				<xs:element name="Entities">
-					<xs:annotation>
-						<xs:documentation>The list of CERIF entities to include in the profile.</xs:documentation>
-					</xs:annotation>
-					<xs:complexType>
-						<xs:sequence>
-							<xs:element name="Entity" maxOccurs="unbounded">
-								<xs:complexType>
-									<xs:complexContent>
-										<xs:extension base="xs:annotated">
-											<xs:sequence>
-												<xs:element name="Classification" minOccurs="0" maxOccurs="unbounded">
-													<xs:complexType>
-														<xs:complexContent>
-															<xs:extension base="xs:annotated">
-																<xs:attribute name="kind" type="xs:string"/>
-																<xs:attribute name="schema" type="xs:anyURI" />
-																<xs:attributeGroup ref="xs:occurs" />
-															</xs:extension>
-														</xs:complexContent>
-													</xs:complexType>
-												</xs:element>
-												<xs:element name="Identifier" minOccurs="0" maxOccurs="unbounded">
-													<xs:complexType>
-														<xs:complexContent>
-															<xs:extension base="xs:annotated">
-																<xs:attribute name="name" type="xs:NCName" use="required"/>
-																<xs:attribute ref="cflink:link"/>
-																<xs:attributeGroup ref="xs:occurs"/>
-															</xs:extension>
-														</xs:complexContent>
-													</xs:complexType>
-												</xs:element>
-												<xs:element name="Link" minOccurs="0" maxOccurs="unbounded">
-													<xs:complexType>
-														<xs:complexContent>
-															<xs:extension base="xs:annotated">
-																<xs:attribute name="name" type="xs:NCName" use="required"/>
-																<xs:attribute name="target" type="xs:NCName" use="required"/>
-																<xs:attribute ref="cflink:link"/>
-																<xs:attributeGroup ref="xs:occurs"/>
-															</xs:extension>
-														</xs:complexContent>
-													</xs:complexType>
-												</xs:element>
-												<xs:group ref="standard-xs-stuff"/>
-											</xs:sequence>
-											<xs:attribute name="uri" type="xs:string" use="required" />
-											<xs:attribute name="leaveOut" type="xs:string"/>
-										</xs:extension>
-									</xs:complexContent>
-								</xs:complexType>
-							</xs:element>
-						</xs:sequence>
-					</xs:complexType>
-				</xs:element>
-				<xs:element ref="xs:annotation" minOccurs="0"/>
-				<xs:group ref="standard-xs-stuff"/>
-			</xs:sequence>
+							<xs:complexType>
+								<xs:attribute name="uri" type="xs:anyURI" use="required">
+									<xs:annotation>
+										<xs:documentation>The URI of the target XML namespace of the profile.</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="Name" type="xs:string" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>The name of the profile. If multiple names are given, they should be differentiated by the xml:lang attributes.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="Description" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>A description of the profile, possibly in different languages (specify by the xml:lang attribute).</xs:documentation>
+							</xs:annotation>
+							<xs:complexType mixed="true">
+								<xs:sequence>
+									<xs:any namespace="##other" minOccurs="0" maxOccurs="unbounded" />
+								</xs:sequence>
+								<xs:attribute ref="xml:lang" />
+								<xs:anyAttribute namespace="##other" />
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="Entities">
+							<xs:annotation>
+								<xs:documentation>The list of CERIF entities to include in the profile.</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Entity" maxOccurs="unbounded">
+										<xs:complexType>
+											<xs:complexContent>
+												<xs:extension base="xs:annotated">
+													<xs:sequence>
+														<xs:element name="Classification" minOccurs="0" maxOccurs="unbounded">
+															<xs:complexType>
+																<xs:complexContent>
+																	<xs:extension base="xs:annotated">
+																		<xs:attribute name="kind" type="xs:string"/>
+																		<xs:attribute name="schema" type="xs:anyURI" />
+																		<xs:attributeGroup ref="xs:occurs" />
+																	</xs:extension>
+																</xs:complexContent>
+															</xs:complexType>
+														</xs:element>
+														<xs:element name="Identifier" minOccurs="0" maxOccurs="unbounded">
+															<xs:complexType>
+																<xs:complexContent>
+																	<xs:extension base="xs:annotated">
+																		<xs:attribute name="name" type="xs:NCName" use="required"/>
+																		<xs:attribute ref="cflink:link"/>
+																		<xs:attributeGroup ref="xs:occurs"/>
+																	</xs:extension>
+																</xs:complexContent>
+															</xs:complexType>
+														</xs:element>
+														<xs:element name="Link" minOccurs="0" maxOccurs="unbounded">
+															<xs:complexType>
+																<xs:complexContent>
+																	<xs:extension base="xs:annotated">
+																		<xs:attribute name="name" type="xs:NCName" use="required"/>
+																		<xs:attribute name="target" type="xs:NMTOKENS" use="required"/>
+																		<xs:attribute ref="cflink:link"/>
+																		<xs:attributeGroup ref="xs:occurs"/>
+																	</xs:extension>
+																</xs:complexContent>
+															</xs:complexType>
+														</xs:element>
+														<xs:group ref="IncludeOrImportOrRedefine__Group"/>
+														<xs:group ref="xs:nestedParticle" minOccurs="0" maxOccurs="unbounded"/>
+													</xs:sequence>
+													<xs:attribute name="uri" type="xs:string" use="required" />
+													<xs:attribute name="leaveOut" type="xs:string"/>
+												</xs:extension>
+											</xs:complexContent>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:group ref="IncludeOrImportOrRedefine__Group"/>
+						<xs:group ref="standard-xs-stuff"/>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
 		</xs:complexType>
 	</xs:element>
-	
-	<xs:group name="standard-xs-stuff">
+
+	<xs:group name="IncludeOrImportOrRedefine__Group">
 		<xs:sequence>
-			<!-- copied the content model for xs:schema in XMLSchema.xsd -->
 			<xs:choice minOccurs="0" maxOccurs="unbounded">
 				<xs:element ref="xs:include" />
 				<xs:element ref="xs:import" />
 				<xs:element ref="xs:redefine" />
 			</xs:choice>
+		</xs:sequence>
+	</xs:group>	
+
+	<xs:group name="standard-xs-stuff">
+		<xs:sequence>
 			<xs:sequence minOccurs="0" maxOccurs="unbounded">
 				<xs:group ref="xs:schemaTop" />
 				<xs:element ref="xs:annotation" minOccurs="0" maxOccurs="unbounded" />
