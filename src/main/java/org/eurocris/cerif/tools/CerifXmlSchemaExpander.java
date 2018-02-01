@@ -15,13 +15,13 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.XMLConstants;
 import javax.xml.bind.Binder;
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.NamespaceContext;
-import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
@@ -31,6 +31,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -49,7 +51,6 @@ import org.eurocris.cerif.profile.def.CERIFProfile.Entities.Entity.Classificatio
 import org.eurocris.cerif.profile.def.CERIFProfile.Entities.Entity.Identifier;
 import org.eurocris.cerif.profile.def.CERIFProfile.Entities.Entity.Link;
 import org.eurocris.cerif.profile.def.OpenAttrs;
-import org.eurocris.cerif.profile.def.TopLevelElement;
 import org.eurocris.cerif.utils.XMLUtils;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -70,6 +71,7 @@ public class CerifXmlSchemaExpander {
 	public static final String CF_PROCESS_NSURI = "https://w3id.org/cerif/preprocessing#";
 	public static final String CTLFILE_NSURI = "https://w3id.org/cerif/profile";
 	public static final String TEMPLATE_XSD_PATH = "/xsd/cerif-template.xsd";
+	private static final String XSD_CERIF_PROFILE_DEFINITION_XSD = "/xsd/cerif-profile-definition.xsd";
 	
 	private final TransformerFactory transformerFactory = TransformerFactory.newInstance();
 	private final Transformer transformer;
@@ -102,14 +104,14 @@ public class CerifXmlSchemaExpander {
 		    		// print out the help
 		    		System.exit(1);
 		    	}
-		    	
 		    	if ( ! outDir.exists() ) {
 		    		outDir.mkdirs();
 		    	}
 	    	
 			cerifXmlSchemaExpander.expandInto( outFile );
-		} catch ( Exception e ) {
+		} catch ( final Exception e ) {
 			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 
@@ -120,6 +122,8 @@ public class CerifXmlSchemaExpander {
 		nsCtx.bind( "cfprocess", CF_PROCESS_NSURI );
 		nsCtx.bind( "cflink", CF_LINK_NSURI );
 		nsCtx.bind( "xs", XS_NSURI );
+		nsCtx.bind( "xml", "http://www.w3.org/XML/1998/namespace" );
+		nsCtx.bind( "", CERIFProfile.class.getAnnotation( XmlRootElement.class ).namespace() );
 	}
 	
 	private final CERIFProfile def;
@@ -131,16 +135,20 @@ public class CerifXmlSchemaExpander {
 		transformer = transformerFactory.newTransformer();
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 
-		final JAXBContext jc = JAXBContext.newInstance( "org.eurocris.cerif.profile.def" );
-		marshaller = jc.createBinder();
+		final JAXBContext jc = JAXBContext.newInstance( CERIFProfile.class.getPackage().getName() );
 		final Unmarshaller u = jc.createUnmarshaller();
+		final SchemaFactory sf = SchemaFactory.newInstance( XMLConstants.W3C_XML_SCHEMA_NS_URI );
+		final Schema s = sf.newSchema( getClass().getResource( XSD_CERIF_PROFILE_DEFINITION_XSD ) );		
+		u.setSchema( s );
 		final Document defDoc = readIn( defFile );
 		def = (CERIFProfile) u.unmarshal( defDoc );
-		
+
 		for ( final Entity e : def.getEntities().getEntity() ) {
 			entityByUri.put( e.getUri(), e );
 		}
+
 		nsCtx.bind( "", def.getTargetNamespace().getUri() );
+		marshaller = jc.createBinder();
 		marshaller.setProperty( "com.sun.xml.bind.namespacePrefixMapper", nsCtx );
 	}
 
@@ -189,13 +197,13 @@ public class CerifXmlSchemaExpander {
 					final Element el5 = createXsChild( el4, "extension" );
 					el5.setAttribute( "base", "cfLink__BaseType" );
 					final Element el6 = createXsChild( el5, "choice" );
-					for ( final String tgt : link.getTarget().split( "\\s" ) ) {
+					for ( final String tgt : link.getTarget() ) {
 						final Element el7 = createXsChild( el6, "element" );
 						el7.setAttribute( "ref", tgt );
 					}
 				}
-				for ( final OpenAttrs x : entityDef.getSimpleTypeOrComplexTypeOrGroup() ) {
-					marshalBefore( el1, new JAXBElement<TopLevelElement>( QName.valueOf( "{" + XS_NSURI + "}element"), TopLevelElement.class, (TopLevelElement) x ) );
+				for ( final Object x : entityDef.getNestedParticle() ) {
+					marshalBefore( el1, x );
 					insertNewlineBefore( el1 );
 				}
 			} else {
@@ -206,6 +214,10 @@ public class CerifXmlSchemaExpander {
 	
 	protected void addSchemaHeads( final Document doc, final Element firstImportElement ) throws XPathExpressionException, JAXBException {
 		final Element elSchemaRoot = doc.getDocumentElement();
+		for ( final OpenAttrs x : def.getIncludeOrImportOrRedefine() ) {
+			marshalBefore( firstImportElement, x );
+			insertNewlineBefore( firstImportElement );
+		}
 		final NodeList nodes = (NodeList) createXPath().evaluate( "descendant-or-self::xs:group[ @ref = '__TheRestGroup' ]", elSchemaRoot, XPathConstants.NODESET );
 		for ( final Element el1 : XMLUtils.asElementList( nodes ) ) {
 			final String entityName = createXPath().evaluate( "ancestor::xs:element/@cflink:entity[1]", el1 );
@@ -217,17 +229,6 @@ public class CerifXmlSchemaExpander {
 				}
 			}
 		}
-	}
-
-	protected void addAnnotation( final Element el, final Annotated a1 ) throws JAXBException {
-		final Annotation a = a1.getAnnotation();
-		if ( a != null ) {
-			marshalAsLastChild( el, a );
-		}
-	}
-
-	protected void insertNewlineBefore( final Element el1 ) {
-		el1.getParentNode().insertBefore( el1.getOwnerDocument().createTextNode( "\n\n" ), el1 );
 	}
 
 	protected Element createXsChild( final Element parentEl, final String localName ) {
@@ -255,24 +256,10 @@ public class CerifXmlSchemaExpander {
 	
 	protected void changeAnnotation( final Document doc ) throws JAXBException {
 		final Element elSchemaRoot = doc.getDocumentElement();
-		final Annotation srcAnnotation = def.getAnnotation();
-		if ( srcAnnotation != null ) {
-			Element dstAnnotationEl = null;
-			for ( final Element e : XMLUtils.asElementList( doc.getElementsByTagNameNS( XS_NSURI, "annotation" ) ) ) {
-				dstAnnotationEl = e;
-				break;
-			}
-			if ( dstAnnotationEl == null ) {
-				throw new IllegalStateException( "The template schema has no xs:annotation?" );
-			}
-			final Node newAnnotationNode1 = marshalAsLastChild( elSchemaRoot, srcAnnotation );
-			final Node newAnnotationNode = elSchemaRoot.removeChild( newAnnotationNode1 );
-			elSchemaRoot.insertBefore( newAnnotationNode, dstAnnotationEl );
-			removeFromTree( dstAnnotationEl );
-		}
+		addAnnotation( elSchemaRoot, def );
 	}
 	
-	protected void filterEntities( final Document doc ) {
+	protected void filterEntities( final Document doc ) throws JAXBException {
 		final Element schemaRoot = doc.getDocumentElement();
 		final List<Node> nodesToRemove = new ArrayList<>();
 		for ( final Element el2 : XMLUtils.asElementList( schemaRoot.getElementsByTagNameNS( XS_NSURI, "element" ) ) ) {
@@ -283,6 +270,7 @@ public class CerifXmlSchemaExpander {
 			} else {
 				final Entity entity = entityByUri.get( cfLinkEntity );
 				if ( entity != null ) {
+					addAnnotation( el2, entity );
 					final String leaveOut1 = entity.getLeaveOut();
 					if ( StringUtils.isNotBlank( leaveOut1 ) ) {
 						final Collection<String> leaveOut = Arrays.asList( leaveOut1.split( "\\s" ) );
@@ -310,7 +298,7 @@ public class CerifXmlSchemaExpander {
 		}
 	}
 	
-	protected void expandUnaryClassifications( final Document doc, final File baseDir, final File targetDir ) throws XPathExpressionException, SAXException, IOException, ParserConfigurationException {
+	protected void expandUnaryClassifications( final Document doc, final File baseDir, final File targetDir ) throws XPathExpressionException, SAXException, IOException, ParserConfigurationException, JAXBException {
 		final Pattern pattern1 = Pattern.compile( "Classification\\((.*)\\)" );
 		
 		final Element elSchemaRoot = doc.getDocumentElement();
@@ -342,6 +330,7 @@ public class CerifXmlSchemaExpander {
 					System.err.println( "Unsupported cflink:entity instruction: " + entityName );
 				} else {
 					removeFromTree( expandByAttr );
+					removeFromTree( el1 );
 				}
 			} else if ( "#entities".equals( expandByDef ) ) {
 				final Node preNode2 = el1.getPreviousSibling();
@@ -367,38 +356,29 @@ public class CerifXmlSchemaExpander {
 		
 	}
 
-	protected void makeEnumReference( final Element firstImportElement, final Element el1, final File enumSchemaTargetLocation, final Classification ucDef ) throws SAXException, IOException, ParserConfigurationException {
-		try {
-			final File enumSchemaTargetFile = new File( enumSchemaTargetLocation, ucDef.getSchema() );
-			final Document enumSchemaDocument = readIn( enumSchemaTargetFile );
-			final Element enumSchemaRootEl = enumSchemaDocument.getDocumentElement();
-			final String enumNsUri = enumSchemaRootEl.getAttribute( "targetNamespace" );
-			final String enumElName = ( (Element) enumSchemaRootEl.getElementsByTagNameNS( XS_NSURI, "element" ).item( 0 ) ).getAttribute( "name" );
-					
-			final Element el2 = el1.getOwnerDocument().createElementNS( XS_NSURI, "xs:element" );
-			combineOccurs( el2, "minOccurs", el1, ucDef.getMinOccurs() );
-			combineOccurs( el2, "maxOccurs", el1, ucDef.getMaxOccurs() );
-			final String el1CflinkLink = el1.getAttributeNS( CF_LINK_NSURI, "link" );
-			if ( ! "".equals( el1CflinkLink ) ) {
-				el2.setAttributeNS( CF_LINK_NSURI, "cflink:link", el1CflinkLink );
-			}
-			el2.setAttribute( "ref", enumElName );
-			el2.setAttribute( "xmlns", enumNsUri );			
-			final Annotation a = ucDef.getAnnotation();
-			if ( a != null ) {
-				marshalAsLastChild( el2, a );
-			}
-			el1.getParentNode().insertBefore( el2, el1 );
-	
-			final Element el3 = firstImportElement.getOwnerDocument().createElementNS( XS_NSURI, "xs:import" );
-			el3.setAttribute( "namespace", enumNsUri );
-			el3.setAttribute( "schemaLocation", ucDef.getSchema() );
-			placeBefore( el3, firstImportElement );
-	
-			removeFromTree( el1 );
-		} catch ( final Exception e ) {
-			System.err.println( "Error processing enumeration: " + e );
+	protected void makeEnumReference( final Element firstImportElement, final Element el1, final File enumSchemaTargetLocation, final Classification ucDef ) throws SAXException, IOException, ParserConfigurationException, JAXBException {
+		final File enumSchemaTargetFile = new File( enumSchemaTargetLocation, ucDef.getSchema() );
+		final Document enumSchemaDocument = readIn( enumSchemaTargetFile );
+		final Element enumSchemaRootEl = enumSchemaDocument.getDocumentElement();
+		final String enumNsUri = enumSchemaRootEl.getAttribute( "targetNamespace" );
+		final String enumElName = ( (Element) enumSchemaRootEl.getElementsByTagNameNS( XS_NSURI, "element" ).item( 0 ) ).getAttribute( "name" );
+				
+		final Element el2 = el1.getOwnerDocument().createElementNS( XS_NSURI, "xs:element" );
+		combineOccurs( el2, "minOccurs", el1, ucDef.getMinOccurs() );
+		combineOccurs( el2, "maxOccurs", el1, ucDef.getMaxOccurs() );
+		final String el1CflinkLink = el1.getAttributeNS( CF_LINK_NSURI, "link" );
+		if ( ! "".equals( el1CflinkLink ) ) {
+			el2.setAttributeNS( CF_LINK_NSURI, "cflink:link", el1CflinkLink );
 		}
+		el2.setAttribute( "ref", enumElName );
+		el2.setAttribute( "xmlns", enumNsUri );		
+		addAnnotation( el2, ucDef );
+		placeBefore( el2, el1 );
+
+		final Element el3 = firstImportElement.getOwnerDocument().createElementNS( XS_NSURI, "xs:import" );
+		el3.setAttribute( "namespace", enumNsUri );
+		el3.setAttribute( "schemaLocation", ucDef.getSchema() );
+		placeBefore( el3, firstImportElement );
 	}
 
 	protected void placeBefore( final Element newEl, final Element refEl ) {
@@ -446,6 +426,24 @@ public class CerifXmlSchemaExpander {
 		}
 	}
 	
+	protected Element addAnnotation( final Element el, final Annotated a1 ) throws JAXBException {
+		final Annotation a = a1.getAnnotation();
+		if ( a != null ) {
+			final Element ex = XMLUtils.getSingleElement( el, "xs:annotation" );
+			final Element e2 = marshalAsFirstChild( el, a );
+			if ( ex != null ) {
+				el.removeChild( ex );
+			}
+			return e2;
+		} else {
+			return null;
+		}
+	}
+
+	protected void insertNewlineBefore( final Element el1 ) {
+		el1.getParentNode().insertBefore( el1.getOwnerDocument().createTextNode( "\n\n" ), el1 );
+	}
+
 	protected Element marshalAsLastChild( final Element el2, final Object a ) throws JAXBException {
 		marshaller.marshal( a, el2 );
 		final Element e = (Element) el2.getLastChild();
@@ -453,6 +451,12 @@ public class CerifXmlSchemaExpander {
 		return e;
 	}
 
+	protected Element marshalAsFirstChild( final Element el2, final Object a ) throws JAXBException {
+		final Node origFirstChild = el2.getFirstChild();
+		final Element el3 = marshalAsLastChild( el2, a );
+		return (Element) el2.insertBefore( el3, origFirstChild );
+	}
+	
 	protected Element marshalBefore( final Element el1, final Object a ) throws JAXBException {
 		final Element el2 = (Element) el1.getParentNode();
 		final Element el3 = marshalAsLastChild( el2, a );
@@ -536,7 +540,7 @@ class SimpleNamespaceContext extends NamespacePrefixMapper implements NamespaceC
 	}
 	
 	public void bind( final String prefix, final String namespaceURI ) {
-		prefixToUri.put( prefix, namespaceURI );
+		prefixToUri.putIfAbsent( prefix, namespaceURI );
 		uriToPrefix.put( namespaceURI, prefix );
 	}
 	
@@ -546,7 +550,7 @@ class SimpleNamespaceContext extends NamespacePrefixMapper implements NamespaceC
 
 	@Override
 	public String getPreferredPrefix( final String uri, final String suggestion, final boolean requirePrefix ) {
-		return uriToPrefix.get( uri );
+		return StringUtils.defaultString( suggestion, StringUtils.defaultString( uriToPrefix.get( uri ) ) );
 	}
-	
+
 }
