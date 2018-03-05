@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:cflink="https://w3id.org/cerif/annotations#" xmlns:cfprocess="https://w3id.org/cerif/preprocessing#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.w3.org/2001/XMLSchema https://www.w3.org/2001/XMLSchema.xsd https://w3id.org/cerif/annotations# ./cerif-model-annotations.xsd"
-	elementFormDefault="qualified" attributeFormDefault="unqualified" xml:lang="en">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:cflink="https://w3id.org/cerif/annotations#" xmlns:cfprocess="https://w3id.org/cerif/preprocessing#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:cf="urn:xmlns:org.eurocris.cerif" xsi:schemaLocation="http://www.w3.org/2001/XMLSchema https://www.w3.org/2001/XMLSchema.xsd https://w3id.org/cerif/annotations# ./cerif-model-annotations.xsd" elementFormDefault="qualified" attributeFormDefault="unqualified" xml:lang="en">
 
 	<xs:annotation>
 		<xs:documentation>This is the XML Schema for CERIF (Common European Research Information Format) XXX release, developed by the euroCRIS CERIF Task Group.
@@ -87,10 +85,44 @@ One Person typically has many of these relationships.
 							</xs:annotation>
 						</xs:element>
 
-						<xs:element name="Gender" type="cfGenericClassification__Type" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#Person_Classification">
+						<xs:element name="Gender" minOccurs="0" cflink:attribute="https://w3id.org/cerif/model#Person.Gender">
 							<xs:annotation>
-								<xs:documentation>The gender of the person</xs:documentation>
+								<xs:documentation>The gender of the person. Leave out in case the gender is unknown or not communicated.</xs:documentation>
 							</xs:annotation>
+							<xs:simpleType>
+								<xs:annotation>
+									<xs:documentation>Genders (sociocultural, not linguistic)</xs:documentation>
+									<xs:appinfo>
+										<cf:ClassScheme id="https://w3id.org/cerif/vocab/Genders">
+											<cf:Name xml:lang="en">Genders (sociocultural, not linguistic)</cf:Name>
+										</cf:ClassScheme>
+									</xs:appinfo>
+								</xs:annotation>
+								<xs:restriction base="xs:string">
+									<xs:enumeration value="m">
+										<xs:annotation>
+											<xs:documentation>Masculine</xs:documentation>
+											<xs:appinfo>
+												<cf:Class id="https://w3id.org/cerif/vocab/Genders#Masculine" classSchemeId="https://w3id.org/cerif/vocab/Genders">
+													<cf:Term xml:lang="en">Masculine</cf:Term>
+													<cf:Definition xml:lang="en">Man</cf:Definition>
+												</cf:Class>
+											</xs:appinfo>
+										</xs:annotation>
+									</xs:enumeration>
+									<xs:enumeration value="f">
+										<xs:annotation>
+											<xs:documentation>Feminine</xs:documentation>
+											<xs:appinfo>
+												<cf:Class id="https://w3id.org/cerif/vocab/Genders#Feminine" classSchemeId="https://w3id.org/cerif/vocab/Genders">
+													<cf:Term xml:lang="en">Feminine</cf:Term>
+													<cf:Definition xml:lang="en">Woman</cf:Definition>
+												</cf:Class>
+											</xs:appinfo>
+										</xs:annotation>
+									</xs:enumeration>
+								</xs:restriction>
+							</xs:simpleType>
 						</xs:element>
 
 						<xs:element name="Identifier" type="cfGenericIdentifier__Type" minOccurs="0" maxOccurs="unbounded" cflink:identifier="true" cfprocess:expandBy="https://w3id.org/cerif/vocab/IdentifierTypes#">
