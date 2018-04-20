@@ -42,6 +42,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eurocris.cerif.profile.def.Annotated;
 import org.eurocris.cerif.profile.def.Annotation;
@@ -72,7 +73,10 @@ public class CerifXmlSchemaExpander {
 	public static final String CTLFILE_NSURI = "https://w3id.org/cerif/profile";
 	public static final String TEMPLATE_XSD_PATH = "/xsd/cerif-template.xsd";
 	private static final String XSD_CERIF_PROFILE_DEFINITION_XSD = "/xsd/cerif-profile-definition.xsd";
-
+	private static final String INCLUDES_DIRNAME = "includes";
+	private static final String BUILDING_BLOCKS_XSD_FILENAME = "cerif-commons.xsd";
+	private static final String BUILDING_BLOCKS_XSD_PATH = "/xsd/" + INCLUDES_DIRNAME + "/" + BUILDING_BLOCKS_XSD_FILENAME;
+	
 	private final TransformerFactory transformerFactory = TransformerFactory.newInstance();
 	private final Transformer transformer;
 	private final XPathFactory xpathFactory = XPathFactory.newInstance();
@@ -108,7 +112,7 @@ public class CerifXmlSchemaExpander {
 			}
 
 			cerifXmlSchemaExpander.expandInto( outFile );
-
+			
 		} catch ( final Exception e ) {
 			e.printStackTrace();
 			System.exit( 1 );
@@ -155,17 +159,23 @@ public class CerifXmlSchemaExpander {
 	public void expandInto( final File outFile ) throws SAXException, IOException, ParserConfigurationException, XPathExpressionException, TransformerException, JAXBException {
 		final Document doc = readIn( getClass().getResourceAsStream( TEMPLATE_XSD_PATH ) );
 		final Element elSchemaRoot = doc.getDocumentElement();
-		final Element firstImportElement = (Element) createXPath().evaluate( "xs:import[1]", elSchemaRoot, XPathConstants.NODE );
+		final Element firstIncludeElement = (Element) elSchemaRoot.getElementsByTagNameNS( XS_NSURI, "include" ).item( 0 );
+		assert firstIncludeElement != null;
 		shiftNamespace( doc );
 		changeAnnotation( doc );
 		filterEntities( doc );
-		expandUnaryClassifications( doc, defFile.getParentFile(), outFile.getParentFile() );
+		expandUnaryClassifications( doc, firstIncludeElement, defFile.getParentFile(), outFile.getParentFile() );
 		expandIdentifiers( doc );
 		expandTails( doc );
-		addSchemaHeads( doc, firstImportElement );
+		addSchemaHeads( doc, firstIncludeElement );
 		removeProcessingInstructions( doc );
 		writeOut( doc, outFile );
 		System.out.println( "Written out file " + outFile + " of " + outFile.length() + " B" );
+
+		final File outIncludesDir = new File( outFile.getParentFile(), INCLUDES_DIRNAME );
+		outIncludesDir.mkdirs();
+		final File outBuildingBlocksFile = new File( outIncludesDir, BUILDING_BLOCKS_XSD_FILENAME );
+		FileUtils.copyInputStreamToFile( getClass().getResourceAsStream( BUILDING_BLOCKS_XSD_PATH ), outBuildingBlocksFile );
 	}
 
 	protected void removeProcessingInstructions( final Document doc ) throws XPathExpressionException {
@@ -212,11 +222,11 @@ public class CerifXmlSchemaExpander {
 		}
 	}
 
-	protected void addSchemaHeads( final Document doc, final Element firstImportElement ) throws XPathExpressionException, JAXBException {
+	protected void addSchemaHeads( final Document doc, final Element firstIncludeElement ) throws XPathExpressionException, JAXBException {
 		final Element elSchemaRoot = doc.getDocumentElement();
 		for ( final OpenAttrs x : def.getIncludeOrImportOrRedefine() ) {
-			marshalBefore( firstImportElement, x );
-			insertNewlineBefore( firstImportElement );
+			marshalBefore( firstIncludeElement, x );
+			insertNewlineBefore( firstIncludeElement );
 		}
 		final NodeList nodes = (NodeList) createXPath().evaluate( "descendant-or-self::xs:group[ @ref = '__TheRestGroup' ]", elSchemaRoot, XPathConstants.NODESET );
 		for ( final Element el1 : XMLUtils.asElementList( nodes ) ) {
@@ -224,8 +234,8 @@ public class CerifXmlSchemaExpander {
 			final Entity entityDef = entityByUri.get( entityName );
 			if ( entityDef != null ) {
 				for ( final OpenAttrs x : entityDef.getIncludeOrImportOrRedefine() ) {
-					marshalBefore( firstImportElement, x );
-					insertNewlineBefore( firstImportElement );
+					marshalBefore( firstIncludeElement, x );
+					insertNewlineBefore( firstIncludeElement );
 				}
 			}
 		}
@@ -298,11 +308,10 @@ public class CerifXmlSchemaExpander {
 		}
 	}
 
-	protected void expandUnaryClassifications( final Document doc, final File baseDir, final File targetDir ) throws XPathExpressionException, SAXException, IOException, ParserConfigurationException, JAXBException {
+	protected void expandUnaryClassifications( final Document doc, final Element firstIncludeElement, final File baseDir, final File targetDir ) throws XPathExpressionException, SAXException, IOException, ParserConfigurationException, JAXBException {
 		final Pattern pattern1 = Pattern.compile( "Classification\\((.*)\\)" );
 
 		final Element elSchemaRoot = doc.getDocumentElement();
-		final Element firstImportElement = (Element) createXPath().evaluate( "xs:import[1]", elSchemaRoot, XPathConstants.NODE );
 
 		final NodeList nodes = (NodeList) createXPath().evaluate( "descendant-or-self::xs:element[ @cfprocess:expandBy and not( @cflink:identifier ) ]", elSchemaRoot, XPathConstants.NODESET );
 		for ( final Element el1 : XMLUtils.asElementList( nodes ) ) {
@@ -321,7 +330,7 @@ public class CerifXmlSchemaExpander {
 					for ( final Classification classification : classificationExpansions ) {
 						if ( classSchemeType.equals( classification.getKind() ) ) {
 							System.out.println( "Classification " + classification.getSchema() + " for " + el1.getLocalName() + " " + classSchemeType + " in " + entityName );
-							makeEnumReference( firstImportElement, el1, targetDir, classification );
+							makeEnumReference( firstIncludeElement, el1, targetDir, classification );
 							noInstructions = false;
 						}
 					}
@@ -356,7 +365,7 @@ public class CerifXmlSchemaExpander {
 
 	}
 
-	protected void makeEnumReference( final Element firstImportElement, final Element el1, final File enumSchemaTargetLocation, final Classification ucDef ) throws SAXException, IOException, ParserConfigurationException, JAXBException {
+	protected void makeEnumReference( final Element firstIncludeElement, final Element el1, final File enumSchemaTargetLocation, final Classification ucDef ) throws SAXException, IOException, ParserConfigurationException, JAXBException {
 		final File enumSchemaTargetFile = new File( enumSchemaTargetLocation, ucDef.getSchema() );
 		final Document enumSchemaDocument = readIn( enumSchemaTargetFile );
 		final Element enumSchemaRootEl = enumSchemaDocument.getDocumentElement();
@@ -375,10 +384,11 @@ public class CerifXmlSchemaExpander {
 		addAnnotation( el2, ucDef );
 		placeBefore( el2, el1 );
 
-		final Element el3 = firstImportElement.getOwnerDocument().createElementNS( XS_NSURI, "xs:import" );
+		final Document doc = firstIncludeElement.getOwnerDocument();
+		final Element el3 = doc.createElementNS( XS_NSURI, "xs:import" );
 		el3.setAttribute( "namespace", enumNsUri );
 		el3.setAttribute( "schemaLocation", ucDef.getSchema() );
-		placeBefore( el3, firstImportElement );
+		placeBefore( el3, firstIncludeElement );
 	}
 
 	protected void placeBefore( final Element newEl, final Element refEl ) {
