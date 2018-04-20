@@ -72,7 +72,7 @@ public class CerifXmlSchemaExpander {
 	public static final String CTLFILE_NSURI = "https://w3id.org/cerif/profile";
 	public static final String TEMPLATE_XSD_PATH = "/xsd/cerif-template.xsd";
 	private static final String XSD_CERIF_PROFILE_DEFINITION_XSD = "/xsd/cerif-profile-definition.xsd";
-	
+
 	private final TransformerFactory transformerFactory = TransformerFactory.newInstance();
 	private final Transformer transformer;
 	private final XPathFactory xpathFactory = XPathFactory.newInstance();
@@ -80,43 +80,43 @@ public class CerifXmlSchemaExpander {
 	public static void main( final String[] args ) {
 		try {
 			final Options options = new Options();
-		    	options.addOption( "d", "defFile", true, "path to the CERIF profile definition file" );
-		    	options.addOption( "o", "output", true, "full path where the profile XML Schema should be placed" );
-		    	options.addOption( "h", "help", true, "this help message" );
-		    	
-		    	final CommandLine line = new DefaultParser().parse( options, args );
-		    	
-		    	if ( line.hasOption("h") || !( line.hasOption("d") && line.hasOption("o") ) ) {
-		    		HelpFormatter formatter = new HelpFormatter();
-		    		formatter.printHelp( "CerifXmlSchemaExpander", options );
-		    		// print out the help
-		    		System.exit( line.hasOption("h") ? 0 : 1 );
-		    	}
+			options.addOption( "d", "defFile", true, "path to the CERIF profile definition file" );
+			options.addOption( "o", "output", true, "full path where the profile XML Schema should be placed" );
+			options.addOption( "h", "help", true, "this help message" );
 
-		    	final File defFile = new File( line.getOptionValue('d') );
+			final CommandLine line = new DefaultParser().parse( options, args );
+
+			if ( line.hasOption( "h" ) || !( line.hasOption( "d" ) && line.hasOption( "o" ) ) ) {
+				HelpFormatter formatter = new HelpFormatter();
+				formatter.printHelp( "CerifXmlSchemaExpander", options );
+				// print out the help
+				System.exit( line.hasOption( "h" ) ? 0 : 1 );
+			}
+
+			final File defFile = new File( line.getOptionValue( 'd' ) );
 			final CerifXmlSchemaExpander cerifXmlSchemaExpander = new CerifXmlSchemaExpander( defFile );
-		    	
-		    	final File outFile = new File( line.getOptionValue('o') );
-		    	final File outDir = outFile.getParentFile();
-		    	if ( outDir.exists() && !outDir.isDirectory() )
-		    	{
-		    		System.out.println(line.getOptionObject('o') + "is not a folder");
-		    		// print out the help
-		    		System.exit(1);
-		    	}
-		    	if ( ! outDir.exists() ) {
-		    		outDir.mkdirs();
-		    	}
-	    	
+
+			final File outFile = new File( line.getOptionValue( 'o' ) );
+			final File outDir = outFile.getParentFile();
+			if ( outDir.exists() && !outDir.isDirectory() ) {
+				System.out.println( line.getOptionObject( 'o' ) + "is not a folder" );
+				// print out the help
+				System.exit( 1 );
+			}
+			if ( !outDir.exists() ) {
+				outDir.mkdirs();
+			}
+
 			cerifXmlSchemaExpander.expandInto( outFile );
+
 		} catch ( final Exception e ) {
 			e.printStackTrace();
-			System.exit(1);
+			System.exit( 1 );
 		}
 	}
 
 	private final File defFile;
-	
+
 	private final SimpleNamespaceContext nsCtx = new SimpleNamespaceContext();
 	{
 		nsCtx.bind( "cfprocess", CF_PROCESS_NSURI );
@@ -125,20 +125,20 @@ public class CerifXmlSchemaExpander {
 		nsCtx.bind( "xml", "http://www.w3.org/XML/1998/namespace" );
 		nsCtx.bind( "", CERIFProfile.class.getAnnotation( XmlRootElement.class ).namespace() );
 	}
-	
+
 	private final CERIFProfile def;
 	private final Map<String, Entity> entityByUri = new LinkedHashMap<>();
 	private final Binder<Node> marshaller;
-	
+
 	private CerifXmlSchemaExpander( final File defFile ) throws TransformerConfigurationException, JAXBException, SAXException, IOException, ParserConfigurationException {
 		this.defFile = defFile;
 		transformer = transformerFactory.newTransformer();
-		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		transformer.setOutputProperty( OutputKeys.INDENT, "yes" );
 
 		final JAXBContext jc = JAXBContext.newInstance( CERIFProfile.class.getPackage().getName() );
 		final Unmarshaller u = jc.createUnmarshaller();
 		final SchemaFactory sf = SchemaFactory.newInstance( XMLConstants.W3C_XML_SCHEMA_NS_URI );
-		final Schema s = sf.newSchema( getClass().getResource( XSD_CERIF_PROFILE_DEFINITION_XSD ) );		
+		final Schema s = sf.newSchema( getClass().getResource( XSD_CERIF_PROFILE_DEFINITION_XSD ) );
 		u.setSchema( s );
 		final Document defDoc = readIn( defFile );
 		def = (CERIFProfile) u.unmarshal( defDoc );
@@ -172,7 +172,7 @@ public class CerifXmlSchemaExpander {
 		final Element elSchemaRoot = doc.getDocumentElement();
 		for ( final Node n1 : XMLUtils.asList( (NodeList) createXPath().evaluate( "descendant-or-self::xs:*/@cfprocess:*", elSchemaRoot, XPathConstants.NODESET ) ) ) {
 			removeFromTree( n1 );
-		}		
+		}
 	}
 
 	protected void expandTails( final Document doc ) throws XPathExpressionException, JAXBException {
@@ -211,7 +211,7 @@ public class CerifXmlSchemaExpander {
 			}
 		}
 	}
-	
+
 	protected void addSchemaHeads( final Document doc, final Element firstImportElement ) throws XPathExpressionException, JAXBException {
 		final Element elSchemaRoot = doc.getDocumentElement();
 		for ( final OpenAttrs x : def.getIncludeOrImportOrRedefine() ) {
@@ -233,7 +233,7 @@ public class CerifXmlSchemaExpander {
 
 	protected Element createXsChild( final Element parentEl, final String localName ) {
 		try {
-			if ( ! parentEl.hasChildNodes() ) {
+			if ( !parentEl.hasChildNodes() ) {
 				parentEl.appendChild( parentEl.getOwnerDocument().createTextNode( "\n" ) );
 			}
 			return (Element) parentEl.appendChild( parentEl.getOwnerDocument().createElementNS( XS_NSURI, "xs:" + localName ) );
@@ -247,24 +247,24 @@ public class CerifXmlSchemaExpander {
 		final String targetNamespaceUri = def.getTargetNamespace().getUri();
 		elSchemaRoot.setAttribute( "targetNamespace", targetNamespaceUri );
 		elSchemaRoot.setAttribute( "xmlns", targetNamespaceUri );
-		
+
 		final Attr schemaLocationAttr = elSchemaRoot.getAttributeNodeNS( XSI_NSURI, "schemaLocation" );
 		final String loc1 = schemaLocationAttr.getValue();
 		final String loc2 = loc1.replace( " https://w3id.org/cerif/annotations# ./cerif-model-annotations.xsd", "" );
 		schemaLocationAttr.setValue( loc2 );
 	}
-	
+
 	protected void changeAnnotation( final Document doc ) throws JAXBException {
 		final Element elSchemaRoot = doc.getDocumentElement();
 		addAnnotation( elSchemaRoot, def );
 	}
-	
+
 	protected void filterEntities( final Document doc ) throws JAXBException {
 		final Element schemaRoot = doc.getDocumentElement();
 		final List<Node> nodesToRemove = new ArrayList<>();
 		for ( final Element el2 : XMLUtils.asElementList( schemaRoot.getElementsByTagNameNS( XS_NSURI, "element" ) ) ) {
 			final String cfLinkEntity = el2.getAttributeNS( CF_LINK_NSURI, "entity" );
-			if ( StringUtils.isNotBlank( cfLinkEntity ) && ! entityByUri.containsKey( cfLinkEntity ) ) {
+			if ( StringUtils.isNotBlank( cfLinkEntity ) && !entityByUri.containsKey( cfLinkEntity ) ) {
 				System.out.println( "Leaving out entity " + cfLinkEntity );
 				nodesToRemove.add( el2 );
 			} else {
@@ -274,13 +274,13 @@ public class CerifXmlSchemaExpander {
 					final String leaveOut1 = entity.getLeaveOut();
 					if ( StringUtils.isNotBlank( leaveOut1 ) ) {
 						final Collection<String> leaveOut = Arrays.asList( leaveOut1.split( "\\s" ) );
-						
+
 						final Element el3 = XMLUtils.getSingleElement( el2, "xs:complexType" );
 						if ( el3 != null ) {
 							final Element el4 = XMLUtils.getSingleElement( el3, "xs:complexContent" );
 							final Element el5 = XMLUtils.getSingleElement( el4, "xs:extension" );
 							final Element el6 = XMLUtils.getSingleElement( el5, "xs:sequence" );
-							
+
 							for ( final Element elx : XMLUtils.asElementList( el6.getElementsByTagNameNS( XS_NSURI, "*" ) ) ) {
 								final String elxName = elx.getAttribute( "name" ) + elx.getAttribute( "ref" );
 								if ( leaveOut.contains( elxName ) ) {
@@ -297,13 +297,13 @@ public class CerifXmlSchemaExpander {
 			removeFromTree( node );
 		}
 	}
-	
+
 	protected void expandUnaryClassifications( final Document doc, final File baseDir, final File targetDir ) throws XPathExpressionException, SAXException, IOException, ParserConfigurationException, JAXBException {
 		final Pattern pattern1 = Pattern.compile( "Classification\\((.*)\\)" );
-		
+
 		final Element elSchemaRoot = doc.getDocumentElement();
 		final Element firstImportElement = (Element) createXPath().evaluate( "xs:import[1]", elSchemaRoot, XPathConstants.NODE );
-		
+
 		final NodeList nodes = (NodeList) createXPath().evaluate( "descendant-or-self::xs:element[ @cfprocess:expandBy and not( @cflink:identifier ) ]", elSchemaRoot, XPathConstants.NODESET );
 		for ( final Element el1 : XMLUtils.asElementList( nodes ) ) {
 			final Attr expandByAttr = el1.getAttributeNodeNS( CF_PROCESS_NSURI, "expandBy" );
@@ -353,7 +353,7 @@ public class CerifXmlSchemaExpander {
 				System.err.println( "Unsupported cfproccess:expandBy instruction: " + expandByDef );
 			}
 		}
-		
+
 	}
 
 	protected void makeEnumReference( final Element firstImportElement, final Element el1, final File enumSchemaTargetLocation, final Classification ucDef ) throws SAXException, IOException, ParserConfigurationException, JAXBException {
@@ -362,16 +362,16 @@ public class CerifXmlSchemaExpander {
 		final Element enumSchemaRootEl = enumSchemaDocument.getDocumentElement();
 		final String enumNsUri = enumSchemaRootEl.getAttribute( "targetNamespace" );
 		final String enumElName = ( (Element) enumSchemaRootEl.getElementsByTagNameNS( XS_NSURI, "element" ).item( 0 ) ).getAttribute( "name" );
-				
+
 		final Element el2 = el1.getOwnerDocument().createElementNS( XS_NSURI, "xs:element" );
 		combineOccurs( el2, "minOccurs", el1, ucDef.getMinOccurs() );
 		combineOccurs( el2, "maxOccurs", el1, ucDef.getMaxOccurs() );
 		final String el1CflinkLink = el1.getAttributeNS( CF_LINK_NSURI, "link" );
-		if ( ! "".equals( el1CflinkLink ) ) {
+		if ( !"".equals( el1CflinkLink ) ) {
 			el2.setAttributeNS( CF_LINK_NSURI, "cflink:link", el1CflinkLink );
 		}
 		el2.setAttribute( "ref", enumElName );
-		el2.setAttribute( "xmlns", enumNsUri );		
+		el2.setAttribute( "xmlns", enumNsUri );
 		addAnnotation( el2, ucDef );
 		placeBefore( el2, el1 );
 
@@ -393,7 +393,7 @@ public class CerifXmlSchemaExpander {
 
 	protected void expandIdentifiers( final Document doc ) throws XPathExpressionException, SAXException, IOException, ParserConfigurationException {
 		final Element elSchemaRoot = doc.getDocumentElement();
-		
+
 		final NodeList nodes = (NodeList) createXPath().evaluate( "descendant-or-self::xs:element[ @cfprocess:expandBy and @cflink:identifier ]", elSchemaRoot, XPathConstants.NODESET );
 		for ( final Element el1 : XMLUtils.asElementList( nodes ) ) {
 			final Attr expandByAttr = el1.getAttributeNodeNS( CF_PROCESS_NSURI, "expandBy" );
@@ -425,7 +425,7 @@ public class CerifXmlSchemaExpander {
 			}
 		}
 	}
-	
+
 	protected Element addAnnotation( final Element el, final Annotated a1 ) throws JAXBException {
 		final Annotation a = a1.getAnnotation();
 		if ( a != null ) {
@@ -456,7 +456,7 @@ public class CerifXmlSchemaExpander {
 		final Element el3 = marshalAsLastChild( el2, a );
 		return (Element) el2.insertBefore( el3, origFirstChild );
 	}
-	
+
 	protected Element marshalBefore( final Element el1, final Object a ) throws JAXBException {
 		final Element el2 = (Element) el1.getParentNode();
 		final Element el3 = marshalAsLastChild( el2, a );
@@ -466,7 +466,7 @@ public class CerifXmlSchemaExpander {
 	protected void combineOccurs( final Element targetEl, final String type, final Element srcEl, final Object overrideValue ) {
 		final String overrideValue1 = Objects.toString( overrideValue, "" );
 		final String effOccurs = ( StringUtils.isBlank( overrideValue1 ) ) ? srcEl.getAttribute( type ) : overrideValue1;
-		if ( ( ! StringUtils.isBlank( effOccurs )  ) && ( ! "1".equals( effOccurs ) ) ) {
+		if ( ( !StringUtils.isBlank( effOccurs ) ) && ( !"1".equals( effOccurs ) ) ) {
 			targetEl.setAttribute( type, effOccurs );
 		}
 	}
@@ -520,7 +520,7 @@ class SimpleNamespaceContext extends NamespacePrefixMapper implements NamespaceC
 
 	private final Map<String, String> prefixToUri = new HashMap<>();
 	private final Map<String, String> uriToPrefix = new HashMap<>();
-	
+
 	@Override
 	public String getNamespaceURI( final String prefix ) {
 		return prefixToUri.get( prefix );
@@ -538,12 +538,12 @@ class SimpleNamespaceContext extends NamespacePrefixMapper implements NamespaceC
 	public Iterator getPrefixes( final String namespaceURI ) {
 		return prefixToUri.entrySet().stream().filter( ( e ) -> e.getValue().equals( namespaceURI ) ).map( ( e ) -> e.getKey() ).iterator();
 	}
-	
+
 	public void bind( final String prefix, final String namespaceURI ) {
 		prefixToUri.putIfAbsent( prefix, namespaceURI );
 		uriToPrefix.put( namespaceURI, prefix );
 	}
-	
+
 	public void unbind( final String prefix ) {
 		uriToPrefix.remove( prefixToUri.remove( prefix ) );
 	}
