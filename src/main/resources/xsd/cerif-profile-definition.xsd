@@ -86,6 +86,16 @@
 																</xs:complexContent>
 															</xs:complexType>
 														</xs:element>
+														<xs:element name="IdentifiersFrom" minOccurs="0">
+															<xs:complexType>
+																<xs:complexContent>
+																	<xs:extension base="xs:annotated">
+																		<xs:attribute name="schemaLocation" type="xs:anyURI" use="required"/>
+																		<xs:attributeGroup ref="xs:occurs"/>
+																	</xs:extension>
+																</xs:complexContent>
+															</xs:complexType>
+														</xs:element>
 														<xs:element name="Identifier" minOccurs="0" maxOccurs="unbounded">
 															<xs:complexType>
 																<xs:complexContent>

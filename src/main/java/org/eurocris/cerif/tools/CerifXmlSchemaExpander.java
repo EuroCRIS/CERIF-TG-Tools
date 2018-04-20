@@ -50,6 +50,7 @@ import org.eurocris.cerif.profile.def.CERIFProfile;
 import org.eurocris.cerif.profile.def.CERIFProfile.Entities.Entity;
 import org.eurocris.cerif.profile.def.CERIFProfile.Entities.Entity.Classification;
 import org.eurocris.cerif.profile.def.CERIFProfile.Entities.Entity.Identifier;
+import org.eurocris.cerif.profile.def.CERIFProfile.Entities.Entity.IdentifiersFrom;
 import org.eurocris.cerif.profile.def.CERIFProfile.Entities.Entity.Link;
 import org.eurocris.cerif.profile.def.OpenAttrs;
 import org.eurocris.cerif.utils.XMLUtils;
@@ -157,6 +158,7 @@ public class CerifXmlSchemaExpander {
 	}
 
 	public void expandInto( final File outFile ) throws SAXException, IOException, ParserConfigurationException, XPathExpressionException, TransformerException, JAXBException {
+		final File outDir = outFile.getParentFile();
 		final Document doc = readIn( getClass().getResourceAsStream( TEMPLATE_XSD_PATH ) );
 		final Element elSchemaRoot = doc.getDocumentElement();
 		final Element firstIncludeElement = (Element) elSchemaRoot.getElementsByTagNameNS( XS_NSURI, "include" ).item( 0 );
@@ -164,15 +166,15 @@ public class CerifXmlSchemaExpander {
 		shiftNamespace( doc );
 		changeAnnotation( doc );
 		filterEntities( doc );
-		expandUnaryClassifications( doc, firstIncludeElement, defFile.getParentFile(), outFile.getParentFile() );
-		expandIdentifiers( doc );
+		expandUnaryClassifications( doc, firstIncludeElement, defFile.getParentFile(), outDir );
+		expandIdentifiers( doc, firstIncludeElement, outDir );
 		expandTails( doc );
 		addSchemaHeads( doc, firstIncludeElement );
 		removeProcessingInstructions( doc );
 		writeOut( doc, outFile );
 		System.out.println( "Written out file " + outFile + " of " + outFile.length() + " B" );
 
-		final File outIncludesDir = new File( outFile.getParentFile(), INCLUDES_DIRNAME );
+		final File outIncludesDir = new File( outDir, INCLUDES_DIRNAME );
 		outIncludesDir.mkdirs();
 		final File outBuildingBlocksFile = new File( outIncludesDir, BUILDING_BLOCKS_XSD_FILENAME );
 		FileUtils.copyInputStreamToFile( getClass().getResourceAsStream( BUILDING_BLOCKS_XSD_PATH ), outBuildingBlocksFile );
@@ -401,7 +403,7 @@ public class CerifXmlSchemaExpander {
 		}
 	}
 
-	protected void expandIdentifiers( final Document doc ) throws XPathExpressionException, SAXException, IOException, ParserConfigurationException {
+	protected void expandIdentifiers( final Document doc, final Element firstIncludeElement, final File targetDir ) throws XPathExpressionException, SAXException, IOException, ParserConfigurationException, JAXBException {
 		final Element elSchemaRoot = doc.getDocumentElement();
 
 		final NodeList nodes = (NodeList) createXPath().evaluate( "descendant-or-self::xs:element[ @cfprocess:expandBy and @cflink:identifier ]", elSchemaRoot, XPathConstants.NODESET );
@@ -412,6 +414,27 @@ public class CerifXmlSchemaExpander {
 			System.out.println( "Processing " + elementName + " in entity " + entityName );
 			final Entity entityDef = entityByUri.get( entityName );
 			boolean noInstructions = true;
+			final IdentifiersFrom includedIdentifierExpansions = ( entityDef != null ) ? entityDef.getIdentifiersFrom() : null;
+			if ( includedIdentifierExpansions != null ) {
+				final String schemaLocation = includedIdentifierExpansions.getSchemaLocation();
+				final File schemaTargetFile = new File( targetDir, schemaLocation );
+				final Document schemaDocument = readIn( schemaTargetFile );
+				final Element schemaRootEl = schemaDocument.getDocumentElement();
+				@SuppressWarnings( "unused")
+				final String nsUri = schemaRootEl.getAttribute( "targetNamespace" );
+				// assert nsUri.equals( the main schema target namespace )
+				final String groupName = ( (Element) schemaRootEl.getElementsByTagNameNS( XS_NSURI, "group" ).item( 0 ) ).getAttribute( "name" );
+				final Element el2 = el1.getOwnerDocument().createElementNS( XS_NSURI, "xs:group" );
+				el2.setAttribute( "ref", groupName );
+				combineOccurs( el2, "minOccurs", el1, includedIdentifierExpansions.getMinOccurs() );
+				combineOccurs( el2, "maxOccurs", el1, includedIdentifierExpansions.getMaxOccurs() );				
+				el1.getParentNode().insertBefore( el2, el1 );
+				final Element el3 = doc.createElementNS( XS_NSURI, "xs:include" );
+				el3.setAttribute( "schemaLocation", schemaLocation );
+				addAnnotation( el3, includedIdentifierExpansions );
+				placeBefore( el3, firstIncludeElement );
+				noInstructions = false;
+			}
 			final List<Identifier> identifierExpansions = ( entityDef != null ) ? entityDef.getIdentifier() : null;
 			if ( identifierExpansions != null ) {
 				for ( final Identifier identifier : identifierExpansions ) {
