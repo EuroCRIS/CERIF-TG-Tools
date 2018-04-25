@@ -43,6 +43,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eurocris.cerif.profile.def.Annotated;
 import org.eurocris.cerif.profile.def.Annotation;
@@ -54,6 +55,7 @@ import org.eurocris.cerif.profile.def.CERIFProfile.Entities.Entity.IdentifiersFr
 import org.eurocris.cerif.profile.def.CERIFProfile.Entities.Entity.Link;
 import org.eurocris.cerif.profile.def.OpenAttrs;
 import org.eurocris.cerif.utils.XMLUtils;
+import org.junit.experimental.theories.FromDataPoints;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -286,27 +288,36 @@ public class CerifXmlSchemaExpander {
 					final String leaveOut1 = entity.getLeaveOut();
 					if ( StringUtils.isNotBlank( leaveOut1 ) ) {
 						final Collection<String> leaveOut = Arrays.asList( leaveOut1.split( "\\s" ) );
-
-						final Element el3 = XMLUtils.getSingleElement( el2, "xs:complexType" );
-						if ( el3 != null ) {
-							final Element el4 = XMLUtils.getSingleElement( el3, "xs:complexContent" );
-							final Element el5 = XMLUtils.getSingleElement( el4, "xs:extension" );
-							final Element el6 = XMLUtils.getSingleElement( el5, "xs:sequence" );
-
-							for ( final Element elx : XMLUtils.asElementList( el6.getElementsByTagNameNS( XS_NSURI, "*" ) ) ) {
-								final String elxName = elx.getAttribute( "name" ) + elx.getAttribute( "ref" );
-								if ( leaveOut.contains( elxName ) ) {
-									System.out.println( "Leaving out " + elxName + " from entity " + cfLinkEntity );
-									nodesToRemove.add( elx );
-								}
-							}
-						}
+						collectRemovals( el2, "", " from entity " + cfLinkEntity, leaveOut, nodesToRemove );
 					}
 				}
 			}
 		}
 		for ( final Node node : nodesToRemove ) {
 			removeFromTree( node );
+		}
+	}
+
+	protected void collectRemovals( final Element el, final String diveContext, final String entityContex, final Collection<String> leaveOut, final List<Node> nodesToRemove ) {
+		final Element el3 = XMLUtils.getSingleElement( el, "xs:complexType" );
+		if ( el3 != null ) {
+			final Element el4 = XMLUtils.getSingleElement( el3, "xs:complexContent" );
+			final Element el5 = ( el4 != null ) ? ObjectUtils.defaultIfNull( XMLUtils.getSingleElement( el4, "xs:extension" ), el3 ) : el3;
+			final Element el6 = XMLUtils.getSingleElement( el5, "xs:sequence" );
+
+			for ( final Element elx : XMLUtils.asElementList( el6.getElementsByTagNameNS( XS_NSURI, "*" ) ) ) {
+				final String elxRef = elx.getAttribute( "ref" );
+				final String elxName = elx.getAttribute( "name" ) + elxRef;
+				final String diveContext1 = ( diveContext + "/" + elxName ).replaceAll( "^/", "" );
+				if ( leaveOut.contains( diveContext1 ) ) {
+					System.out.println( "Leaving out " + diveContext1 + entityContex );
+					nodesToRemove.add( elx );
+				} else {
+					if ( elxRef.isEmpty() ) {
+						collectRemovals( elx, diveContext1, entityContex, leaveOut, nodesToRemove );
+					} // we do not traverse the @ref links
+				}
+			}
 		}
 	}
 
