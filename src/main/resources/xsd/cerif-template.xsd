@@ -835,6 +835,13 @@ Source: Wikipedia
 						
 						<xs:element name="CountryCode" type="cfString__Type" minOccurs="0" cflink:attribute="https://w3id.org/cerif/model#ResultPatent.CountryCode"/>
 						
+						<xs:element name="Issuer" type="cfLinkWithDisplayNameToOrgUnit__Type" minOccurs="0" maxOccurs="unbounded" 
+							cflink:link="https://w3id.org/cerif/model#OrganisationUnit_ResultPatent(https://w3id.org/cerif/vocab/OrganisationOutputContributions#PatentIssuer)">
+							<xs:annotation>
+								<xs:documentation>The issuer of the patent: the patent office</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+
 						<xs:element name="PatentNumber" type="cfString__Type" minOccurs="0" cflink:attribute="https://w3id.org/cerif/model#ResultPatent.PatentNumber"/>
 
 						<xs:element name="Identifier" type="cfGenericIdentifier__Type" minOccurs="0" maxOccurs="unbounded" cflink:identifier="true" cfprocess:expandBy="https://w3id.org/cerif/vocab/IdentifierTypes#">
