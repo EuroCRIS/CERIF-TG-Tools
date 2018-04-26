@@ -8,7 +8,7 @@
 		</xs:documentation>
 	</xs:annotation>
 
-	<xs:include schemaLocation="includes/cerif-commons.xsd">
+	<xs:include schemaLocation="./includes/cerif-commons.xsd">
 		<xs:annotation>
 			<xs:documentation>The common building blocks for any CERIF XML Schema.</xs:documentation>
 		</xs:annotation>
@@ -836,11 +836,27 @@ Source: Wikipedia
 						<xs:element name="CountryCode" type="cfString__Type" minOccurs="0" cflink:attribute="https://w3id.org/cerif/model#ResultPatent.CountryCode"/>
 						
 						<xs:element name="PatentNumber" type="cfString__Type" minOccurs="0" cflink:attribute="https://w3id.org/cerif/model#ResultPatent.PatentNumber"/>
-						
+
 						<xs:element name="Identifier" type="cfGenericIdentifier__Type" minOccurs="0" maxOccurs="unbounded" cflink:identifier="true" cfprocess:expandBy="https://w3id.org/cerif/vocab/IdentifierTypes#">
 							<xs:annotation>
 								<xs:documentation>An identifier of this patent</xs:documentation>
 							</xs:annotation>
+						</xs:element>
+
+						<xs:element cflink:container="ordered" name="Inventors" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>The inventors of this patent</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Inventor" type="cfLinkWithDisplayNameToPersonWithAffiliations__Type" minOccurs="0" maxOccurs="unbounded" 
+										cflink:link="https://w3id.org/cerif/model#Person_ResultPatent(https://w3id.org/cerif/vocab/PersonOutputContributions#Inventor)">
+										<xs:annotation>
+											<xs:documentation>The inventor: The actual devisor of an invention that is the subject of a patent.</xs:documentation>
+										</xs:annotation>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
 						</xs:element>
 
 						<xs:element name="Abstract" type="cfMLangString__Type" minOccurs="0" maxOccurs="unbounded" cflink:attribute="https://w3id.org/cerif/model#ResultPatent.Abstract"/>
