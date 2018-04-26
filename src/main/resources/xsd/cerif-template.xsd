@@ -859,6 +859,22 @@ Source: Wikipedia
 							</xs:complexType>
 						</xs:element>
 
+						<xs:element cflink:container="ordered" name="Holders" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>The holders of this patent</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Holder" type="cfLinkWithDisplayNameToPersonOrOrgUnit__Type" minOccurs="0" maxOccurs="unbounded" 
+										cflink:link="https://w3id.org/cerif/model#Person_ResultPatent(https://w3id.org/cerif/vocab/PersonOutputContributions#PatentHolder) https://w3id.org/cerif/model#OrganisationUnit_ResultPatent(https://w3id.org/cerif/vocab/OrganisationOutputContributions#PatentHolder)">
+										<xs:annotation>
+											<xs:documentation>The patent rights holder, also known as the patentee or assignee</xs:documentation>
+										</xs:annotation>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+
 						<xs:element name="Abstract" type="cfMLangString__Type" minOccurs="0" maxOccurs="unbounded" cflink:attribute="https://w3id.org/cerif/model#ResultPatent.Abstract"/>
 						
 						<xs:element name="Subject" type="cfGenericClassification__Type" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#ResultPatent_Classification" cfprocess:expandBy="Classification(Subject)">
