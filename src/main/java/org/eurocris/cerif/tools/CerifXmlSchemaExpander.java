@@ -55,7 +55,6 @@ import org.eurocris.cerif.profile.def.CERIFProfile.Entities.Entity.IdentifiersFr
 import org.eurocris.cerif.profile.def.CERIFProfile.Entities.Entity.Link;
 import org.eurocris.cerif.profile.def.OpenAttrs;
 import org.eurocris.cerif.utils.XMLUtils;
-import org.junit.experimental.theories.FromDataPoints;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
