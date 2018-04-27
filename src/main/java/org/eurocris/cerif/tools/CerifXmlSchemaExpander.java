@@ -193,7 +193,7 @@ public class CerifXmlSchemaExpander {
 		final Element elSchemaRoot = doc.getDocumentElement();
 		final NodeList nodes = (NodeList) createXPath().evaluate( "descendant-or-self::xs:group[ @ref = '__TheRestGroup' ]", elSchemaRoot, XPathConstants.NODESET );
 		for ( final Element el1 : XMLUtils.asElementList( nodes ) ) {
-			final String entityName = createXPath().evaluate( "ancestor::xs:element/@cflink:entity[1]", el1 );
+			final String entityName = createXPath().evaluate( "ancestor::xs:element[@cflink:entity][1]/@cflink:entity", el1 );
 			final Entity entityDef = entityByUri.get( entityName );
 			if ( entityDef != null ) {
 				for ( final Link link : entityDef.getLink() ) {
