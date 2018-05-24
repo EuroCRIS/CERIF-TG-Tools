@@ -529,9 +529,16 @@ The Project entity only captures details of the project scope and plan. Informat
 							</xs:annotation>
 						</xs:element>
 						
+                        <xs:sequence cfprocess:extensionPoint="FundingSubjectClassifications"/>
+                        <xs:element name="Subject" type="cfGenericURIClassification__Type" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#Funding_Classification" cfprocess:expandBy="Classification(Subject)">
+                            <xs:annotation>
+                                <xs:documentation>The subject classification(s) of the funding</xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+
 						<xs:element name="Keyword" type="cfMLangString__Type" minOccurs="0" maxOccurs="unbounded" cflink:attribute="https://w3id.org/cerif/model#Funding.Keywords">
 							<xs:annotation>
-								<xs:documentation>A single keyword or key expression. Please repeat to serialize separate keywords or key expressions.</xs:documentation>
+                                <xs:documentation>A single keyword or key expression that characterize the funding. Please repeat to serialize separate keywords or key expressions.</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						
