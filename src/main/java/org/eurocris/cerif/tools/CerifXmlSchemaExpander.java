@@ -576,7 +576,7 @@ class SimpleNamespaceContext extends NamespacePrefixMapper implements NamespaceC
 		return ( i.hasNext() ) ? i.next() : null;
 	}
 
-	@SuppressWarnings( "rawtypes")
+	@SuppressWarnings( { "rawtypes", "unchecked" })
 	@Override
 	public Iterator getPrefixes( final String namespaceURI ) {
 		return prefixToUri.entrySet().stream().filter( ( e ) -> e.getValue().equals( namespaceURI ) ).map( ( e ) -> e.getKey() ).iterator();
