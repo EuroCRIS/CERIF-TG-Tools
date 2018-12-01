@@ -186,6 +186,7 @@ public class CerifXmlSchemaExpander {
 		for ( final Node n1 : XMLUtils.asList( (NodeList) createXPath().evaluate( "descendant-or-self::xs:*/@cfprocess:*", elSchemaRoot, XPathConstants.NODESET ) ) ) {
 			removeFromTree( n1 );
 		}
+		elSchemaRoot.removeAttribute( "xmlns:cfprocess" );
 	}
 
 	protected void expandTails( final Document doc ) throws XPathExpressionException, JAXBException {
