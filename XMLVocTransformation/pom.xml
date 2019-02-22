@@ -1,0 +1,97 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.eurocris.cerif.tools</groupId>
+    <artifactId>xslt-project</artifactId>
+    <version>0.1-SNAPSHOT</version>
+    <name>VocabulariesTransformation</name>
+ 
+    <!-- declare needed paths -->
+    <properties>
+        <xslt.path>src/main/xslt</xslt.path>
+        <xml.src.path>src/main/xml</xml.src.path>
+		<xml.dest.path>target/xml</xml.dest.path>
+		<rdf.dest.path>target/rdf</rdf.dest.path>
+<!--		<html.dest.path>target/html</html.dest.path>
+-->    </properties>
+	<build>
+		<plugins>
+            <!-- Copy the XMLs to the destination (XMLs are the sources) -->
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${xml.dest.path}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${xml.src.path}</directory>
+                                    <includes>
+                                        <include>*.xml</include>
+                                    </includes>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Transform all XMLs into corresponding RDFs -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>xml-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>transform-to-rdf</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>transform</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<transformationSets>
+						<transformationSet>
+							<dir>${xml.src.path}</dir>
+							<stylesheet>${xslt.path}/CERIFvocabulary-fromXML-toRDF.xsl</stylesheet>
+							<outputDir>${rdf.dest.path}</outputDir>
+							<fileMappers>
+								<fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
+									<targetExtension>.rdf</targetExtension>
+								</fileMapper>
+							</fileMappers>
+						</transformationSet>
+					</transformationSets>
+				</configuration>
+			</plugin>
+            <!-- Transform all XMLs into corresponding HTMLs -->
+<!--			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>xml-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>transform-to-html</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>transform</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<transformationSets>
+						<transformationSet>
+							<dir>${xml.src.path}</dir>
+							<stylesheet>${xslt.path}/CERIFvocabulary-fromXML-toHTML.xsl</stylesheet>
+							<outputDir>${html.dest.path}</outputDir>
+						</transformationSet>
+					</transformationSets>
+				</configuration>
+			</plugin>
+-->		</plugins>
+	</build>
+</project>
