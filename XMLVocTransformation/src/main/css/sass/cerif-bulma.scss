@@ -1,0 +1,72 @@
+@charset "utf-8";
+
+// Set your brand colors
+$purple: #8C1F7D;
+$nearly-white: #ebd7e8;
+
+$primary: $purple;
+$light: $nearly-white;
+
+
+@import "../bulma/sass/utilities/_all.sass";
+@import "../bulma/sass/base/_all.sass";
+@import "../bulma/sass/elements/container.sass";
+@import "../bulma/sass/elements/title.sass";
+@import "../bulma/sass/grid/tiles.sass";
+@import "../bulma/sass/layout/section.sass";
+
+.is-ancestor > .tile {
+	padding:5px;
+	margin:5px;
+}
+.title {
+	margin-top:20px;
+}
+.header {
+	background: url('https://www.eurocris.org/sites/all/themes/marlon/img/bg_header.png') no-repeat right top;
+	height: 67px;
+	font-family: 'Open Sans',Verdana,Arial,Helvetica,sans-serif;
+}
+.site-branding {
+	display: inline;
+	float: left;
+	position: relative;
+	margin-left: 10px;
+	margin-right: 10px;
+	width:100%;
+}
+.site-name-slogan {
+	position:absolute;
+	float:left;
+	display:block;
+	margin:10px 0;
+	margin-left:5px;
+}
+.site-name {
+	font-size:36px;
+	line-height:1em;
+	letter-spacing:0.06em;
+}
+.site-name > a {
+	font-size: 44px;
+	font-weight: normal;
+	letter-spacing: 1px;
+	text-decoration:none;
+}
+.site-slogan {
+	font-size: 12px;
+	font-weight: normal;
+	line-height: 1em;
+	letter-spacing: -0.05em;
+}
+.site-title {
+	margin-left: 10px;
+	margin-top: 38px;
+	font-size: 18px;
+	letter-spacing: 0.03em;
+	width: 100%;
+	text-align: center;
+	font-size: 16px;
+	position: absolute;
+	display:block;
+}

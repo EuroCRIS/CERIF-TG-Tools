@@ -12,13 +12,16 @@
         <xml.src.path>src/main/xml</xml.src.path>
 		<xml.dest.path>target/xml</xml.dest.path>
 		<rdf.dest.path>target/rdf</rdf.dest.path>
-<!--		<html.dest.path>target/html</html.dest.path>
--->    </properties>
+		<html.dest.path>target/html</html.dest.path>
+		<sassSourceDirectory>src/main/css/sass</sassSourceDirectory>
+    </properties>
 	<build>
 		<plugins>
             <!-- Copy the XMLs to the destination (XMLs are the sources) -->
             <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.1.0</version>
                 <executions>
                     <execution>
                         <id>copy-resources</id>
@@ -41,13 +44,14 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- Transform all XMLs into corresponding RDFs -->
+            <!-- Transform all XMLs into corresponding RDFs and HTMLs -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>xml-maven-plugin</artifactId>
+				<version>1.0.2</version>
 				<executions>
 					<execution>
-						<id>transform-to-rdf</id>
+						<id>transform-xml</id>
 						<phase>compile</phase>
 						<goals>
 							<goal>transform</goal>
@@ -66,32 +70,37 @@
 								</fileMapper>
 							</fileMappers>
 						</transformationSet>
-					</transformationSets>
-				</configuration>
-			</plugin>
-            <!-- Transform all XMLs into corresponding HTMLs -->
-<!--			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>xml-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>transform-to-html</id>
-						<phase>compile</phase>
-						<goals>
-							<goal>transform</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<transformationSets>
 						<transformationSet>
 							<dir>${xml.src.path}</dir>
 							<stylesheet>${xslt.path}/CERIFvocabulary-fromXML-toHTML.xsl</stylesheet>
 							<outputDir>${html.dest.path}</outputDir>
+							<fileMappers>
+								<fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
+									<targetExtension>.html</targetExtension>
+								</fileMapper>
+							</fileMappers>
 						</transformationSet>
 					</transformationSets>
 				</configuration>
 			</plugin>
--->		</plugins>
+			<!-- compile sass file for html styling -->
+			<plugin>
+				<groupId>nl.geodienstencentrum.maven</groupId>
+				<artifactId>sass-maven-plugin</artifactId>
+				<version>3.7.1</version>
+				<executions>
+					<execution>
+						<id>compile-style</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>update-stylesheets</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<destination>target/html/css</destination>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 </project>
