@@ -1,0 +1,136 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.eurocris.cerif.tools</groupId>
+    <artifactId>xslt-project</artifactId>
+    <version>0.1-SNAPSHOT</version>
+    <name>VocabulariesTransformation</name>
+ 
+    <!-- declare needed paths -->
+    <properties>
+        <xslt.path>src/main/xslt</xslt.path>
+        <xml.src.path>src/main/xml</xml.src.path>
+		<sassSourceDirectory>src/main/css/sass</sassSourceDirectory>
+		<sassWorkingDirectory>tmp/sass</sassWorkingDirectory>
+		<xml.dest.path>target/xml</xml.dest.path>
+		<rdf.dest.path>target/rdf</rdf.dest.path>
+		<html.dest.path>target/html</html.dest.path>
+		<css.dest.path>${html.dest.path}/css</css.dest.path>
+    </properties>
+	<build>
+		<plugins>
+            <!-- Transform XML files -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>xml-maven-plugin</artifactId>
+				<version>1.0.2</version>
+				<executions>
+					<execution>
+						<id>transform-xml</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>transform</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<transformationSets>
+						<!-- into RDF files-->
+						<transformationSet>
+							<dir>${xml.src.path}</dir>
+							<stylesheet>${xslt.path}/CERIFvocabulary-fromXML-toRDF.xsl</stylesheet>
+							<outputDir>${rdf.dest.path}</outputDir>
+							<fileMappers>
+								<fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
+									<targetExtension>.rdf</targetExtension>
+								</fileMapper>
+							</fileMappers>
+						</transformationSet>
+						<!-- into HTML files-->
+						<transformationSet>
+							<dir>${xml.src.path}</dir>
+							<stylesheet>${xslt.path}/CERIFvocabulary-fromXML-toHTML.xsl</stylesheet>
+							<outputDir>${html.dest.path}</outputDir>
+							<fileMappers>
+								<fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
+									<targetExtension>.html</targetExtension>
+								</fileMapper>
+							</fileMappers>
+						</transformationSet>
+					</transformationSets>
+				</configuration>
+			</plugin>
+			<!-- compile sass file for html styling -->
+			<plugin>
+				<groupId>nl.geodienstencentrum.maven</groupId>
+				<artifactId>sass-maven-plugin</artifactId>
+				<version>3.7.1</version>
+				<executions>
+					<execution>
+						<id>compile-style</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>update-stylesheets</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<destination>${sassWorkingDirectory}</destination>
+					<sassOptions>
+						<cache_location>'${sassWorkingDirectory}/sass_cache'</cache_location>
+						<style>:compressed</style>
+						<sourcemap>:none</sourcemap>
+					</sassOptions>
+				</configuration>
+			</plugin>
+            <!-- Copy files -->
+            <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.1.0</version>
+                <executions>
+					<!-- XML files -->
+                    <execution>
+                        <id>copy-xml</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${xml.dest.path}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${xml.src.path}</directory>
+                                    <includes>
+                                        <include>*.xml</include>
+                                    </includes>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+					<!-- css files -->
+                    <execution>
+                        <id>copy-xss</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${css.dest.path}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${sassWorkingDirectory}</directory>
+                                    <includes>
+                                        <include>*.css</include>
+                                    </includes>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+		</plugins>
+	</build>
+</project>

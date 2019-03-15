@@ -1,0 +1,6 @@
+# ignore eclipse IDE files
+.project
+.settings
+.classpath
+target
+tmp
