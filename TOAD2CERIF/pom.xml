@@ -1,8 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.eurocris.cerif.tools</groupId>
 	<artifactId>toad2cerif</artifactId>
-	<version>0.1-SNAPSHOT</version>
 	<name>TOAD2CERIF</name>
 	<description>This tool is intent for CERIF data modellers to convert the TOAD file in the CERIF XML Semantics</description>
 	<build>
@@ -116,4 +114,10 @@
 			<version>2.2.3-1</version>
 		</dependency>
 	</dependencies>
+	<parent>
+		<groupId>org.eurocris.cerif.tools</groupId>
+		<artifactId>cerif-tg-tools</artifactId>
+		<version>0.1-SNAPSHOT</version>
+		<relativePath>..</relativePath>
+	</parent>
 </project>
