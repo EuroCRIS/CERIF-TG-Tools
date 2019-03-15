@@ -269,4 +269,26 @@ public class XMLUtils
 		
 	}
 
+	public static List<Element> asElementList( final NodeList nl ) {
+		return new NodeListElementWrapper( nl );
+	}
+
+	private static final class NodeListElementWrapper extends AbstractList<Element> implements RandomAccess {
+		
+		private final NodeList list;
+
+		NodeListElementWrapper( final NodeList l ) {
+			list = l;
+		}
+
+		public Element get( final int index ) {
+			return (Element) list.item( index );
+		}
+
+		public int size() {
+			return list.getLength();
+		}
+		
+	}
+
 }
