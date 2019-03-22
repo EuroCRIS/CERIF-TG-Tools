@@ -8,6 +8,6 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>TOAD2CERIF</module>
-		<module>XMLVocTransformation</module>
+		<module>CERIF-Publishing</module>
 	</modules>
 </project>
