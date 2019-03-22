@@ -6,10 +6,12 @@
  
     <!-- declare needed paths -->
     <properties>
-        <xslt.path>src/main/xslt</xslt.path>
-        <xml.src.path>src/main/xml</xml.src.path>
 		<sassSourceDirectory>src/main/css/sass</sassSourceDirectory>
 		<sassWorkingDirectory>tmp/sass</sassWorkingDirectory>
+        <xslt.path>src/main/xslt</xslt.path>
+        <datamodel.src.path>src/main/datamodel</datamodel.src.path>
+        <xml.src.path>src/main/xml</xml.src.path>
+		<datamodel.dest.path>target</datamodel.dest.path>
 		<xml.dest.path>target/xml</xml.dest.path>
 		<rdf.dest.path>target/rdf</rdf.dest.path>
 		<html.dest.path>target/html</html.dest.path>
@@ -33,7 +35,18 @@
 				</executions>
 				<configuration>
 					<transformationSets>
-						<!-- into RDF files-->
+						<!-- CERIF datamodel into RDF file-->
+						<transformationSet>
+							<dir>${datamodel.src.path}</dir>
+							<stylesheet>${xslt.path}/CERIFdatamodel-fromTXP-toRDF.xsl</stylesheet>
+							<outputDir>${datamodel.dest.path}</outputDir>
+							<fileMappers>
+								<fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
+									<targetExtension>.rdf</targetExtension>
+								</fileMapper>
+							</fileMappers>
+						</transformationSet>
+						<!-- CERIF vocabulary into RDF files-->
 						<transformationSet>
 							<dir>${xml.src.path}</dir>
 							<stylesheet>${xslt.path}/CERIFvocabulary-fromXML-toRDF.xsl</stylesheet>
@@ -44,7 +57,7 @@
 								</fileMapper>
 							</fileMappers>
 						</transformationSet>
-						<!-- into HTML files-->
+						<!-- CERIF vocabulary into HTML files-->
 						<transformationSet>
 							<dir>${xml.src.path}</dir>
 							<stylesheet>${xslt.path}/CERIFvocabulary-fromXML-toHTML.xsl</stylesheet>
