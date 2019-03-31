@@ -2,8 +2,8 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>cerif-publishing</artifactId>
-    <name>CERIF-Publishing</name>
- 
+    <name>CERIF Publishing</name>
+ 	<description>A set of tools to publish the CERIF data model and semantic vocabularies</description>
     <!-- declare needed paths -->
     <properties>
 		<sassSourceDirectory>src/main/css/sass</sassSourceDirectory>
@@ -23,7 +23,6 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>xml-maven-plugin</artifactId>
-				<version>1.0.2</version>
 				<executions>
 					<execution>
 						<id>transform-xml</id>
@@ -75,7 +74,6 @@
 			<plugin>
 				<groupId>nl.geodienstencentrum.maven</groupId>
 				<artifactId>sass-maven-plugin</artifactId>
-				<version>3.7.1</version>
 				<executions>
 					<execution>
 						<id>compile-style</id>
@@ -98,7 +96,6 @@
             <plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
-				<version>3.1.0</version>
                 <executions>
 					<!-- XML files -->
                     <execution>

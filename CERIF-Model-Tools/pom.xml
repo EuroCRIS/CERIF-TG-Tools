@@ -1,8 +1,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>toad2cerif</artifactId>
-	<name>TOAD2CERIF</name>
-	<description>This tool is intent for CERIF data modellers to convert the TOAD file in the CERIF XML Semantics</description>
+	<artifactId>cerif-model-tools</artifactId>
+	<name>CERIF Model Tools</name>
+	<description>A set of tools to work with the CERIF data model</description>
 	<build>
 		<plugins>
 			<plugin>
@@ -16,7 +16,6 @@
 			<plugin>
 				<groupId>org.jvnet.jaxb2.maven2</groupId>
 				<artifactId>maven-jaxb2-plugin</artifactId>
-				<version>0.14.0</version>
 				<executions>
 					<execution>
 						<phase>generate-sources</phase>
@@ -59,7 +58,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
-				<version>3.0.2</version>
 				<executions>
 					<execution>
 						<id>copy-resources</id>

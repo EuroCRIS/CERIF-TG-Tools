@@ -1,13 +1,47 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.eurocris.cerif.tools</groupId>
-	<version>0.1-SNAPSHOT</version>
-	<name>TOAD2CERIF</name>
-	<description>This tool is intent for CERIF data modellers to convert the TOAD file in the CERIF XML Semantics</description>
 	<artifactId>cerif-tg-tools</artifactId>
+	<version>0.1-SNAPSHOT</version>
+	<name>CERIF TG Tools</name>
+	<description>A set of tools for working with CERIF, the Common European Research Information Format</description>
 	<packaging>pom</packaging>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 	<modules>
-		<module>TOAD2CERIF</module>
+		<module>CERIF-Model-Tools</module>
 		<module>CERIF-Publishing</module>
 	</modules>
+	<build>
+	<pluginManagement>
+		<plugins>
+			<plugin>
+				<groupId>org.jvnet.jaxb2.maven2</groupId>
+				<artifactId>maven-jaxb2-plugin</artifactId>
+				<version>0.14.0</version>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>3.0.0</version>
+			</plugin>
+            <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.1.0</version>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>xml-maven-plugin</artifactId>
+				<version>1.0.2</version>
+			</plugin>
+			<plugin>
+				<groupId>nl.geodienstencentrum.maven</groupId>
+				<artifactId>sass-maven-plugin</artifactId>
+				<version>3.7.1</version>
+			</plugin>
+		</plugins>
+	</pluginManagement>
+	</build>
 </project>
