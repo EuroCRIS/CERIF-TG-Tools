@@ -173,7 +173,7 @@ This stylesheet is used to transform the txp file -corresponding to the TOAD dat
 			-->
 			<!--multilingual properties-->
 			<xsl:for-each select="PERModelUN/Entities/PEREntityUN[Category/Id='{34011F15-8D84-4858-989F-A71490A9AEEF}']/Attributes/PERAttributeUN[KeyConstraintItems='']">
-				<xsl:if test="contains(Name,'Src')=false"><!--remove *Src attributes; no other attributes contains Src-->
+				<xsl:if test="contains(Name,'Src')=false()"><!--remove *Src attributes; no other attributes contains Src-->
 					<xsl:variable name="fkId" select="preceding-sibling::PERAttributeUN[KeyConstraintItems!='' and Name!='cfLangCode' and Name!='cfTrans']/FKForeignKeys/Id"/><!--get the id of the FK pointing to the source entity-->
 					<xsl:variable name="sourceEntity" select="//PERModelUN/Entities/PEREntityUN[Keys/PERKeyConstraintUN/KeyItems/PERKeyConstraintItemUN/ForeignKeys/Id=$fkId]/Caption"/><!--get the caption of the source entity-->
 					<owl:DatatypeProperty rdf:about="https://w3id.org/cerif/model#cfResultPublication.cfVersionInfo">
@@ -272,7 +272,7 @@ This stylesheet is used to transform the txp file -corresponding to the TOAD dat
 							<physicalName><xsl:value-of select="Name"/></physicalName>
 						</owl:DatatypeProperty>
 					</xsl:when>
-					<xsl:when test="contains(Name,'cfClassSchemeId')=false or $sourceEntity!='cfClassification'"><!--object properties, do not consider cfClassSchemeId* FK pointing to cfClass as part of its PK-->
+					<xsl:when test="contains(Name,'cfClassSchemeId')=false() or $sourceEntity!='cfClassification'"><!--object properties, do not consider cfClassSchemeId* FK pointing to cfClass as part of its PK-->
 						<owl:ObjectProperty>
 							<xsl:attribute name="rdf:about">
 								<xsl:text>https://w3id.org/cerif/model#</xsl:text>
