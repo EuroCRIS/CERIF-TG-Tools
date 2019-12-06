@@ -5,8 +5,10 @@ This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF HTM
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 	<xsl:output method="html" encoding="utf-8" indent="yes" />
 
-	<xsl:template match="/CERIF/cfClassScheme">
-		<xsl:text disable-output-escaping='yes'>&lt;!DOCTYPE html&gt;</xsl:text>
+	<xsl:template match="/">
+		<xsl:for-each select="CERIF/cfClassScheme">
+		<xsl:text disable-output-escaping='yes'>&lt;!DOCTYPE html&gt;
+</xsl:text>	
 		<html>
 			<head>
 				<meta charset="utf-8"/>
@@ -208,6 +210,7 @@ This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF HTM
 				</section>
 			</body>
 		</html>
+		</xsl:for-each>
 	</xsl:template>
 
 </xsl:stylesheet>

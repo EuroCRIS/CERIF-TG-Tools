@@ -6,8 +6,11 @@ This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF RDF
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:dc="http://purl.org/dc/elements/1.1/"
 	xmlns:fn="http://www.w3.org/2005/xpath-functions">
-	<xsl:output method="xml" indent="yes" omit-xml-declaration="no" standalone="yes" />
-	<xsl:template match="/CERIF/cfClassScheme">
+
+	<xsl:output method="xml" indent="yes" omit-xml-declaration="no" standalone="yes"/>
+
+	<xsl:template match="/">
+		<xsl:for-each select="CERIF/cfClassScheme">
 		<rdf:RDF xmlns="https://w3id.org/cerif/vocab/"
 			xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 			xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
@@ -105,6 +108,7 @@ This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF RDF
 			</xsl:for-each>
 
 		</rdf:RDF>
+		</xsl:for-each>
 	</xsl:template>
 
 </xsl:stylesheet> 
