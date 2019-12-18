@@ -64,14 +64,14 @@
 							<dir>${xml.src.path}</dir>
 							<stylesheet>${xslt.path}/CERIFvocabulary-fromXML-toRDF.xsl</stylesheet>
 							<outputDir>${rdf.dest.path}</outputDir>
+							<excludes>
+								<exclude>schema/**/*</exclude>
+							</excludes>
 							<fileMappers>
 								<fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
 									<targetExtension>.rdf</targetExtension>
 								</fileMapper>
 							</fileMappers>
-							<excludes>
-								<exclude>schema/**/*</exclude>
-							</excludes>
 						</transformationSet>
 						<!-- CERIF vocabulary into HTML files-->
 						<transformationSet>
