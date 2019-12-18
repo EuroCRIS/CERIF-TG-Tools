@@ -30,11 +30,22 @@
 						<id>transform-xml</id>
 						<phase>compile</phase>
 						<goals>
+							<goal>validate</goal>
 							<goal>transform</goal>
 						</goals>
 					</execution>
 				</executions>
 				<configuration>
+					<validationSets>
+						<validationSet>
+							<dir>src/main/xml</dir>
+							<validating>true</validating>
+							<systemId>src/main/xml/schema/CERIF-Vocabulary.xsd</systemId>
+							<excludes>
+								<exclude>**/catalog.xml</exclude>
+							</excludes>
+						</validationSet>
+					</validationSets>
 					<transformationSets>
 						<!-- CERIF datamodel into RDF file-->
 						<transformationSet>
@@ -70,6 +81,9 @@
 							</fileMappers>
 						</transformationSet>
 					</transformationSets>
+					<catalogs>
+						<catalog>src/main/xml/schema/catalog.xml</catalog>
+					</catalogs>
 				</configuration>
 			</plugin>
 			<!-- compile sass file for html styling -->

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<CERIF xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:xmlns:org:eurocris:cerif-1.5-1 http://www.eurocris.org/Uploads/Web%20pages/CERIF-1.5/CERIF_1.5_1.xsd" release="1.5" date="2012-10-02" sourceDatabase="CERIF1.5_Semantics.xls">
+<CERIF xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:xmlns:org:eurocris:cerif-1.5-1" xsi:schemaLocation="urn:xmlns:org:eurocris:cerif-1.5-1 https://w3id.org/cerif/vocab/xml/schema/CERIF-Vocabulary.xsd" release="1.5" date="2012-10-02" sourceDatabase="CERIF1.5_Semantics.xls">
   <cfClassScheme>
     <cfClassSchemeId>da0e5a01-c73e-4489-8cf7-917e9efcdad4</cfClassSchemeId>
     <cfName cfLangCode="en" cfTrans="o">Inter-Facility Relations</cfName>
@@ -29,4 +29,4 @@
       <cfDefSrc cfLangCode="en" cfTrans="o">http://wordnetweb.princeton.edu/perl/webwn?s=Relation</cfDefSrc>
     </cfClass>
   </cfClassScheme>
-<head xmlns=""/></CERIF>
+</CERIF>

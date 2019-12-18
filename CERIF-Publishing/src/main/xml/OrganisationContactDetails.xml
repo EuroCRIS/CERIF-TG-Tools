@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<CERIF xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:xmlns:org:eurocris:cerif-1.5-1 http://www.eurocris.org/Uploads/Web%20pages/CERIF-1.5/CERIF_1.5_1.xsd" release="1.5" date="2012-10-02" sourceDatabase="CERIF1.5_Semantics.xls">
+<CERIF xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:xmlns:org:eurocris:cerif-1.5-1" xsi:schemaLocation="urn:xmlns:org:eurocris:cerif-1.5-1 https://w3id.org/cerif/vocab/xml/schema/CERIF-Vocabulary.xsd" release="1.5" date="2012-10-02" sourceDatabase="CERIF1.5_Semantics.xls">
   <cfClassScheme>
     <cfClassSchemeId>fee53e30-de3a-421b-80e0-9b3fe3a3c170</cfClassSchemeId>
     <cfName cfLangCode="en" cfTrans="o">Organisation Contact Details</cfName>
@@ -96,4 +96,4 @@
       <cfDef cfLangCode="en" cfTrans="o">The address to which financial queries should be sent</cfDef>
     </cfClass>
   </cfClassScheme>
-<head xmlns=""/></CERIF>
+</CERIF>

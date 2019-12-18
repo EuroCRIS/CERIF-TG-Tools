@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<CERIF xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:xmlns:org:eurocris:cerif-1.5-1 http://www.eurocris.org/Uploads/Web%20pages/CERIF-1.5/CERIF_1.5_1.xsd" release="1.5" date="2012-10-02" sourceDatabase="CERIF1.5_Semantics.xls">
+<CERIF xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:xmlns:org:eurocris:cerif-1.5-1" xsi:schemaLocation="urn:xmlns:org:eurocris:cerif-1.5-1 https://w3id.org/cerif/vocab/xml/schema/CERIF-Vocabulary.xsd" release="1.5" date="2012-10-02" sourceDatabase="CERIF1.5_Semantics.xls">
   <cfClassScheme>
     <cfClassSchemeId>94fefd50-1d00-11e1-8bc2-0800200c9a66</cfClassSchemeId>
     <cfName cfLangCode="en" cfTrans="o">Person Project Engagements</cfName>
@@ -344,4 +344,4 @@
       <cfDefSrc cfLangCode="en" cfTrans="o">http://lu.com/odlis/odlis_s.cfm#subject</cfDefSrc>
     </cfClass>
   </cfClassScheme>
-<head xmlns=""/></CERIF>
+</CERIF>
