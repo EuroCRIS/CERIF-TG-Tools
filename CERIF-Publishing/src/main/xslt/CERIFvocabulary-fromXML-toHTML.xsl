@@ -2,18 +2,18 @@
 <!--
 This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF HTML vocabulary
 -->
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:x="urn:xmlns:org:eurocris:cerif-1.5-1" exclude-result-prefixes="x">
 	<xsl:output method="html" encoding="utf-8" indent="yes" />
 
 	<xsl:template match="/">
-		<xsl:for-each select="CERIF/cfClassScheme">
+		<xsl:for-each select="x:CERIF/x:cfClassScheme">
 		<xsl:text disable-output-escaping='yes'>&lt;!DOCTYPE html&gt;
 </xsl:text>	
 		<html>
 			<head>
 				<meta charset="utf-8"/>
 				<meta name="viewport" content="width=device-width, initial-scale=1"/>
-				<title>[CERIF] <xsl:value-of select="cfName"/> vocabulary</title>
+				<title>[CERIF] <xsl:value-of select="x:cfName"/> vocabulary</title>
 				<link rel="stylesheet" href="css/cerif-bulma.css"/>
 				<script src="https://use.fontawesome.com/releases/v5.3.1/js/all.js" defer="true"></script>
 			</head>
@@ -33,13 +33,13 @@ This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF HTM
 				
 				<section class="section">
 
-					<xsl:variable name="schemeShortName" select="translate(cfName,' ', '')"/>
-					<xsl:variable name="schemeName" select="cfName"/>
+					<xsl:variable name="schemeShortName" select="translate(x:cfName,' ', '')"/>
+					<xsl:variable name="schemeName" select="x:cfName"/>
 	
 					<!--class scheme-->
 					<article class="container">
 						<h1 class="title is-1">
-							<xsl:value-of select="cfName"/> vocabulary
+							<xsl:value-of select="x:cfName"/> vocabulary
 						</h1>
 						<p class="subtitle">
 							<a href="#">https://w3id.org/cerif/vocab/<xsl:value-of select="$schemeShortName"/></a>
@@ -61,7 +61,7 @@ This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF HTM
 							</div>
 							<div class="tile">
 								<ul>
-									<li><xsl:value-of select="cfClassSchemeId"/></li>
+									<li><xsl:value-of select="x:cfClassSchemeId"/></li>
 								</ul>
 							</div>
 						</div>
@@ -71,7 +71,7 @@ This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF HTM
 							</div>
 							<div class="tile">
 								<ul>
-									<li>(<xsl:value-of select="cfName/@cfLangCode"/>) <xsl:value-of select="cfName"/></li>
+									<li>(<xsl:value-of select="x:cfName/@cfLangCode"/>) <xsl:value-of select="x:cfName"/></li>
 								</ul>
 							</div>
 						</div>
@@ -81,7 +81,7 @@ This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF HTM
 							</div>
 							<div class="tile">
 								<ul>
-									<li>(<xsl:value-of select="cfDescr/@cfLangCode"/>) <xsl:value-of select="cfDescr"/></li>
+									<li>(<xsl:value-of select="x:cfDescr/@cfLangCode"/>) <xsl:value-of select="x:cfDescr"/></li>
 								</ul>
 							</div>
 						</div>
@@ -91,14 +91,14 @@ This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF HTM
 							</div>
 							<div class="tile">
 								<ul>
-									<xsl:for-each select="cfClass">
+									<xsl:for-each select="x:cfClass">
 										<li>
 											<a>
 												<xsl:attribute name="href">
 													<xsl:text>#</xsl:text>
-													<xsl:value-of select="translate(cfTerm,' ', '')"/>
+													<xsl:value-of select="translate(x:cfTerm,' ', '')"/>
 												</xsl:attribute>
-												<xsl:value-of select="cfTerm"/>
+												<xsl:value-of select="x:cfTerm"/>
 											</a>
 										</li>
 									</xsl:for-each>
@@ -108,21 +108,21 @@ This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF HTM
 					</article>
 			
 					<!--classes-->
-					<xsl:for-each select="cfClass">
+					<xsl:for-each select="x:cfClass">
 						<article class="container">
 							<xsl:attribute name="id">
-								<xsl:value-of select="translate(cfTerm,' ', '')"/>
+								<xsl:value-of select="translate(x:cfTerm,' ', '')"/>
 							</xsl:attribute>
 							<h3 class="title">
-								<xsl:value-of select="cfTerm"/>
+								<xsl:value-of select="x:cfTerm"/>
 							</h3>
 							<p class="subtitle">
 								<a>
 									<xsl:attribute name="href">
 										<xsl:text>#</xsl:text>
-										<xsl:value-of select="translate(cfTerm,' ', '')"/>
+										<xsl:value-of select="translate(x:cfTerm,' ', '')"/>
 									</xsl:attribute>
-									https://w3id.org/cerif/vocab/<xsl:value-of select="$schemeShortName"/>#<xsl:value-of select="translate(cfTerm,' ', '')"/>
+									https://w3id.org/cerif/vocab/<xsl:value-of select="$schemeShortName"/>#<xsl:value-of select="translate(x:cfTerm,' ', '')"/>
 								</a>
 							</p>
 							<div class="tile is-ancestor">
@@ -152,7 +152,7 @@ This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF HTM
 								</div>
 								<div class="tile">
 									<ul>
-										<li><xsl:value-of select="cfClassId"/></li>
+										<li><xsl:value-of select="x:cfClassId"/></li>
 									</ul>
 								</div>
 							</div>
@@ -162,42 +162,42 @@ This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF HTM
 								</div>
 								<div class="tile">
 									<ul>
-										<li>(<xsl:value-of select="cfTerm/@cfLangCode"/>) <xsl:value-of select="cfTerm"/></li>
+										<li>(<xsl:value-of select="x:cfTerm/@cfLangCode"/>) <xsl:value-of select="x:cfTerm"/></li>
 									</ul>
 								</div>
 							</div>
-							<xsl:if test="cfDescr">
+							<xsl:if test="x:cfDescr">
 								<div class="tile is-ancestor">
 									<div class="tile is-2 has-text-light has-background-primary">
 											dc:description
 									</div>
 									<div class="tile">
 										<ul>
-											<li>(<xsl:value-of select="cfDescr/@cfLangCode"/>) <xsl:value-of select="cfDescr"/></li>
+											<li>(<xsl:value-of select="x:cfDescr/@cfLangCode"/>) <xsl:value-of select="x:cfDescr"/></li>
 										</ul>
 									</div>
 								</div>
 							</xsl:if>
-							<xsl:if test="cfDef">
+							<xsl:if test="x:cfDef">
 								<div class="tile is-ancestor">
 									<div class="tile is-2 has-text-light has-background-primary">
 											skos:definition
 									</div>
 									<div class="tile">
 										<ul>
-											<li>(<xsl:value-of select="cfDef/@cfLangCode"/>) <xsl:value-of select="cfDef"/></li>
+											<li>(<xsl:value-of select="x:cfDef/@cfLangCode"/>) <xsl:value-of select="x:cfDef"/></li>
 										</ul>
 									</div>
 								</div>
 							</xsl:if>
-							<xsl:if test="cfTermSrc | cfDescrSrc | cfDefSrc">
+							<xsl:if test="x:cfTermSrc | x:cfDescrSrc | x:cfDefSrc">
 								<div class="tile is-ancestor">
 									<div class="tile is-2 has-text-light has-background-primary">
 											dc:source
 									</div>
 									<div class="tile">
 										<ul>
-											<xsl:for-each select="cfTermSrc | cfDescrSrc | cfDefSrc">
+											<xsl:for-each select="x:cfTermSrc | x:cfDescrSrc | x:cfDefSrc">
 												<li>(<xsl:value-of select="@cfLangCode"/>) <xsl:value-of select="text()"/></li>
 											</xsl:for-each>
 										</ul>
