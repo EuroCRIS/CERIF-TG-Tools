@@ -43,6 +43,7 @@
 							<systemId>src/main/xml/schema/CERIF-Vocabulary.xsd</systemId>
 							<excludes>
 								<exclude>**/catalog.xml</exclude>
+								<exclude>**/*.xsd</exclude>
 							</excludes>
 						</validationSet>
 					</validationSets>
@@ -68,12 +69,18 @@
 									<targetExtension>.rdf</targetExtension>
 								</fileMapper>
 							</fileMappers>
+							<excludes>
+								<exclude>schema/**/*</exclude>
+							</excludes>
 						</transformationSet>
 						<!-- CERIF vocabulary into HTML files-->
 						<transformationSet>
 							<dir>${xml.src.path}</dir>
 							<stylesheet>${xslt.path}/CERIFvocabulary-fromXML-toHTML.xsl</stylesheet>
 							<outputDir>${html.dest.path}</outputDir>
+							<excludes>
+								<exclude>schema/**/*</exclude>
+							</excludes>
 							<fileMappers>
 								<fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
 									<targetExtension>.html</targetExtension>
