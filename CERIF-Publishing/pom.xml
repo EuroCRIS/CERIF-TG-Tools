@@ -92,6 +92,14 @@
 						<catalog>src/main/xml/schema/catalog.xml</catalog>
 					</catalogs>
 				</configuration>
+				<!-- change xslt processor -->
+				<dependencies>
+					<dependency>
+						<groupId>net.sf.saxon</groupId>
+						<artifactId>Saxon-HE</artifactId>
+						<version>9.9.1-2</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 			<!-- compile sass file for html styling -->
 			<plugin>

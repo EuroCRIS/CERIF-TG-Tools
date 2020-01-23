@@ -2,7 +2,7 @@
 <!--
 This stylesheet is used to transform the txp file -corresponding to the TOAD data modeler- to the full RDF schema for CERIF
 -->
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:cerif="https://w3id.org/cerif/model">
 	<xsl:output method="xml" indent="yes" omit-xml-declaration="no" standalone="yes" />
 	<xsl:template match="/">
 		<rdf:RDF xmlns="https://w3id.org/cerif/model#"
@@ -112,7 +112,7 @@ This stylesheet is used to transform the txp file -corresponding to the TOAD dat
 					<owl:Class>
 						<xsl:attribute name="rdf:about">
 							<xsl:text>https://w3id.org/cerif/model#</xsl:text>
-							<xsl:value-of select="Caption"/>
+							<xsl:value-of select="cerif:removePrefix(Caption)"/>
 						</xsl:attribute>
 						<rdfs:subClassOf>
 							<xsl:attribute name="rdf:resource">
@@ -160,7 +160,7 @@ This stylesheet is used to transform the txp file -corresponding to the TOAD dat
 								</xsl:otherwise>
 							</xsl:choose>
 						</vs:term_status>
-						<rdfs:label><xsl:value-of select="Caption"/></rdfs:label>
+						<rdfs:label><xsl:value-of select="cerif:removePrefix(Caption)"/></rdfs:label>
 						<physicalName><xsl:value-of select="Name"/></physicalName>
 					</owl:Class>
 				</xsl:if>
@@ -173,15 +173,15 @@ This stylesheet is used to transform the txp file -corresponding to the TOAD dat
 			-->
 			<!--multilingual properties-->
 			<xsl:for-each select="PERModelUN/Entities/PEREntityUN[Category/Id='{34011F15-8D84-4858-989F-A71490A9AEEF}']/Attributes/PERAttributeUN[KeyConstraintItems='']">
-				<xsl:if test="contains(Name,'Src')=false"><!--remove *Src attributes; no other attributes contains Src-->
+				<xsl:if test="contains(Name,'Src')=false()"><!--remove *Src attributes; no other attributes contains Src-->
 					<xsl:variable name="fkId" select="preceding-sibling::PERAttributeUN[KeyConstraintItems!='' and Name!='cfLangCode' and Name!='cfTrans']/FKForeignKeys/Id"/><!--get the id of the FK pointing to the source entity-->
-					<xsl:variable name="sourceEntity" select="//PERModelUN/Entities/PEREntityUN[Keys/PERKeyConstraintUN/KeyItems/PERKeyConstraintItemUN/ForeignKeys/Id=$fkId]/Caption"/><!--get the caption of the source entity-->
+					<xsl:variable name="sourceEntity" select="cerif:removePrefix(//PERModelUN/Entities/PEREntityUN[Keys/PERKeyConstraintUN/KeyItems/PERKeyConstraintItemUN/ForeignKeys/Id=$fkId]/Caption)"/><!--get the caption of the source entity-->
 					<owl:DatatypeProperty rdf:about="https://w3id.org/cerif/model#cfResultPublication.cfVersionInfo">
 						<xsl:attribute name="rdf:about">
 							<xsl:text>https://w3id.org/cerif/model#</xsl:text>
 							<xsl:value-of select="$sourceEntity"/>
 							<xsl:text>.</xsl:text>
-							<xsl:value-of select="Caption"/>
+							<xsl:value-of select="cerif:removePrefix(Caption)"/>
 						</xsl:attribute>
 						<rdfs:subPropertyOf rdf:resource="https://w3id.org/cerif/model#multilingualProperty"/>
 						<rdfs:domain>
@@ -204,7 +204,7 @@ This stylesheet is used to transform the txp file -corresponding to the TOAD dat
 								</xsl:otherwise>
 							</xsl:choose>
 						</vs:term_status>
-						<rdfs:label><xsl:value-of select="Caption"/></rdfs:label>
+						<rdfs:label><xsl:value-of select="cerif:removePrefix(Caption)"/></rdfs:label>
 						<physicalName><xsl:value-of select="Name"/></physicalName>
 					</owl:DatatypeProperty>
 				</xsl:if>
@@ -212,9 +212,9 @@ This stylesheet is used to transform the txp file -corresponding to the TOAD dat
 			
 			<!--other properties (all entities except multilingual entities, including non-categorised entities)-->
 			<xsl:for-each select="PERModelUN/Entities/PEREntityUN[Category/Id!='{34011F15-8D84-4858-989F-A71490A9AEEF}' or Category='']/Attributes/PERAttributeUN">
-				<xsl:variable name="entity" select="ancestor::PEREntityUN/Caption"/><!--get the caption of the entity-->
+				<xsl:variable name="entity" select="cerif:removePrefix(ancestor::PEREntityUN/Caption)"/><!--get the caption of the entity-->
 				<xsl:variable name="fkId" select="FKForeignKeys/Id"/><!--get the id of the FK pointing-->
-				<xsl:variable name="sourceEntity" select="//PERModelUN/Entities/PEREntityUN[Keys/PERKeyConstraintUN/KeyItems/PERKeyConstraintItemUN/ForeignKeys/Id=$fkId]/Caption"/><!--get the caption of the source entity-->
+				<xsl:variable name="sourceEntity" select="cerif:removePrefix(//PERModelUN/Entities/PEREntityUN[Keys/PERKeyConstraintUN/KeyItems/PERKeyConstraintItemUN/ForeignKeys/Id=$fkId]/Caption)"/><!--get the caption of the source entity-->
 				<xsl:choose>
 					<xsl:when test="FKForeignKeys=''"><!--data properties-->
 						<owl:DatatypeProperty>
@@ -222,7 +222,7 @@ This stylesheet is used to transform the txp file -corresponding to the TOAD dat
 								<xsl:text>https://w3id.org/cerif/model#</xsl:text>
 								<xsl:value-of select="$entity"/>
 								<xsl:text>.</xsl:text>
-								<xsl:value-of select="Caption"/>
+								<xsl:value-of select="cerif:removePrefix(Caption)"/>
 							</xsl:attribute>
 							<rdfs:subPropertyOf rdf:resource="https://w3id.org/cerif/model#dataProperty"/>
 							<rdfs:domain>
@@ -268,17 +268,17 @@ This stylesheet is used to transform the txp file -corresponding to the TOAD dat
 									</xsl:otherwise>
 								</xsl:choose>
 							</vs:term_status>
-							<rdfs:label><xsl:value-of select="Caption"/></rdfs:label>
+							<rdfs:label><xsl:value-of select="cerif:removePrefix(Caption)"/></rdfs:label>
 							<physicalName><xsl:value-of select="Name"/></physicalName>
 						</owl:DatatypeProperty>
 					</xsl:when>
-					<xsl:when test="contains(Name,'cfClassSchemeId')=false or $sourceEntity!='cfClassification'"><!--object properties, do not consider cfClassSchemeId* FK pointing to cfClass as part of its PK-->
+					<xsl:when test="contains(Name,'cfClassSchemeId')=false() or $sourceEntity!='Classification'"><!--object properties, do not consider cfClassSchemeId* FK pointing to cfClass as part of its PK-->
 						<owl:ObjectProperty>
 							<xsl:attribute name="rdf:about">
 								<xsl:text>https://w3id.org/cerif/model#</xsl:text>
 								<xsl:value-of select="$entity"/>
 								<xsl:text>.</xsl:text>
-								<xsl:value-of select="Caption"/>
+								<xsl:value-of select="cerif:removePrefix(Caption)"/>
 							</xsl:attribute>
 							<rdfs:subPropertyOf rdf:resource="https://w3id.org/cerif/model#objectProperty"/>
 							<rdfs:domain>
@@ -306,7 +306,7 @@ This stylesheet is used to transform the txp file -corresponding to the TOAD dat
 									</xsl:otherwise>
 								</xsl:choose>
 							</vs:term_status>
-							<rdfs:label><xsl:value-of select="Caption"/></rdfs:label>
+							<rdfs:label><xsl:value-of select="cerif:removePrefix(Caption)"/></rdfs:label>
 							<physicalName><xsl:value-of select="Name"/></physicalName>
 						</owl:ObjectProperty>
 					</xsl:when>
@@ -315,4 +315,16 @@ This stylesheet is used to transform the txp file -corresponding to the TOAD dat
 
 		</rdf:RDF>
 	</xsl:template>
+
+	<xsl:function name="cerif:removePrefix">
+		<xsl:param name="originalValue"/>
+		<xsl:choose>
+			<xsl:when test="starts-with($originalValue,'cf')">
+				<xsl:value-of select="substring($originalValue,3)"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="$originalValue"/>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:function>
 </xsl:stylesheet> 
