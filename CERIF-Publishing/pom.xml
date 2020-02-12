@@ -87,11 +87,9 @@
 						<validationSet>
 							<dir>${xml.src.path}</dir>
 							<validating>true</validating>
-							<systemId>src/main/xml/schema/CERIF-Vocabulary.xsd</systemId>
+							<systemId>src/main/xsd/CERIF-Vocabulary.xsd</systemId>
 							<excludes>
-								<exclude>**/catalog.xml</exclude>
-								<exclude>**/*.xsd</exclude>
-								<exclude>**/*.md</exclude>
+								<exclude>*.md</exclude>
 							</excludes>
 						</validationSet>
 					</validationSets>
@@ -113,8 +111,7 @@
 							<stylesheet>${xslt.path}/CERIFvocabulary-fromXML-toRDF.xsl</stylesheet>
 							<outputDir>${rdf.dest.path}</outputDir>
 							<excludes>
-								<exclude>schema/**/*</exclude>
-								<exclude>**/*.md</exclude>
+								<exclude>*.md</exclude>
 							</excludes>
 							<fileMappers>
 								<fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
@@ -128,8 +125,7 @@
 							<stylesheet>${xslt.path}/CERIFvocabulary-fromXML-toHTML.xsl</stylesheet>
 							<outputDir>${html.dest.path}</outputDir>
 							<excludes>
-								<exclude>schema/**/*</exclude>
-								<exclude>**/*.md</exclude>
+								<exclude>*.md</exclude>
 							</excludes>
 							<fileMappers>
 								<fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
@@ -139,7 +135,7 @@
 						</transformationSet>
 					</transformationSets>
 					<catalogs>
-						<catalog>src/main/xml/schema/catalog.xml</catalog>
+						<catalog>src/main/xsd/catalog.xml</catalog>
 					</catalogs>
 				</configuration>
 				<!-- change xslt processor -->
