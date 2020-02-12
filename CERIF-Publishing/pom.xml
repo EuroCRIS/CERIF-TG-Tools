@@ -25,6 +25,19 @@
 	</scm>
 	<build>
 		<plugins>
+			<!-- clean temporary files -->
+			<plugin>
+				<artifactId>maven-clean-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<filesets>
+						<fileset>
+							<directory>${tmp.path}</directory>
+							<followSymlinks>false</followSymlinks>
+						</fileset>
+					</filesets>
+				</configuration>
+			</plugin>
 			<!-- retrieve vocabularies and datamodel -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
