@@ -109,8 +109,9 @@ This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF HTM
 					<!--classes-->
 					<xsl:for-each select="x:cfClass">
 						<article class="container">
+							<xsl:variable name="classShortName" select="x:cleanLabelForURL(x:cfTerm)"/>
 							<xsl:attribute name="id">
-								<xsl:value-of select="x:cleanLabelForURL(x:cfTerm)"/>
+								<xsl:value-of select="$classShortName"/>
 							</xsl:attribute>
 							<h3 class="title">
 								<xsl:value-of select="x:cfTerm"/>
@@ -119,9 +120,9 @@ This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF HTM
 								<a>
 									<xsl:attribute name="href">
 										<xsl:text>#</xsl:text>
-										<xsl:value-of select="x:cleanLabelForURL(x:cfTerm)"/>
+										<xsl:value-of select="$classShortName"/>
 									</xsl:attribute>
-									https://w3id.org/cerif/vocab/<xsl:value-of select="$schemeShortName"/>#<xsl:value-of select="x:cleanLabelForURL(x:cfTerm)"/>
+									https://w3id.org/cerif/vocab/<xsl:value-of select="$schemeShortName"/>#<xsl:value-of select="$classShortName"/>
 								</a>
 							</p>
 							<div class="tile is-ancestor">
