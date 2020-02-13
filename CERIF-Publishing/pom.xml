@@ -8,8 +8,7 @@
     <properties>
 		<tmp.path>tmp</tmp.path>
     	<dest.path>target</dest.path>
-		<sassSourceDirectory>src/main/css/sass</sassSourceDirectory>
-		<sassWorkingDirectory>${tmp.path}/sass</sassWorkingDirectory>
+		<sass.source.path>src/main/css/sass</sass.source.path>
         <xslt.path>src/main/xslt</xslt.path>
 		<datamodel.path>${tmp.path}/datamodel</datamodel.path>
 		<vocab.path>${tmp.path}/vocabularies</vocab.path>
@@ -149,24 +148,20 @@
 			</plugin>
 			<!-- compile sass file for html styling -->
 			<plugin>
-				<groupId>nl.geodienstencentrum.maven</groupId>
-				<artifactId>sass-maven-plugin</artifactId>
+				<groupId>com.gitlab.haynes</groupId>
+				<artifactId>libsass-maven-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>compile-style</id>
-						<phase>compile</phase>
+						<phase>generate-resources</phase>
 						<goals>
-							<goal>update-stylesheets</goal>
+							<goal>compile</goal>
 						</goals>
 					</execution>
 				</executions>
 				<configuration>
-					<destination>${sassWorkingDirectory}</destination>
-					<sassOptions>
-						<cache_location>'${sassWorkingDirectory}/sass_cache'</cache_location>
-						<style>:compressed</style>
-						<sourcemap>:none</sourcemap>
-					</sassOptions>
+					<inputPath>${sass.source.path}/</inputPath>
+					<outputPath>${css.dest.path}/</outputPath>
+					<generateSourceMap>false</generateSourceMap>
 				</configuration>
 			</plugin>
             <!-- Copy files -->
@@ -188,26 +183,6 @@
                                     <directory>${xml.src.path}</directory>
                                     <includes>
                                         <include>*.xml</include>
-                                    </includes>
-                                    <filtering>true</filtering>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-					<!-- css files -->
-                    <execution>
-                        <id>copy-xss</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${css.dest.path}</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${sassWorkingDirectory}</directory>
-                                    <includes>
-                                        <include>*.css</include>
                                     </includes>
                                     <filtering>true</filtering>
                                 </resource>
