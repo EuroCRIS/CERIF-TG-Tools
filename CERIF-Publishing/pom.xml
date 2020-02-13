@@ -10,6 +10,7 @@
     	<dest.path>target</dest.path>
 		<sass.source.path>src/main/css/sass</sass.source.path>
         <xslt.path>src/main/xslt</xslt.path>
+		<xsd.path>src/main/xsd</xsd.path>
 		<datamodel.path>${tmp.path}/datamodel</datamodel.path>
 		<vocab.path>${tmp.path}/vocabularies</vocab.path>
 		<xml.src.path>${vocab.path}/src/main/xml</xml.src.path>
@@ -93,7 +94,7 @@
 						<validationSet>
 							<dir>${xml.src.path}</dir>
 							<validating>true</validating>
-							<systemId>src/main/xsd/CERIF-Vocabulary.xsd</systemId>
+							<systemId>${xsd.path}/CERIF-Vocabulary.xsd</systemId>
 							<excludes>
 								<exclude>*.md</exclude>
 							</excludes>
@@ -141,7 +142,7 @@
 						</transformationSet>
 					</transformationSets>
 					<catalogs>
-						<catalog>src/main/xsd/catalog.xml</catalog>
+						<catalog>${xsd.path}/catalog.xml</catalog>
 					</catalogs>
 				</configuration>
 				<!-- change xslt processor -->
@@ -190,6 +191,25 @@
                                     <directory>${xml.src.path}</directory>
                                     <includes>
                                         <include>*.xml</include>
+                                    </includes>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-xsd</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${xml.dest.path}/schema</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${xsd.path}</directory>
+                                    <includes>
+                                        <include>*.xsd</include>
                                     </includes>
                                     <filtering>true</filtering>
                                 </resource>
