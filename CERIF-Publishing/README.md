@@ -23,9 +23,9 @@ A [Project Object Model](pom.xml) has been defined to automatically build the do
 2. retrieve the content of the [CERIF semantic vocabularies source](#user-content-the-semantic-vocabularies)
 3. build the CSS files issued from the [stylesheet sources](#user-content-stylesheet-for-human-readable-files)
 4. copy the original XML vocabularies and the XSD schema to the result
-5. transform the XML data model to RDF using the corresponding XSLT stylesheet
-6. transform each XML vocabulary to RDF using the corresponding XSLT stylesheet
-7. transform each XML vocabulary to HTML using the corresponding XSLT stylesheet
+5. transform the XML data model to RDF using the corresponding [XSLT stylesheet](#user-content-xsltransformation-stylesheets)
+6. transform each XML vocabulary to RDF using the corresponding [XSLT stylesheet](#user-content-xsltransformation-stylesheets)
+7. transform each XML vocabulary to HTML using the corresponding [XSLT stylesheet](#user-content-xsltransformation-stylesheets)
 
 To build the documentation: 
 1. open a console on the computer
