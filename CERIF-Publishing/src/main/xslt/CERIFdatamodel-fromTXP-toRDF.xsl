@@ -176,7 +176,7 @@ This stylesheet is used to transform the txp file -corresponding to the TOAD dat
 				<xsl:if test="contains(Name,'Src')=false()"><!--remove *Src attributes; no other attributes contains Src-->
 					<xsl:variable name="fkId" select="preceding-sibling::PERAttributeUN[KeyConstraintItems!='' and Name!='cfLangCode' and Name!='cfTrans']/FKForeignKeys/Id"/><!--get the id of the FK pointing to the source entity-->
 					<xsl:variable name="sourceEntity" select="cerif:removePrefix(//PERModelUN/Entities/PEREntityUN[Keys/PERKeyConstraintUN/KeyItems/PERKeyConstraintItemUN/ForeignKeys/Id=$fkId]/Caption)"/><!--get the caption of the source entity-->
-					<owl:DatatypeProperty rdf:about="https://w3id.org/cerif/model#cfResultPublication.cfVersionInfo">
+					<owl:DatatypeProperty>
 						<xsl:attribute name="rdf:about">
 							<xsl:text>https://w3id.org/cerif/model#</xsl:text>
 							<xsl:value-of select="$sourceEntity"/>
