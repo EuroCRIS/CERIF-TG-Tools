@@ -7,8 +7,7 @@ This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF HTM
 
 	<xsl:template match="/">
 		<xsl:for-each select="x:CERIF/x:cfClassScheme">
-		<xsl:text disable-output-escaping='yes'>&lt;!DOCTYPE html&gt;
-</xsl:text>	
+		<xsl:text disable-output-escaping='yes'>&lt;!DOCTYPE html&gt;</xsl:text>	
 		<html>
 			<head>
 				<meta charset="utf-8"/>
