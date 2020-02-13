@@ -7,8 +7,7 @@ This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF HTM
 
 	<xsl:template match="/">
 		<xsl:for-each select="x:CERIF/x:cfClassScheme">
-		<xsl:text disable-output-escaping='yes'>&lt;!DOCTYPE html&gt;
-</xsl:text>	
+		<xsl:text disable-output-escaping='yes'>&lt;!DOCTYPE html&gt;</xsl:text>	
 		<html>
 			<head>
 				<meta charset="utf-8"/>
@@ -33,7 +32,7 @@ This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF HTM
 				
 				<section class="section">
 
-					<xsl:variable name="schemeShortName" select="translate(x:cfName,' ', '')"/>
+					<xsl:variable name="schemeShortName" select="x:cleanLabelForURL(x:cfName)"/>
 					<xsl:variable name="schemeName" select="x:cfName"/>
 	
 					<!--class scheme-->
@@ -96,7 +95,7 @@ This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF HTM
 											<a>
 												<xsl:attribute name="href">
 													<xsl:text>#</xsl:text>
-													<xsl:value-of select="translate(x:cfTerm,' ', '')"/>
+													<xsl:value-of select="x:cleanLabelForURL(x:cfTerm)"/>
 												</xsl:attribute>
 												<xsl:value-of select="x:cfTerm"/>
 											</a>
@@ -111,7 +110,7 @@ This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF HTM
 					<xsl:for-each select="x:cfClass">
 						<article class="container">
 							<xsl:attribute name="id">
-								<xsl:value-of select="translate(x:cfTerm,' ', '')"/>
+								<xsl:value-of select="x:cleanLabelForURL(x:cfTerm)"/>
 							</xsl:attribute>
 							<h3 class="title">
 								<xsl:value-of select="x:cfTerm"/>
@@ -120,9 +119,9 @@ This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF HTM
 								<a>
 									<xsl:attribute name="href">
 										<xsl:text>#</xsl:text>
-										<xsl:value-of select="translate(x:cfTerm,' ', '')"/>
+										<xsl:value-of select="x:cleanLabelForURL(x:cfTerm)"/>
 									</xsl:attribute>
-									https://w3id.org/cerif/vocab/<xsl:value-of select="$schemeShortName"/>#<xsl:value-of select="translate(x:cfTerm,' ', '')"/>
+									https://w3id.org/cerif/vocab/<xsl:value-of select="$schemeShortName"/>#<xsl:value-of select="x:cleanLabelForURL(x:cfTerm)"/>
 								</a>
 							</p>
 							<div class="tile is-ancestor">
@@ -213,4 +212,8 @@ This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF HTM
 		</xsl:for-each>
 	</xsl:template>
 
+	<xsl:function name="x:cleanLabelForURL">
+		<xsl:param name="originalValue"/>
+		<xsl:value-of select="translate(translate($originalValue,' ',''),'-','')"/>
+	</xsl:function>
 </xsl:stylesheet>

@@ -21,7 +21,7 @@ This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF RDF
 			xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
 			xmlns:xml="http://www.w3.org/XML/1998/namespace">
 			
-			<xsl:variable name="schemeShortName" select="translate(x:cfName,' ', '')"/>
+			<xsl:variable name="schemeShortName" select="x:cleanLabelForURL(x:cfName)"/>
 
 			<!--class scheme-->
 			<rdf:Description>
@@ -50,7 +50,7 @@ This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF RDF
 							<xsl:text>https://w3id.org/cerif/vocab/</xsl:text>
 							<xsl:value-of select="$schemeShortName"/>
 							<xsl:text>#</xsl:text>
-							<xsl:value-of select="translate(x:cfTerm,' ', '')"/>
+							<xsl:value-of select="x:cleanLabelForURL(x:cfTerm)"/>
 						</xsl:attribute>
 					</skos:hasTopConcept>
 				</xsl:for-each>
@@ -63,7 +63,7 @@ This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF RDF
 						<xsl:text>https://w3id.org/cerif/vocab/</xsl:text>
 						<xsl:value-of select="$schemeShortName"/>
 						<xsl:text>#</xsl:text>
-						<xsl:value-of select="translate(x:cfTerm,' ', '')"/>
+						<xsl:value-of select="x:cleanLabelForURL(x:cfTerm)"/>
 					</xsl:attribute>
 					<rdf:type rdf:resource="https://w3id.org/cerif/model#cfClassification"/>
 					<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
@@ -113,4 +113,8 @@ This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF RDF
 		</xsl:for-each>
 	</xsl:template>
 
+	<xsl:function name="x:cleanLabelForURL">
+		<xsl:param name="originalValue"/>
+		<xsl:value-of select="translate(translate($originalValue,' ',''),'-','')"/>
+	</xsl:function>
 </xsl:stylesheet> 
