@@ -49,7 +49,7 @@
 							<connectionUrl>scm:git:https://github.com/EuroCRIS/CERIF-Vocabularies</connectionUrl>
 							<checkoutDirectory>${vocab.path}</checkoutDirectory>
 						</configuration>
-						<phase>compile</phase>
+						<phase>initialize</phase>
 						<goals>
 							<goal>checkout</goal>
 						</goals>
@@ -60,7 +60,7 @@
 							<connectionUrl>scm:git:https://github.com/EuroCRIS/CERIF-DataModel.git</connectionUrl>
 							<checkoutDirectory>${datamodel.path}</checkoutDirectory>
 						</configuration>
-						<phase>compile</phase>
+						<phase>initialize</phase>
 						<goals>
 							<goal>checkout</goal>
 						</goals>
@@ -172,7 +172,7 @@
 					<!-- XML files -->
                     <execution>
                         <id>copy-xml</id>
-                        <phase>compile</phase>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
