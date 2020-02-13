@@ -2,7 +2,7 @@
 <!--
 This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF RDF vocabulary
 -->
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:dc="http://purl.org/dc/elements/1.1/"
 	xmlns:fn="http://www.w3.org/2005/xpath-functions"

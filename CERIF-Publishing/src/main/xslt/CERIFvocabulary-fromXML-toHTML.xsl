@@ -2,7 +2,7 @@
 <!--
 This stylesheet is used to transform a CERIF XML vocabulary file to a CERIF HTML vocabulary
 -->
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:x="urn:xmlns:org:eurocris:cerif-1.5-1" exclude-result-prefixes="x">
+<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:x="urn:xmlns:org:eurocris:cerif-1.5-1" exclude-result-prefixes="x">
 	<xsl:output method="html" encoding="utf-8" indent="yes" />
 
 	<xsl:template match="/">
