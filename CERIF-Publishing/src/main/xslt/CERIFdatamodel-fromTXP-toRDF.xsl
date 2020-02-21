@@ -2,7 +2,7 @@
 <!--
 This stylesheet is used to transform the txp file -corresponding to the TOAD data modeler- to the full RDF schema for CERIF
 -->
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:cerif="https://w3id.org/cerif/model">
+<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:cerif="https://w3id.org/cerif/model">
 	<xsl:output method="xml" indent="yes" omit-xml-declaration="no" standalone="yes" />
 	<xsl:template match="/">
 		<rdf:RDF xmlns="https://w3id.org/cerif/model#"
