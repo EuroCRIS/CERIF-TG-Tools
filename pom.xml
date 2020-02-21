@@ -37,9 +37,9 @@
 				<version>1.0.2</version>
 			</plugin>
 			<plugin>
-				<groupId>nl.geodienstencentrum.maven</groupId>
-				<artifactId>sass-maven-plugin</artifactId>
-				<version>3.7.1</version>
+				<groupId>com.gitlab.haynes</groupId>
+				<artifactId>libsass-maven-plugin</artifactId>
+				<version>0.2.22</version>
 			</plugin>
 		</plugins>
 	</pluginManagement>
