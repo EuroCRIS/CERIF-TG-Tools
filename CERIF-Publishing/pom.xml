@@ -10,6 +10,7 @@
     	<dest.path>target</dest.path>
 		<sass.source.path>src/main/css/sass</sass.source.path>
         <xslt.path>src/main/xslt</xslt.path>
+		<xsd.path>src/main/xsd</xsd.path>
 		<datamodel.path>${tmp.path}/datamodel</datamodel.path>
 		<vocab.path>${tmp.path}/vocabularies</vocab.path>
 		<xml.src.path>${vocab.path}/src/main/xml</xml.src.path>
@@ -19,6 +20,10 @@
 		<rdf.dest.path>${dest.path}/vocab/rdf</rdf.dest.path>
 		<html.dest.path>${dest.path}/vocab/html</html.dest.path>
 		<css.dest.path>${html.dest.path}/css</css.dest.path>
+		<git.vocab.repo>https://github.com/EuroCRIS/CERIF-Vocabularies.git</git.vocab.repo>
+		<git.vocab.branch>master</git.vocab.branch>
+		<git.datamodel.repo>https://github.com/EuroCRIS/CERIF-DataModel.git</git.datamodel.repo>
+		<git.datamodel.branch>master</git.datamodel.branch>
 	</properties>
 	<scm>
 	</scm>
@@ -41,12 +46,13 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-scm-plugin</artifactId>
-				<version>1.11.2</version>
 				<executions>
 					<execution>
 						<id>retrieve-vocabularies</id>
 						<configuration>
-							<connectionUrl>scm:git:https://github.com/EuroCRIS/CERIF-Vocabularies</connectionUrl>
+							<connectionUrl>scm:git:${git.vocab.repo}</connectionUrl>
+							<scmVersion>${git.vocab.branch}</scmVersion>
+              				<scmVersionType>branch</scmVersionType>
 							<checkoutDirectory>${vocab.path}</checkoutDirectory>
 						</configuration>
 						<phase>initialize</phase>
@@ -57,7 +63,9 @@
 					<execution>
 						<id>retrieve-datamodel</id>
 						<configuration>
-							<connectionUrl>scm:git:https://github.com/EuroCRIS/CERIF-DataModel.git</connectionUrl>
+							<connectionUrl>scm:git:${git.datamodel.repo}</connectionUrl>
+							<scmVersion>${git.datamodel.branch}</scmVersion>
+              				<scmVersionType>branch</scmVersionType>
 							<checkoutDirectory>${datamodel.path}</checkoutDirectory>
 						</configuration>
 						<phase>initialize</phase>
@@ -86,7 +94,7 @@
 						<validationSet>
 							<dir>${xml.src.path}</dir>
 							<validating>true</validating>
-							<systemId>src/main/xsd/CERIF-Vocabulary.xsd</systemId>
+							<systemId>${xsd.path}/CERIF-Vocabulary.xsd</systemId>
 							<excludes>
 								<exclude>*.md</exclude>
 							</excludes>
@@ -134,7 +142,7 @@
 						</transformationSet>
 					</transformationSets>
 					<catalogs>
-						<catalog>src/main/xsd/catalog.xml</catalog>
+						<catalog>${xsd.path}/catalog.xml</catalog>
 					</catalogs>
 				</configuration>
 				<!-- change xslt processor -->
@@ -183,6 +191,25 @@
                                     <directory>${xml.src.path}</directory>
                                     <includes>
                                         <include>*.xml</include>
+                                    </includes>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-xsd</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${xml.dest.path}/schema</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${xsd.path}</directory>
+                                    <includes>
+                                        <include>*.xsd</include>
                                     </includes>
                                     <filtering>true</filtering>
                                 </resource>
