@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
-
-	<public publicId="urn:xmlns:org:eurocris:cerif-1.5-1" uri="./CERIF-Vocabulary.xsd" />
-    <system systemId="https://w3id.org/cerif/vocab/xml/schema/CERIF-Vocabulary.xsd" uri="./CERIF-Vocabulary.xsd" />
-
-</catalog>

@@ -6,21 +6,75 @@
  	<description>A set of tools to publish the CERIF data model and semantic vocabularies</description>
     <!-- declare needed paths -->
     <properties>
-    	<datamodel.project.dir>../../CERIF-DataModel</datamodel.project.dir>
-    	<cerifrdf.project.dir>../../CERIF-RDF</cerifrdf.project.dir>
-		<sassSourceDirectory>src/main/css/sass</sassSourceDirectory>
-		<sassWorkingDirectory>tmp/sass</sassWorkingDirectory>
+		<tmp.path>tmp</tmp.path>
+    	<dest.path>target</dest.path>
+		<sass.source.path>src/main/css/sass</sass.source.path>
         <xslt.path>src/main/xslt</xslt.path>
-        <xml.src.path>src/main/xml</xml.src.path>
-        <datamodel.src.path>${datamodel.project.dir}/model</datamodel.src.path>
-		<datamodel.dest.path>${cerifrdf.project.dir}</datamodel.dest.path>
-		<xml.dest.path>${cerifrdf.project.dir}/vocab/xml</xml.dest.path>
-		<rdf.dest.path>${cerifrdf.project.dir}/vocab/rdf</rdf.dest.path>
-		<html.dest.path>${cerifrdf.project.dir}/vocab/html</html.dest.path>
+		<xsd.path>src/main/xsd</xsd.path>
+		<datamodel.path>${tmp.path}/datamodel</datamodel.path>
+		<vocab.path>${tmp.path}/vocabularies</vocab.path>
+		<xml.src.path>${vocab.path}/src/main/xml</xml.src.path>
+        <datamodel.src.path>${datamodel.path}/model</datamodel.src.path>
+		<datamodel.dest.path>${dest.path}</datamodel.dest.path>
+		<xml.dest.path>${dest.path}/vocab/xml</xml.dest.path>
+		<rdf.dest.path>${dest.path}/vocab/rdf</rdf.dest.path>
+		<html.dest.path>${dest.path}/vocab/html</html.dest.path>
 		<css.dest.path>${html.dest.path}/css</css.dest.path>
-    </properties>
+		<git.vocab.repo>https://github.com/EuroCRIS/CERIF-Vocabularies.git</git.vocab.repo>
+		<git.vocab.branch>master</git.vocab.branch>
+		<git.datamodel.repo>https://github.com/EuroCRIS/CERIF-DataModel.git</git.datamodel.repo>
+		<git.datamodel.branch>master</git.datamodel.branch>
+	</properties>
+	<scm>
+	</scm>
 	<build>
 		<plugins>
+			<!-- clean temporary files -->
+			<plugin>
+				<artifactId>maven-clean-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<filesets>
+						<fileset>
+							<directory>${tmp.path}</directory>
+							<followSymlinks>false</followSymlinks>
+						</fileset>
+					</filesets>
+				</configuration>
+			</plugin>
+			<!-- retrieve vocabularies and datamodel -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-scm-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>retrieve-vocabularies</id>
+						<configuration>
+							<connectionUrl>scm:git:${git.vocab.repo}</connectionUrl>
+							<scmVersion>${git.vocab.branch}</scmVersion>
+              				<scmVersionType>branch</scmVersionType>
+							<checkoutDirectory>${vocab.path}</checkoutDirectory>
+						</configuration>
+						<phase>initialize</phase>
+						<goals>
+							<goal>checkout</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>retrieve-datamodel</id>
+						<configuration>
+							<connectionUrl>scm:git:${git.datamodel.repo}</connectionUrl>
+							<scmVersion>${git.datamodel.branch}</scmVersion>
+              				<scmVersionType>branch</scmVersionType>
+							<checkoutDirectory>${datamodel.path}</checkoutDirectory>
+						</configuration>
+						<phase>initialize</phase>
+						<goals>
+							<goal>checkout</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
             <!-- Transform XML files -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -38,12 +92,11 @@
 				<configuration>
 					<validationSets>
 						<validationSet>
-							<dir>src/main/xml</dir>
+							<dir>${xml.src.path}</dir>
 							<validating>true</validating>
-							<systemId>src/main/xml/schema/CERIF-Vocabulary.xsd</systemId>
+							<systemId>${xsd.path}/CERIF-Vocabulary.xsd</systemId>
 							<excludes>
-								<exclude>**/catalog.xml</exclude>
-								<exclude>**/*.xsd</exclude>
+								<exclude>*.md</exclude>
 							</excludes>
 						</validationSet>
 					</validationSets>
@@ -65,7 +118,7 @@
 							<stylesheet>${xslt.path}/CERIFvocabulary-fromXML-toRDF.xsl</stylesheet>
 							<outputDir>${rdf.dest.path}</outputDir>
 							<excludes>
-								<exclude>schema/**/*</exclude>
+								<exclude>*.md</exclude>
 							</excludes>
 							<fileMappers>
 								<fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
@@ -79,7 +132,7 @@
 							<stylesheet>${xslt.path}/CERIFvocabulary-fromXML-toHTML.xsl</stylesheet>
 							<outputDir>${html.dest.path}</outputDir>
 							<excludes>
-								<exclude>schema/**/*</exclude>
+								<exclude>*.md</exclude>
 							</excludes>
 							<fileMappers>
 								<fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
@@ -89,7 +142,7 @@
 						</transformationSet>
 					</transformationSets>
 					<catalogs>
-						<catalog>src/main/xml/schema/catalog.xml</catalog>
+						<catalog>${xsd.path}/catalog.xml</catalog>
 					</catalogs>
 				</configuration>
 				<!-- change xslt processor -->
@@ -103,24 +156,20 @@
 			</plugin>
 			<!-- compile sass file for html styling -->
 			<plugin>
-				<groupId>nl.geodienstencentrum.maven</groupId>
-				<artifactId>sass-maven-plugin</artifactId>
+				<groupId>com.gitlab.haynes</groupId>
+				<artifactId>libsass-maven-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>compile-style</id>
-						<phase>compile</phase>
+						<phase>generate-resources</phase>
 						<goals>
-							<goal>update-stylesheets</goal>
+							<goal>compile</goal>
 						</goals>
 					</execution>
 				</executions>
 				<configuration>
-					<destination>${sassWorkingDirectory}</destination>
-					<sassOptions>
-						<cache_location>'${sassWorkingDirectory}/sass_cache'</cache_location>
-						<style>:compressed</style>
-						<sourcemap>:none</sourcemap>
-					</sassOptions>
+					<inputPath>${sass.source.path}/</inputPath>
+					<outputPath>${css.dest.path}/</outputPath>
+					<generateSourceMap>false</generateSourceMap>
 				</configuration>
 			</plugin>
             <!-- Copy files -->
@@ -131,7 +180,7 @@
 					<!-- XML files -->
                     <execution>
                         <id>copy-xml</id>
-                        <phase>compile</phase>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
@@ -148,20 +197,19 @@
                             </resources>
                         </configuration>
                     </execution>
-					<!-- css files -->
                     <execution>
-                        <id>copy-xss</id>
-                        <phase>compile</phase>
+                        <id>copy-xsd</id>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${css.dest.path}</outputDirectory>
+                            <outputDirectory>${xml.dest.path}/schema</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>${sassWorkingDirectory}</directory>
+                                    <directory>${xsd.path}</directory>
                                     <includes>
-                                        <include>*.css</include>
+                                        <include>*.xsd</include>
                                     </includes>
                                     <filtering>true</filtering>
                                 </resource>
