@@ -13,7 +13,7 @@
 		<xsd.path>src/main/xsd</xsd.path>
 		<datamodel.path>${tmp.path}/datamodel</datamodel.path>
 		<vocab.path>${tmp.path}/vocabularies</vocab.path>
-		<xml.src.path>${vocab.path}/src/main/xml</xml.src.path>
+		<xml.src.path>${vocab.path}</xml.src.path>
         <datamodel.src.path>${datamodel.path}/model</datamodel.src.path>
 		<datamodel.dest.path>${dest.path}</datamodel.dest.path>
 		<xml.dest.path>${dest.path}/vocab/xml</xml.dest.path>
