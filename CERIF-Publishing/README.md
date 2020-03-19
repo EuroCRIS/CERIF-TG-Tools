@@ -14,6 +14,18 @@ The objective of this tool it to produce:
 * an RDF description of each XML CERIF semantic vocabulary
 * a ready-to-deploy structure to be published on the euroCRIS website
 
+## Validating the vocabularies
+
+The XML semantic vocabularies are validated using [the schema](src/main/xsd).
+
+To run the validation task only: 
+1. open a console on the computer
+2. navigate to the local repository
+3. run the following command:
+```console 
+mvn clean process-sources
+```
+
 ## Building documentation
 
 The documentation is built using [Apache Maven](https://maven.apache.org/), which should be installed on the computer that is used to produce the documentation.
@@ -21,11 +33,12 @@ The documentation is built using [Apache Maven](https://maven.apache.org/), whic
 A [Project Object Model](pom.xml) has been defined to automatically build the documentation following these steps:
 1. retrieve the content of the [CERIF data model source](#user-content-the-cerif-data-model)
 2. retrieve the content of the [CERIF semantic vocabularies source](#user-content-the-semantic-vocabularies)
-3. build the CSS files issued from the [stylesheet sources](#user-content-stylesheet-for-human-readable-files)
-4. copy the original XML vocabularies and the XSD schema to the result
-5. transform the XML data model to RDF using the corresponding [XSLT stylesheet](#user-content-xsltransformation-stylesheets)
-6. transform each XML vocabulary to RDF using the corresponding [XSLT stylesheet](#user-content-xsltransformation-stylesheets)
-7. transform each XML vocabulary to HTML using the corresponding [XSLT stylesheet](#user-content-xsltransformation-stylesheets)
+3. validate the vocabularies using [the schema](src/main/xsd)
+4. build the CSS files issued from the [stylesheet sources](#user-content-stylesheet-for-human-readable-files)
+5. copy the original XML vocabularies and the XSD schema to the result
+6. transform the XML data model to RDF using the corresponding [XSLT stylesheet](#user-content-xsltransformation-stylesheets)
+7. transform each XML vocabulary to RDF using the corresponding [XSLT stylesheet](#user-content-xsltransformation-stylesheets)
+8. transform each XML vocabulary to HTML using the corresponding [XSLT stylesheet](#user-content-xsltransformation-stylesheets)
 
 To build the documentation: 
 1. open a console on the computer

@@ -37,12 +37,76 @@
 				<artifactId>xml-maven-plugin</artifactId>
 				<executions>
 					<execution>
+						<id>validate-vocab</id>
+						<phase>process-sources</phase>
+						<goals>
+							<goal>validate</goal>
+						</goals>
+						<configuration>
+							<validationSets>
+								<validationSet>
+									<dir>${xml.src.path}</dir>
+									<validating>true</validating>
+									<systemId>${xsd.path}/CERIF-Vocabulary.xsd</systemId>
+									<excludes>
+										<exclude>*.md</exclude>
+									</excludes>
+								</validationSet>
+							</validationSets>
+						</configuration>
+					</execution>
+					<execution>
 						<id>transform-xml</id>
 						<phase>compile</phase>
 						<goals>
-							<goal>validate</goal>
 							<goal>transform</goal>
 						</goals>
+						<configuration>
+							<transformationSets>
+								<!-- CERIF datamodel into RDF file-->
+								<transformationSet>
+									<dir>${datamodel.src.path}</dir>
+									<stylesheet>${xslt.path}/CERIFdatamodel-fromTXP-toRDF.xsl</stylesheet>
+									<outputDir>${datamodel.dest.path}</outputDir>
+									<fileMappers>
+										<fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
+											<targetExtension>.rdf</targetExtension>
+										</fileMapper>
+									</fileMappers>
+								</transformationSet>
+								<!-- CERIF vocabulary into RDF files-->
+								<transformationSet>
+									<dir>${xml.src.path}</dir>
+									<stylesheet>${xslt.path}/CERIFvocabulary-fromXML-toRDF.xsl</stylesheet>
+									<outputDir>${rdf.dest.path}</outputDir>
+									<excludes>
+										<exclude>*.md</exclude>
+									</excludes>
+									<fileMappers>
+										<fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
+											<targetExtension>.rdf</targetExtension>
+										</fileMapper>
+									</fileMappers>
+								</transformationSet>
+								<!-- CERIF vocabulary into HTML files-->
+								<transformationSet>
+									<dir>${xml.src.path}</dir>
+									<stylesheet>${xslt.path}/CERIFvocabulary-fromXML-toHTML.xsl</stylesheet>
+									<outputDir>${html.dest.path}</outputDir>
+									<excludes>
+										<exclude>*.md</exclude>
+									</excludes>
+									<fileMappers>
+										<fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
+											<targetExtension>.html</targetExtension>
+										</fileMapper>
+									</fileMappers>
+								</transformationSet>
+							</transformationSets>
+							<catalogs>
+								<catalog>${xsd.path}/catalog.xml</catalog>
+							</catalogs>
+						</configuration>
 					</execution>
 				</executions>
 				<configuration>
@@ -159,7 +223,8 @@
                                 </resource>
                             </resources>
                         </configuration>
-                    </execution>
+					</execution>
+					<!-- XSD files -->
                     <execution>
                         <id>copy-xsd</id>
                         <phase>process-resources</phase>
