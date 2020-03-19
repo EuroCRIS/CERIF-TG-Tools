@@ -50,6 +50,7 @@
 									<systemId>${xsd.path}/CERIF-Vocabulary.xsd</systemId>
 									<excludes>
 										<exclude>*.md</exclude>
+										<exclude>.*</exclude>
 									</excludes>
 								</validationSet>
 							</validationSets>
@@ -81,6 +82,7 @@
 									<outputDir>${rdf.dest.path}</outputDir>
 									<excludes>
 										<exclude>*.md</exclude>
+										<exclude>.*</exclude>
 									</excludes>
 									<fileMappers>
 										<fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
@@ -95,6 +97,7 @@
 									<outputDir>${html.dest.path}</outputDir>
 									<excludes>
 										<exclude>*.md</exclude>
+										<exclude>.*</exclude>
 									</excludes>
 									<fileMappers>
 										<fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
