@@ -31,8 +31,8 @@ cd ~/workspace/CERIF-TG-Tools/CERIF-Publishing
 The XML semantic vocabularies are validated using [the XML Schema](src/main/xsd/CERIF-Vocabulary.xsd).
 
 To run the validation task only:
-0. Get [set-up](#set-up)
-1. run the following command:
+1. Get [set-up](#set-up)
+2. run the following command:
 ```console 
 mvn clean process-sources
 ```
@@ -40,8 +40,8 @@ mvn clean process-sources
 ### Build the documentation
 
 To build the documentation: 
-0. Get [set-up](#set-up)
-1. run the following command:
+1. Get [set-up](#set-up)
+2. run the following command:
 ```console 
 mvn clean compile
 ```
