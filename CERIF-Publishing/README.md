@@ -56,25 +56,7 @@ This:
 
 ## The Contents of this Sub-Project
 
-### The CERIF data model
-
-By default, the data model used is the one hosted in the github project [EuroCRIS/CERIF-DataModel](https://github.com/EuroCRIS/CERIF-DataModel).
-
-Any change to the data model must first be done in this repository before the documentation can be built using the CERIF Publishing tool.
-
-The default source can be changed in the [Project Object Model](pom.xml) using the `git.datamodel.repo` property; a specific branch can also be targeted using the `git.datamodel.branch` property.
-
-### The semantic vocabularies
-
-By default, the semantic vocabularies used are the ones hosted in the github project [EuroCRIS/CERIF-Vocabularies](https://github.com/EuroCRIS/CERIF-Vocabularies).
-
-As for the data model, any change to the vocabularies must first be done in this repository before the documentation can be built using the CERIF Publishing tool.
-
-The default source can be changed in the [Project Object Model](pom.xml) using the `git.vocab.repo` property; a specific branch can also be targeted using the `git.vocab.branch` property.
-
-The CERIF Publishing tool hosts [the schema](src/main/xsd) used to validate the XML semantic vocabularies.
-
-### Stylesheet for human readable files
+### Stylesheet for human readable files (HTML)
 
 The CERIF Publishing tool contains [the source files](src/main/css) to build the CSS stylesheet used by the vocabularies when displayed in HTML format.
 
@@ -82,6 +64,6 @@ The source uses the [Bulma CSS framework](https://bulma.io/) and is written usin
 
 ### XSLTransformation stylesheets
 
-Many sources are expressed using XML.
+The source CERIF artifacts are expressed in XML.
 
 The CERIF Publishing tool hosts the [XSLTransformation stylesheets](src/main/xslt) used to produce files from these sources.
