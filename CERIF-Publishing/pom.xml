@@ -6,13 +6,12 @@
  	<description>A set of tools to publish the CERIF data model and semantic vocabularies</description>
     <!-- declare needed paths -->
     <properties>
-		<tmp.path>tmp</tmp.path>
     	<dest.path>target</dest.path>
 		<sass.source.path>src/main/css/sass</sass.source.path>
         <xslt.path>src/main/xslt</xslt.path>
 		<xsd.path>src/main/xsd</xsd.path>
-		<datamodel.path>${tmp.path}/datamodel</datamodel.path>
-		<vocab.path>${tmp.path}/vocabularies</vocab.path>
+		<datamodel.path>../../CERIF-DataModel</datamodel.path>
+		<vocab.path>../../CERIF-Vocabularies</vocab.path>
 		<xml.src.path>${vocab.path}</xml.src.path>
         <datamodel.src.path>${datamodel.path}/model</datamodel.src.path>
 		<datamodel.dest.path>${dest.path}</datamodel.dest.path>
@@ -20,10 +19,6 @@
 		<rdf.dest.path>${dest.path}/vocab/rdf</rdf.dest.path>
 		<html.dest.path>${dest.path}/vocab/html</html.dest.path>
 		<css.dest.path>${html.dest.path}/css</css.dest.path>
-		<git.vocab.repo>https://github.com/EuroCRIS/CERIF-Vocabularies.git</git.vocab.repo>
-		<git.vocab.branch>master</git.vocab.branch>
-		<git.datamodel.repo>https://github.com/EuroCRIS/CERIF-DataModel.git</git.datamodel.repo>
-		<git.datamodel.branch>master</git.datamodel.branch>
 	</properties>
 	<scm>
 	</scm>
@@ -34,48 +29,9 @@
 				<artifactId>maven-clean-plugin</artifactId>
 				<version>2.5</version>
 				<configuration>
-					<filesets>
-						<fileset>
-							<directory>${tmp.path}</directory>
-							<followSymlinks>false</followSymlinks>
-						</fileset>
-					</filesets>
 				</configuration>
 			</plugin>
-			<!-- retrieve vocabularies and datamodel -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-scm-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>retrieve-vocabularies</id>
-						<configuration>
-							<connectionUrl>scm:git:${git.vocab.repo}</connectionUrl>
-							<scmVersion>${git.vocab.branch}</scmVersion>
-              				<scmVersionType>branch</scmVersionType>
-							<checkoutDirectory>${vocab.path}</checkoutDirectory>
-						</configuration>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>checkout</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>retrieve-datamodel</id>
-						<configuration>
-							<connectionUrl>scm:git:${git.datamodel.repo}</connectionUrl>
-							<scmVersion>${git.datamodel.branch}</scmVersion>
-              				<scmVersionType>branch</scmVersionType>
-							<checkoutDirectory>${datamodel.path}</checkoutDirectory>
-						</configuration>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>checkout</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-            <!-- Transform XML files -->
+            <!-- Validate and transform XML files -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>xml-maven-plugin</artifactId>
@@ -94,6 +50,7 @@
 									<systemId>${xsd.path}/CERIF-Vocabulary.xsd</systemId>
 									<excludes>
 										<exclude>*.md</exclude>
+										<exclude>.*</exclude>
 									</excludes>
 								</validationSet>
 							</validationSets>
@@ -125,6 +82,7 @@
 									<outputDir>${rdf.dest.path}</outputDir>
 									<excludes>
 										<exclude>*.md</exclude>
+										<exclude>.*</exclude>
 									</excludes>
 									<fileMappers>
 										<fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
@@ -139,6 +97,7 @@
 									<outputDir>${html.dest.path}</outputDir>
 									<excludes>
 										<exclude>*.md</exclude>
+										<exclude>.*</exclude>
 									</excludes>
 									<fileMappers>
 										<fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
@@ -153,6 +112,69 @@
 						</configuration>
 					</execution>
 				</executions>
+				<configuration>
+					<validationSets>
+						<validationSet>
+							<dir>${xml.src.path}</dir>
+							<validating>true</validating>
+							<systemId>${xsd.path}/CERIF-Vocabulary.xsd</systemId>
+							<excludes>
+								<exclude>*.md</exclude>
+								<exclude>.*</exclude>
+							</excludes>
+						</validationSet>
+					</validationSets>
+					<transformationSets>
+						<!-- CERIF datamodel into RDF file-->
+						<transformationSet>
+							<dir>${datamodel.src.path}</dir>
+							<stylesheet>${xslt.path}/CERIFdatamodel-fromTXP-toRDF.xsl</stylesheet>
+							<outputDir>${datamodel.dest.path}</outputDir>
+							<fileMappers>
+								<fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
+									<targetExtension>.rdf</targetExtension>
+								</fileMapper>
+							</fileMappers>
+							<excludes>
+								<exclude>*.md</exclude>
+								<exclude>.*</exclude>
+							</excludes>
+						</transformationSet>
+						<!-- CERIF vocabulary into RDF files-->
+						<transformationSet>
+							<dir>${xml.src.path}</dir>
+							<stylesheet>${xslt.path}/CERIFvocabulary-fromXML-toRDF.xsl</stylesheet>
+							<outputDir>${rdf.dest.path}</outputDir>
+							<excludes>
+								<exclude>*.md</exclude>
+								<exclude>.*</exclude>
+							</excludes>
+							<fileMappers>
+								<fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
+									<targetExtension>.rdf</targetExtension>
+								</fileMapper>
+							</fileMappers>
+						</transformationSet>
+						<!-- CERIF vocabulary into HTML files-->
+						<transformationSet>
+							<dir>${xml.src.path}</dir>
+							<stylesheet>${xslt.path}/CERIFvocabulary-fromXML-toHTML.xsl</stylesheet>
+							<outputDir>${html.dest.path}</outputDir>
+							<excludes>
+								<exclude>*.md</exclude>
+								<exclude>.*</exclude>
+							</excludes>
+							<fileMappers>
+								<fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
+									<targetExtension>.html</targetExtension>
+								</fileMapper>
+							</fileMappers>
+						</transformationSet>
+					</transformationSets>
+					<catalogs>
+						<catalog>${xsd.path}/catalog.xml</catalog>
+					</catalogs>
+				</configuration>
 				<!-- change xslt processor -->
 				<dependencies>
 					<dependency>

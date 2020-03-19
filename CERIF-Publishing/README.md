@@ -9,66 +9,54 @@ The documentation produced by this tool is published on the euroCRIS website.
 ## Objective
 
 The objective of this tool it to produce:
-* an rdf description of the CERIF data model
+* an RDF description of the CERIF data model
 * an HTML human readable version of each XML CERIF semantic vocabulary
 * an RDF description of each XML CERIF semantic vocabulary
 * a ready-to-deploy structure to be published on the euroCRIS website
 
-## Validating the vocabularies
+## Procedure
 
-The XML semantic vocabularies are validated using [the schema](src/main/xsd).
+### Set up
 
-To run the validation task only: 
-1. open a console on the computer
-2. navigate to the local repository
-3. run the following command:
+1. Install [Apache Maven](https://maven.apache.org/).
+2. Check out the following three projects in your workspace: [CERIF-DataModel](https://github.com/EuroCRIS/CERIF-DataModel), [CERIF-Vocabularies](https://github.com/EuroCRIS/CERIF-Vocabularies) and [CERIF-TG-Tools](https://github.com/EuroCRIS/CERIF-TG-Tools) (this project). Get the right branch combination.
+3. Open a console on your computer.
+4. Navigate to the directory with this README.md file:
+```console
+cd ~/workspace/CERIF-TG-Tools/CERIF-Publishing
+```
+
+### Validate the vocabularies
+
+The XML semantic vocabularies are validated using [the XML Schema](src/main/xsd/CERIF-Vocabulary.xsd).
+
+To run the validation task only:
+1. Get [set-up](#set-up)
+2. run the following command:
 ```console 
 mvn clean process-sources
 ```
 
-## Building documentation
-
-The documentation is built using [Apache Maven](https://maven.apache.org/), which should be installed on the computer that is used to produce the documentation.
-
-A [Project Object Model](pom.xml) has been defined to automatically build the documentation following these steps:
-1. retrieve the content of the [CERIF data model source](#user-content-the-cerif-data-model)
-2. retrieve the content of the [CERIF semantic vocabularies source](#user-content-the-semantic-vocabularies)
-3. validate the vocabularies using [the schema](src/main/xsd)
-4. build the CSS files issued from the [stylesheet sources](#user-content-stylesheet-for-human-readable-files)
-5. copy the original XML vocabularies and the XSD schema to the result
-6. transform the XML data model to RDF using the corresponding [XSLT stylesheet](#user-content-xsltransformation-stylesheets)
-7. transform each XML vocabulary to RDF using the corresponding [XSLT stylesheet](#user-content-xsltransformation-stylesheets)
-8. transform each XML vocabulary to HTML using the corresponding [XSLT stylesheet](#user-content-xsltransformation-stylesheets)
+### Build the documentation
 
 To build the documentation: 
-1. open a console on the computer
-2. navigate to the local repository
-3. run the following command:
+1. Get [set-up](#set-up)
+2. run the following command:
 ```console 
 mvn clean compile
 ```
 
-## Sources
+This:
+- validates the CERIF vocabularies
+- transforms the CERIF data model into RDF, storing the result as ``target/CERIF.rdf``
+- transforms the CERIF vocabularies into RDF, storing the result into the ``target/vocab/rdf`` directory 
+- transforms the CERIF vocabularies into HTML, storing the result into ``target/vocab/html`` directory
+- copies the CERIF vocabularies in XML into the ``target/vocab/xml`` directory
 
-### The CERIF data model
 
-By default, the data model used is the one hosted in the github project [EuroCRIS/CERIF-DataModel](https://github.com/EuroCRIS/CERIF-DataModel.git).
+## The Contents of this Sub-Project
 
-Any change to the data model must first be done in this repository before the documentation can be built using the CERIF Publishing tool.
-
-The default source can be changed in the [Project Object Model](pom.xml) using the `git.datamodel.repo` property; a specific branch can also be targeted using the `git.datamodel.branch` property.
-
-### The semantic vocabularies
-
-By default, the semantic vocabularies used are the ones hosted in the github project [EuroCRIS/CERIF-Vocabularies](https://github.com/EuroCRIS/CERIF-Vocabularies.git).
-
-As for the data model, any change to the vocabularies must first be done in this repository before the documentation can be built using the CERIF Publishing tool.
-
-The default source can be changed in the [Project Object Model](pom.xml) using the `git.vocab.repo` property; a specific branch can also be targeted using the `git.vocab.branch` property.
-
-The CERIF Publishing tool hosts [the schema](src/main/xsd) used to validate the XML semantic vocabularies.
-
-### Stylesheet for human readable files
+### Stylesheet for human readable files (HTML)
 
 The CERIF Publishing tool contains [the source files](src/main/css) to build the CSS stylesheet used by the vocabularies when displayed in HTML format.
 
@@ -76,6 +64,6 @@ The source uses the [Bulma CSS framework](https://bulma.io/) and is written usin
 
 ### XSLTransformation stylesheets
 
-Many sources are expressed using XML.
+The source CERIF artifacts are expressed in XML.
 
 The CERIF Publishing tool hosts the [XSLTransformation stylesheets](src/main/xslt) used to produce files from these sources.
