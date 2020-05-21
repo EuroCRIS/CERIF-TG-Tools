@@ -7,5 +7,7 @@ enc_varname=encrypted_"$1"_key
 iv_varname=encrypted_"$1"_iv
 key_filename=.ssh/cerif.eurocris.org.key-"$1".enc
 shift
+echo 'www.eurocris.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBWjyxaYmuw2ojW4C4NDaBTYypeANNpsGJvzOl9cWvrZ' >>~/.ssh/known_hosts
+
 openssl aes-256-cbc -K "${!enc_varname}" -iv "${!iv_varname}" -in "$key_filename" -out .ssh/cerif.eurocris.org.key -d && \
 rsync -e 'ssh -i .ssh/cerif.eurocris.org-2.key -l jdvorak' -crz --delay-updates --delete-after --dry-run --itemize-changes "$@" www.eurocris.org:/data-eurocris/documentRoot/wwwcerif/
