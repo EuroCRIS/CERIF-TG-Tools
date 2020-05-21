@@ -10,14 +10,16 @@
 		<sass.source.path>src/main/css/sass</sass.source.path>
         <xslt.path>src/main/xslt</xslt.path>
 		<xsd.path>src/main/xsd</xsd.path>
+        <static.src.path>src/main/static</static.src.path>
 		<datamodel.path>../../CERIF-DataModel</datamodel.path>
 		<vocab.path>../../CERIF-Vocabularies</vocab.path>
 		<xml.src.path>${vocab.path}</xml.src.path>
         <datamodel.src.path>${datamodel.path}/model</datamodel.src.path>
 		<datamodel.dest.path>${dest.path}</datamodel.dest.path>
-		<xml.dest.path>${dest.path}/vocab/xml</xml.dest.path>
-		<rdf.dest.path>${dest.path}/vocab/rdf</rdf.dest.path>
-		<html.dest.path>${dest.path}/vocab/html</html.dest.path>
+		<vocab.dest.path>${dest.path}/vocab</vocab.dest.path>
+		<xml.dest.path>${vocab.dest.path}/xml</xml.dest.path>
+		<rdf.dest.path>${vocab.dest.path}/rdf</rdf.dest.path>
+		<html.dest.path>${vocab.dest.path}/html</html.dest.path>
 		<css.dest.path>${html.dest.path}/css</css.dest.path>
 	</properties>
 	<scm>
@@ -207,6 +209,25 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
                 <executions>
+                    <execution>
+                        <id>copy-static</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${dest.path}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${static.src.path}</directory>
+                                    <includes>
+                                        <include>**/*</include>
+                                    </includes>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+					</execution>
 					<!-- XML files -->
                     <execution>
                         <id>copy-xml</id>
@@ -241,6 +262,7 @@
                                     <directory>${xsd.path}</directory>
                                     <includes>
                                         <include>*.xsd</include>
+                                        <include>*.xml</include>
                                     </includes>
                                     <filtering>true</filtering>
                                 </resource>
