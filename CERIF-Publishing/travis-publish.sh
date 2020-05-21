@@ -3,7 +3,7 @@
 # Publish contents under cerif.eurocris.org/
 # Usage: ./travis-publish.sh varbasename [file|directory ...]
 
-umask 007
+umask 077
 enc_varname=encrypted_"$1"_key
 iv_varname=encrypted_"$1"_iv
 key_filename=.ssh/cerif.eurocris.org.key-"$1".enc
