@@ -2,5 +2,6 @@
 .project
 .settings
 .classpath
+.ssh/*.key
 target
 tmp
