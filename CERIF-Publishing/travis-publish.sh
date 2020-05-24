@@ -21,7 +21,7 @@ then
 		echo 'www.eurocris.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBWjyxaYmuw2ojW4C4NDaBTYypeANNpsGJvzOl9cWvrZ' >>~/.ssh/known_hosts
 
 		openssl aes-256-cbc -K "${!enc_varname}" -iv "${!iv_varname}" -in "$key_filename" -out .ssh/cerif.eurocris.org.key -d && \
-		rsync -e 'ssh -i .ssh/cerif.eurocris.org.key -l jdvorak' -crz --delay-updates --delete-after --dry-run --itemize-changes "$@" www.eurocris.org:/data-eurocris/documentRoot/wwwcerif/
+		rsync -e 'ssh -i .ssh/cerif.eurocris.org.key -l jdvorak' -crz --delay-updates --delete-after --itemize-changes "$@" www.eurocris.org:/data-eurocris/documentRoot/wwwcerif/
 	else
 		echo "The branch (=${TRAVIS_BRANCH}) is not master, so not actually publishing anything"
 	fi
