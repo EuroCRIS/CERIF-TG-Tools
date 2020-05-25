@@ -4,12 +4,16 @@
 # Usage: ./travis-publish.sh varbasename file|directory ...
 # where:
 #   varbasename    ... the variable base name for the SSH private key decryption
-#   file|directory ... the stuff to publish (rsync)
+#   file|directory ... the stuff to publish via rsync
 #
-# This script only actually publishes the stuff from the `master` branch of the `EuroCRIS/CERIF-Vocabularies` repo.
+# This script only actually publishes the stuff from the `master` branch of a `EuroCRIS`-owned repo.
 # The encrypted SSH key shall be stored as .ssh/cerif.eurocris.org.key-"${varbasename}".enc
+#
+# This script is intended to be called from
+# https://github.com/EuroCRIS/CERIF-Vocabularies/.travis.yml and
+# https://github.com/EuroCRIS/CERIF-DataModel/.travis.yml
 
-if [ "$TRAVIS_REPO_SLUG" == "EuroCRIS/CERIF-Vocabularies" ]
+if [ "${TRAVIS_REPO_SLUG%/*}" == "EuroCRIS" ]
 then
 	if [ "$TRAVIS_BRANCH" == "master" ]
 	then
@@ -23,8 +27,8 @@ then
 		openssl aes-256-cbc -K "${!enc_varname}" -iv "${!iv_varname}" -in "$key_filename" -out .ssh/cerif.eurocris.org.key -d && \
 		rsync -e 'ssh -i .ssh/cerif.eurocris.org.key -l jdvorak' -crz --delay-updates --delete-after --itemize-changes "$@" www.eurocris.org:/data-eurocris/documentRoot/wwwcerif/
 	else
-		echo "The branch (=${TRAVIS_BRANCH}) is not master, so not actually publishing anything"
+		echo "The branch (=${TRAVIS_BRANCH}) is not master, so not publishing anything"
 	fi
 else
-	echo "The repo (=${TRAVIS_REPO_SLUG}) is not EuroCRIS/CERIF-Vocabularies, so not actually publishing anything"
+	echo "The repo owner (=${TRAVIS_REPO_SLUG%/*}) is not EuroCRIS, so not publishing anything"
 fi
