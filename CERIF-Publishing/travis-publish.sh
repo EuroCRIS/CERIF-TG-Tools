@@ -15,7 +15,7 @@
 
 if [ "${TRAVIS_REPO_SLUG%/*}" == "EuroCRIS" ]
 then
-	if [ "$TRAVIS_BRANCH" == "master" ]
+	if [ "${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}" == "master" ]
 	then
 		umask 077
 		enc_varname=encrypted_"$1"_key
@@ -27,7 +27,7 @@ then
 		openssl aes-256-cbc -K "${!enc_varname}" -iv "${!iv_varname}" -in "$key_filename" -out .ssh/cerif.eurocris.org.key -d && \
 		rsync -e 'ssh -i .ssh/cerif.eurocris.org.key -l jdvorak' -crz --delay-updates --delete-after --itemize-changes "$@" www.eurocris.org:/data-eurocris/documentRoot/wwwcerif/
 	else
-		echo "The branch (=${TRAVIS_BRANCH}) is not master, so not publishing anything"
+		echo "The branch (=${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}) is not master, so not publishing anything"
 	fi
 else
 	echo "The repo owner (=${TRAVIS_REPO_SLUG%/*}) is not EuroCRIS, so not publishing anything"
