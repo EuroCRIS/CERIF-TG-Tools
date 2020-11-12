@@ -550,13 +550,13 @@ The Project entity only captures details of the project scope and plan. Informat
 							</xs:annotation>
 						</xs:element>
 						
-						<xs:element name="Funder" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#OrganisationUnit_Funding(https://w3id.org/cerif/vocab/OrganisationFundingEngagements#Funder)" type="cfLinkWithDisplayNameToPersonOrOrgUnit__Type">
+						<xs:element name="Funder" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#OrganisationUnit_Funding(https://w3id.org/cerif/vocab/OrganisationFundingRoles#Financier)" type="cfLinkWithDisplayNameToPersonOrOrgUnit__Type">
 							<xs:annotation>
 								<xs:documentation>The funder or funders</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						
-						<xs:element name="PartOf" minOccurs="0" cflink:link="https://w3id.org/cerif/model#Funding_Funding(https://w3id.org/cerif/vocab/Inter­FundingRelations#Part):1">
+						<xs:element name="PartOf" minOccurs="0" cflink:link="https://w3id.org/cerif/model#Funding_Funding(https://w3id.org/cerif/vocab/InterFundingRelations#Part):1">
 							<xs:annotation>
 								<xs:documentation>Chain up to the larger funding that encompasses this funding</xs:documentation>
 							</xs:annotation>
@@ -814,7 +814,7 @@ This entity typically represents the granularity level of a single published ite
 							<!-- any class scheme of the 'status' character -->
 						</xs:element>
 
-						<xs:element name="OriginatesFrom" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#Project_ResultPublication(https://w3id.org/cerif/vocab/ProjectOutputRoles#Originator) https://w3id.org/cerif/model#ResultPublication_Funding(https://w3id.org/cerif/vocab/FundingOutputRoles#Originator)">
+						<xs:element name="OriginatesFrom" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#Project_ResultPublication(https://w3id.org/cerif/vocab/ProjectOutputRoles#Originator) https://w3id.org/cerif/model#ResultPublication_Funding(https://w3id.org/cerif/vocab/OutputFundingRoles#Originator)">
 							<xs:complexType>
 								<xs:complexContent>
 									<xs:extension base="cfLink__BaseType">
@@ -925,7 +925,7 @@ Source: Wikipedia
 						
 						<!-- TODO -->
 						
-						<xs:element name="OriginatesFrom" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#Project_ResultPatent(https://w3id.org/cerif/vocab/ProjectOutputRoles#Originator) https://w3id.org/cerif/model#ResultPatent_Funding(https://w3id.org/cerif/vocab/FundingOutputRoles#Originator)">
+						<xs:element name="OriginatesFrom" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#Project_ResultPatent(https://w3id.org/cerif/vocab/ProjectOutputRoles#Originator) https://w3id.org/cerif/model#ResultPatent_Funding(https://w3id.org/cerif/vocab/OutputFundingRoles#Originator)">
 							<xs:complexType>
 								<xs:complexContent>
 									<xs:extension base="cfLink__BaseType">
@@ -1070,7 +1070,7 @@ This includes:
 							</xs:complexType>
 						</xs:element>
 
-						<xs:element name="OriginatesFrom" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#Project_ResultProduct(https://w3id.org/cerif/vocab/ProjectOutputRoles#Originator) https://w3id.org/cerif/model#ResultProduct_Funding(https://w3id.org/cerif/vocab/FundingOutputRoles#Originator)">
+						<xs:element name="OriginatesFrom" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#Project_ResultProduct(https://w3id.org/cerif/vocab/ProjectOutputRoles#Originator) https://w3id.org/cerif/model#ResultProduct_Funding(https://w3id.org/cerif/vocab/OutputFundingRoles#Originator)">
 							<xs:complexType>
 								<xs:complexContent>
 									<xs:extension base="cfLink__BaseType">
