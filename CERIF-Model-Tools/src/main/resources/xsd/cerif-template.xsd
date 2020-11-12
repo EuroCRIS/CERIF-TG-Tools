@@ -179,7 +179,7 @@ In the research information domain Organisation Units typically represents:
 
 						<!-- ... -->
 
-						<xs:element name="PartOf" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#OrganisationUnit_OrganisationUnit(https://w3id.org/cerif/vocab/Inter-­OrganisationRelations#Part):1">
+						<xs:element name="PartOf" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#OrganisationUnit_OrganisationUnit(https://w3id.org/cerif/vocab/InterOrganisationalStructure#Part):1">
 							<xs:annotation>
 								<xs:documentation>Link to the larger unit that encompasses this unit.
 								To be used for the immediate parents only. In order to represent the full path up through the hierarchy of an institution, use this construct recursively.
@@ -204,7 +204,7 @@ In the research information domain Organisation Units typically represents:
 							</xs:annotation>
 							<xs:complexType>
 								<xs:sequence>
-									<xs:element name="Part" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#OrganisationUnit_OrganisationUnit(https://w3id.org/cerif/vocab/Inter-­OrganisationRelations#Part):2">
+									<xs:element name="Part" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#OrganisationUnit_OrganisationUnit(https://w3id.org/cerif/vocab/Inter­OrganisationRelations#Part):2">
 										<xs:annotation>
 											<xs:documentation>The relationship to the contained unit</xs:documentation>
 										</xs:annotation>
@@ -339,7 +339,7 @@ The Project entity only captures details of the project scope and plan. Informat
 											<xs:documentation>Project contractor</xs:documentation>
 										</xs:annotation>
 									</xs:element>
-									<xs:element name="InKindContributor" type="cfLinkWithDisplayNameToPersonOrOrgUnit__Type" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#Project_OrganisationUnit(https://w3id.org/cerif/vocab/OrganisationProjectEngagements#InKindContributor) https://w3id.org/cerif/model#Project_Person(https://w3id.org/cerif/vocab/PersonProjectEngagements#InKindContributor)">
+									<xs:element name="InkindContributor" type="cfLinkWithDisplayNameToPersonOrOrgUnit__Type" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#Project_OrganisationUnit(https://w3id.org/cerif/vocab/OrganisationProjectEngagements#InkindContributor) https://w3id.org/cerif/model#Project_Person(https://w3id.org/cerif/vocab/PersonProjectEngagements#InkindContributor)">
 										<xs:annotation>
 											<xs:documentation>Project in kind contributor</xs:documentation>
 										</xs:annotation>
@@ -471,7 +471,7 @@ The Project entity only captures details of the project scope and plan. Informat
 							</xs:annotation>
 						</xs:element>
 
-						<xs:element name="Originated" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#Project_ResultPublication(https://w3id.org/cerif/vocab/Project_Output_Roles#Originator) https://w3id.org/cerif/model#Project_ResultPatent(https://w3id.org/cerif/vocab/Project_Output_Roles#Originator) https://w3id.org/cerif/model#Project_ResultProduct(https://w3id.org/cerif/vocab/Project_Output_Roles#Originator)">	
+						<xs:element name="Originated" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#Project_ResultPublication(https://w3id.org/cerif/vocab/ProjectOutputRoles#Originator) https://w3id.org/cerif/model#Project_ResultPatent(https://w3id.org/cerif/vocab/ProjectOutputRoles#Originator) https://w3id.org/cerif/model#Project_ResultProduct(https://w3id.org/cerif/vocab/ProjectOutputRoles#Originator)">	
 							<xs:annotation>
 								<xs:documentation>The research outputs this project has led to</xs:documentation>
 							</xs:annotation>
@@ -558,7 +558,7 @@ The Project entity only captures details of the project scope and plan. Informat
 							</xs:annotation>
 						</xs:element>
 						
-						<xs:element name="PartOf" minOccurs="0" cflink:link="https://w3id.org/cerif/model#Funding_Funding(https://w3id.org/cerif/vocab/Inter-­FundingRelations#Part):1">
+						<xs:element name="PartOf" minOccurs="0" cflink:link="https://w3id.org/cerif/model#Funding_Funding(https://w3id.org/cerif/vocab/Inter­FundingRelations#Part):1">
 							<xs:annotation>
 								<xs:documentation>Chain up to the larger funding that encompasses this funding</xs:documentation>
 							</xs:annotation>
@@ -666,7 +666,7 @@ This entity typically represents the granularity level of a single published ite
 							</xs:annotation>
 						</xs:element>
 
-						<xs:element name="PublishedIn" minOccurs="0" cflink:link="https://w3id.org/cerif/model#ResultPublication_ResultPublication(https://w3id.org/cerif/vocab/Inter-PublicationRelations#Publication):1">
+						<xs:element name="PublishedIn" minOccurs="0" cflink:link="https://w3id.org/cerif/model#ResultPublication_ResultPublication(https://w3id.org/cerif/vocab/InterPublicationRelations#Publication):1">
 							<xs:annotation>
 								<xs:documentation>The source (another Publication) where this publication appeared. E.g. a journal article lists here the journal where it appeared. To be used for a publishing channel.</xs:documentation>
 							</xs:annotation>
@@ -681,7 +681,7 @@ This entity typically represents the granularity level of a single published ite
 							</xs:complexType>
 						</xs:element>
 
-						<xs:element cflink:link="https://w3id.org/cerif/model#ResultPublication_ResultPublication(https://w3id.org/cerif/vocab/Inter-PublicationRelations#Part):1" name="PartOf" minOccurs="0">
+						<xs:element cflink:link="https://w3id.org/cerif/model#ResultPublication_ResultPublication(https://w3id.org/cerif/vocab/InterPublicationRelations#Part):1" name="PartOf" minOccurs="0">
 							<xs:annotation>
 								<xs:documentation>The Publication of which this publication is a part. E.g. a book chapter lists here the book that contains it. To be used for a containing publication.</xs:documentation>
 							</xs:annotation>
@@ -696,7 +696,7 @@ This entity typically represents the granularity level of a single published ite
 							</xs:complexType>
 						</xs:element>
 
-						<xs:element cflink:attribute="https://w3id.org/cerif/model#ResultPublication.ResPublDate" name="PublicationDate" type="cfGenericDateTime__Type" minOccurs="0">
+						<xs:element cflink:attribute="https://w3id.org/cerif/model#ResultPublication.ResultPublicationDate" name="PublicationDate" type="cfGenericDateTime__Type" minOccurs="0">
 							<xs:annotation>
 								<xs:documentation>The date the publication appeared</xs:documentation>
 							</xs:annotation>
@@ -816,7 +816,7 @@ This entity typically represents the granularity level of a single published ite
 							<!-- any class scheme of the 'status' character -->
 						</xs:element>
 
-						<xs:element name="OriginatesFrom" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#Project_ResultPublication(https://w3id.org/cerif/vocab/Project_Output_Roles#Originator) https://w3id.org/cerif/model#ResultPublication_Funding(https://w3id.org/cerif/vocab/Funding_Output_Roles#Originator)">
+						<xs:element name="OriginatesFrom" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#Project_ResultPublication(https://w3id.org/cerif/vocab/ProjectOutputRoles#Originator) https://w3id.org/cerif/model#ResultPublication_Funding(https://w3id.org/cerif/vocab/Funding_Output_Roles#Originator)">
 							<xs:complexType>
 								<xs:complexContent>
 									<xs:extension base="cfLink__BaseType">
@@ -927,7 +927,7 @@ Source: Wikipedia
 						
 						<!-- TODO -->
 						
-						<xs:element name="OriginatesFrom" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#Project_ResultPatent(https://w3id.org/cerif/vocab/Project_Output_Roles#Originator) https://w3id.org/cerif/model#ResultPatent_Funding(https://w3id.org/cerif/vocab/Funding_Output_Roles#Originator)">
+						<xs:element name="OriginatesFrom" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#Project_ResultPatent(https://w3id.org/cerif/vocab/ProjectOutputRoles#Originator) https://w3id.org/cerif/model#ResultPatent_Funding(https://w3id.org/cerif/vocab/Funding_Output_Roles#Originator)">
 							<xs:complexType>
 								<xs:complexContent>
 									<xs:extension base="cfLink__BaseType">
@@ -1033,7 +1033,7 @@ This includes:
 							</xs:annotation>
 						</xs:element>
 						
-						<xs:element cflink:link="https://w3id.org/cerif/model#ResultProduct_ResultProduct(https://w3id.org/cerif/vocab/Inter-ProductRelations#Part):1" name="PartOf" minOccurs="0">
+						<xs:element cflink:link="https://w3id.org/cerif/model#ResultProduct_ResultProduct(https://w3id.org/cerif/vocab/InterProductRelations#Part):1" name="PartOf" minOccurs="0">
 							<xs:annotation>
 								<xs:documentation>Link to the research output of which this product is a part (e.g. a data set collection that contains it)</xs:documentation>
 							</xs:annotation>
@@ -1054,7 +1054,7 @@ This includes:
 							</xs:annotation>
 							<xs:complexType>
 								<xs:sequence>
-									<xs:element cflink:link="https://w3id.org/cerif/model#ResultProduct_ResultProduct(https://w3id.org/cerif/vocab/Inter-ProductRelations#Part):2 https://w3id.org/cerif/model#ResultPublication_ResultProduct(https://w3id.org/cerif/vocab/Inter-OutputRelations#Part):2 https://w3id.org/cerif/model#ResultProduct_ResultPatent(https://w3id.org/cerif/vocab/Inter-OutputRelations#Part):2" name="Part" minOccurs="0" maxOccurs="unbounded">
+									<xs:element cflink:link="https://w3id.org/cerif/model#ResultProduct_ResultProduct(https://w3id.org/cerif/vocab/InterProductRelations#Part):2 https://w3id.org/cerif/model#ResultPublication_ResultProduct(https://w3id.org/cerif/vocab/InterOutputRelations#Part):2 https://w3id.org/cerif/model#ResultProduct_ResultPatent(https://w3id.org/cerif/vocab/InterOutputRelations#Part):2" name="Part" minOccurs="0" maxOccurs="unbounded">
 										<xs:annotation>
 											<xs:documentation>Links to the research outputs that make up this product</xs:documentation>
 										</xs:annotation>
@@ -1072,7 +1072,7 @@ This includes:
 							</xs:complexType>
 						</xs:element>
 
-						<xs:element name="OriginatesFrom" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#Project_ResultProduct(https://w3id.org/cerif/vocab/Project_Output_Roles#Originator) https://w3id.org/cerif/model#ResultProduct_Funding(https://w3id.org/cerif/vocab/Funding_Output_Roles#Originator)">
+						<xs:element name="OriginatesFrom" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#Project_ResultProduct(https://w3id.org/cerif/vocab/ProjectOutputRoles#Originator) https://w3id.org/cerif/model#ResultProduct_Funding(https://w3id.org/cerif/vocab/Funding_Output_Roles#Originator)">
 							<xs:complexType>
 								<xs:complexContent>
 									<xs:extension base="cfLink__BaseType">
