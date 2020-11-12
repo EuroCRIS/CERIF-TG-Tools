@@ -664,6 +664,12 @@ This entity typically represents the granularity level of a single published ite
 							</xs:annotation>
 						</xs:element>
 
+						<xs:element name="NameAbbreviation" type="cfMLangString__Type" minOccurs="0" maxOccurs="unbounded" cflink:attribute="https://w3id.org/cerif/model#ResultPublication.NameAbbreviation">
+							<xs:annotation>
+								<xs:documentation>The abbreviation of the title of the publication. E.g. the acronym of a journal.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+
 						<xs:element name="PublishedIn" minOccurs="0" cflink:link="https://w3id.org/cerif/model#ResultPublication_ResultPublication(https://w3id.org/cerif/vocab/InterPublicationRelations#Publication):1">
 							<xs:annotation>
 								<xs:documentation>The source (another Publication) where this publication appeared. E.g. a journal article lists here the journal where it appeared. To be used for a publishing channel.</xs:documentation>
