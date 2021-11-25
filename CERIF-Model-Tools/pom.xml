@@ -3,6 +3,9 @@
 	<artifactId>cerif-model-tools</artifactId>
 	<name>CERIF Model Tools</name>
 	<description>A set of tools to work with the CERIF data model</description>
+	<properties>
+		<mainclass>org.eurocris.cerif.tools.CerifXmlSchemaExpander</mainclass>
+	</properties>
 	<build>
 		<plugins>
 			<plugin>
@@ -77,6 +80,40 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+			    <groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-dependency-plugin</artifactId>
+			    <version>3.2.0</version>
+			    <executions>
+			        <execution>
+			            <id>copy-dependencies</id>
+			            <phase>prepare-package</phase>
+			            <goals>
+			                <goal>copy-dependencies</goal>
+			            </goals>
+			            <configuration>
+			                <outputDirectory>${project.build.directory}/lib</outputDirectory>
+			                <overWriteReleases>false</overWriteReleases>
+			                <overWriteSnapshots>false</overWriteSnapshots>
+			                <overWriteIfNewer>true</overWriteIfNewer>
+			            </configuration>
+			        </execution>
+			    </executions>
+			</plugin>
+			<plugin>
+			    <groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-jar-plugin</artifactId>
+			    <version>3.2.0</version>
+			    <configuration>
+			        <archive>
+			            <manifest>
+			                <addClasspath>true</addClasspath>
+			                <classpathPrefix>lib/</classpathPrefix>
+			                <mainClass>${mainclass}</mainClass>
+			            </manifest>
+			        </archive>
+			    </configuration>
+			</plugin>
 		</plugins>
 	</build>
 	<dependencies>
@@ -98,13 +135,13 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.12</version>
+			<version>4.13.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>2.4</version>
+			<version>2.7</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.xml.bind</groupId>
