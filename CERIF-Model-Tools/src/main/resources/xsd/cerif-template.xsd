@@ -864,19 +864,19 @@ Source: Wikipedia
 						
 						<xs:element name="RegistrationDate" type="cfDate__Type" minOccurs="0" cflink:link="https://w3id.org/cerif/model#ResultPatent_Classification.StartDate(https://w3id.org/cerif/vocab/PatentStatuses#Filed)">
 							<xs:annotation>
-								<xs:documentation>When the patent was filed with the patent office</xs:documentation>
+								<xs:documentation>Date on which the application was physically received at the Patent Authority. Also named Filing Date</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						
 						<xs:element name="PublicationDate" type="cfDate__Type" minOccurs="0" cflink:link="https://w3id.org/cerif/model#ResultPatent_Classification.StartDate(https://w3id.org/cerif/vocab/PatentStatuses#Published)">
 							<xs:annotation>
-								<xs:documentation>When the patent was published by the patent office (this can sometimes happen before the patent is granted)</xs:documentation>
+								<xs:documentation>Date of making available to the public by printing or similar process of a patent document on which grant has taken place on or before the said date</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						
 						<xs:element name="ApprovalDate" type="cfDate__Type" minOccurs="0" cflink:link="https://w3id.org/cerif/model#ResultPatent_Classification.StartDate(https://w3id.org/cerif/vocab/PatentStatuses#Granted)">
 							<xs:annotation>
-								<xs:documentation>When the patent was granted by the patent office</xs:documentation>
+								<xs:documentation>Date on which the application has been granted by the Patent Office</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						
