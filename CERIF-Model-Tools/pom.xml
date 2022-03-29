@@ -5,20 +5,27 @@
 	<description>A set of tools to work with the CERIF data model</description>
 	<properties>
 		<mainclass>org.eurocris.cerif.tools.CerifXmlSchemaExpander</mainclass>
+		<maven.compiler.version>17</maven.compiler.version>
 	</properties>
 	<build>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.3</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>${maven.compiler.version}</source>
+					<target>${maven.compiler.version}</target>
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.jvnet.jaxb2.maven2</groupId>
 				<artifactId>maven-jaxb2-plugin</artifactId>
+				<dependencies>
+					<dependency>
+						<groupId>org.glassfish.jaxb</groupId>
+						<artifactId>jaxb-runtime</artifactId>
+						<version>2.3.6</version>
+					</dependency>
+				</dependencies>
 				<executions>
 					<execution>
 						<phase>generate-sources</phase>
@@ -144,9 +151,9 @@
 			<version>2.7</version>
 		</dependency>
 		<dependency>
-			<groupId>com.sun.xml.bind</groupId>
-			<artifactId>jaxb-impl</artifactId>
-			<version>2.2.3-1</version>
+			<groupId>org.glassfish.jaxb</groupId>
+			<artifactId>jaxb-runtime</artifactId>
+			<version>2.3.6</version>
 		</dependency>
 	</dependencies>
 	<parent>
