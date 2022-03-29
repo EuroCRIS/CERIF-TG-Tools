@@ -24,13 +24,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.xpath.XPath;
@@ -138,8 +138,7 @@ public class CerifXmlSchemaExpander {
 
 	private CerifXmlSchemaExpander( final File defFile ) throws TransformerConfigurationException, JAXBException, SAXException, IOException, ParserConfigurationException {
 		this.defFile = defFile;
-		transformer = transformerFactory.newTransformer();
-		transformer.setOutputProperty( OutputKeys.INDENT, "yes" );
+		transformer = transformerFactory.newTransformer( new StreamSource( getClass().getClassLoader().getResourceAsStream("xslt/remove-blank-nodes.xslt") ) );
 
 		final JAXBContext jc = JAXBContext.newInstance( CERIFProfile.class.getPackage().getName() );
 		final Unmarshaller u = jc.createUnmarshaller();
