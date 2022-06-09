@@ -798,7 +798,7 @@ This entity typically represents the granularity level of a single published ite
 
 						<xs:element name="License" type="cfGenericURIClassification__Type" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#ResultPublication_Classification" cfprocess:expandBy="Classification(License)">
 							<xs:annotation>
-								<xs:documentation>The license of the publication</xs:documentation>
+								<xs:documentation>The license of the publication. We recommend using URIs from the SPDX License List (https://spdx.org/licenses/), which includes the Creative Commons licenses.</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 
@@ -1033,7 +1033,7 @@ This includes:
 
 						<xs:element name="License" type="cfGenericURIClassification__Type" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#ResultProduct_Classification" cfprocess:expandBy="Classification(License)">
 							<xs:annotation>
-								<xs:documentation>The license of the product</xs:documentation>
+								<xs:documentation>The license of the product. We recommend using URIs from the SPDX License List (https://spdx.org/licenses/), which includes the licenses commonly used for software and datasets.</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 
