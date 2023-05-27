@@ -53,7 +53,13 @@ import org.eurocris.cerif.profile.def.CERIFProfile.Entities.Entity.Classificatio
 import org.eurocris.cerif.profile.def.CERIFProfile.Entities.Entity.Identifier;
 import org.eurocris.cerif.profile.def.CERIFProfile.Entities.Entity.IdentifiersFrom;
 import org.eurocris.cerif.profile.def.CERIFProfile.Entities.Entity.Link;
+import org.eurocris.cerif.profile.def.NamedGroup;
+import org.eurocris.cerif.profile.def.ObjectFactory;
 import org.eurocris.cerif.profile.def.OpenAttrs;
+import org.eurocris.cerif.profile.def.TopLevelAttribute;
+import org.eurocris.cerif.profile.def.TopLevelComplexType;
+import org.eurocris.cerif.profile.def.TopLevelElement;
+import org.eurocris.cerif.profile.def.TopLevelSimpleType;
 import org.eurocris.cerif.utils.XMLUtils;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -170,6 +176,7 @@ public class CerifXmlSchemaExpander {
 		expandIdentifiers( doc, firstIncludeElement, outDir );
 		expandTails( doc );
 		addSchemaHeads( doc, firstIncludeElement );
+		addSchemaRest( doc );
 		removeProcessingInstructions( doc );
 		writeOut( doc, outFile );
 		System.out.println( "Written out file " + outFile + " of " + outFile.length() + " B" );
@@ -241,6 +248,13 @@ public class CerifXmlSchemaExpander {
 					insertNewlineBefore( firstIncludeElement );
 				}
 			}
+		}
+	}
+
+	protected void addSchemaRest( final Document doc ) throws XPathExpressionException, JAXBException {
+		final Element elSchemaRoot = doc.getDocumentElement();
+		for ( final OpenAttrs x : def.getSimpleTypeOrComplexTypeOrGroup() ) {
+			marshalAsLastChild( elSchemaRoot, x );
 		}
 	}
 
@@ -488,7 +502,7 @@ public class CerifXmlSchemaExpander {
 	}
 
 	protected Element marshalAsLastChild( final Element el2, final Object a ) throws JAXBException {
-		marshaller.marshal( a, el2 );
+		marshaller.marshal( wrapForMarshall( a ), el2 );
 		final Element e = (Element) el2.getLastChild();
 		e.removeAttribute( "xmlns" );
 		return e;
@@ -535,6 +549,23 @@ public class CerifXmlSchemaExpander {
 		final XPath xPath = xpathFactory.newXPath();
 		xPath.setNamespaceContext( nsCtx );
 		return xPath;
+	}
+
+	protected Object wrapForMarshall( final Object x ) {
+		final ObjectFactory of = new ObjectFactory();
+		if ( x instanceof TopLevelComplexType ) {
+			return of.createComplexType( (TopLevelComplexType) x );
+		} else if ( x instanceof TopLevelSimpleType ) {
+			return of.createSimpleType( (TopLevelSimpleType) x );
+		} else if ( x instanceof TopLevelAttribute ) {
+			return of.createAttribute( (TopLevelAttribute) x );
+		} else if ( x instanceof TopLevelElement ) {
+			return of.createElement( (TopLevelElement) x );
+		} else if ( x instanceof NamedGroup ) {
+			return of.createGroup( (NamedGroup) x );
+		} else {
+			return x;
+		}
 	}
 
 	protected void writeOut( final Document doc, final File outputXsdFile ) throws TransformerException {
