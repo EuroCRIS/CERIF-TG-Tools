@@ -1367,6 +1367,70 @@ Definition Source: http://wordnetweb.princeton.edu/perl/webwn?s=equipment
 		</xs:complexType>
 	</xs:element>
 
+	<xs:element name="Medium" substitutionGroup="Individual__SubstitutionGroupHead" cflink:entity="https://w3id.org/cerif/model#Medium">
+		<xs:annotation>
+			<xs:documentation><![CDATA[]]></xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="cfIdAttr__BaseType">
+					<xs:sequence>
+
+						<xs:element name="Type" type="cfGenericURIClassification__Type" minOccurs="0" maxOccurs="unbounded" cflink:link="https://w3id.org/cerif/model#Medium_Classification" cfprocess:expandBy="Classification(Type)">
+							<xs:annotation>
+								<xs:documentation>The type of the medium</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+		
+						<xs:element name="Title" type="cfMLangString__Type" minOccurs="0" maxOccurs="unbounded" cflink:attribute="https://w3id.org/cerif/model#Medium.Title">
+							<xs:annotation>
+								<xs:documentation>Name of the medium</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+		
+						<xs:element name="URI" type="cfURI__Type" minOccurs="0" cflink:attribute="https://w3id.org/cerif/model#Medium.UniformResourceIdenfier">
+							<xs:annotation>
+								<xs:documentation>An URI of this medium</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						
+						<xs:element name="MimeType" type="cfString__Type" minOccurs="0" cflink:attribute="https://w3id.org/cerif/model#Medium.MimeType">
+							<xs:annotation>
+								<xs:documentation>The MIME type of the medium</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+		
+						<xs:element name="Size" type="cfNonnegativeInteger__Type" minOccurs="0" cflink:attribute="https://w3id.org/cerif/model#Medium.Size">
+							<xs:annotation>
+								<xs:documentation>The size (in octets) of the medium</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+		
+						<xs:element name="Identifier" type="cfGenericIdentifier__Type" minOccurs="0" maxOccurs="unbounded" cflink:identifier="true" cfprocess:expandBy="https://w3id.org/cerif/vocab/IdentifierTypes#">
+							<xs:annotation>
+								<xs:documentation>An identifier of this medium</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						
+						<xs:element name="Description" type="cfMLangString__Type" minOccurs="0" maxOccurs="unbounded" cflink:attribute="https://w3id.org/cerif/model#Medium.Description">
+							<xs:annotation>
+								<xs:documentation>Description of the medium</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						
+						<xs:element name="Keyword" type="cfMLangString__Type" minOccurs="0" maxOccurs="unbounded" cflink:attribute="https://w3id.org/cerif/model#Medium.Keywords">
+							<xs:annotation>
+								<xs:documentation>The keywords associated with the medium</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+		
+						<xs:group ref="__TheRestGroup"/>
+		
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
 
 <!-- 
 	<xs:element name="" substitutionGroup="Individual__SubstitutionGroupHead" cflink:entity="">
